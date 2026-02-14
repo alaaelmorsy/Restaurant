@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تخصيص الأسعار - نظام الرابط</title>
+    <style>
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-ExtraLight.ttf') format('truetype'); font-weight: 200; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Light.ttf') format('truetype'); font-weight: 300; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-ExtraBold.ttf') format('truetype'); font-weight: 800; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Black.ttf') format('truetype'); font-weight: 900; font-display: swap; }
+    </style>
+    <style>
+      :root {
+        --primary: #6366f1;
+        --primary-50: #eef2ff;
+        --primary-100: #e0e7ff;
+        --primary-200: #c7d2fe;
+        --primary-500: #6366f1;
+        --primary-600: #5b21b6;
+        --primary-700: #4c1d95;
+        --primary-900: #312e81;
+
+        --secondary: #f59e0b;
+        --success: #10b981;
+        --success-50: #ecfdf5;
+        --success-200: #bbf7d0;
+        --success-500: #10b981;
+        --success-600: #059669;
+        --warning: #f59e0b;
+        --warning-50: #fffbeb;
+        --warning-200: #fde68a;
+        --warning-500: #f59e0b;
+        --danger: #ef4444;
+        --danger-50: #fef2f2;
+        --danger-200: #fecaca;
+        --danger-500: #ef4444;
+        --danger-600: #dc2626;
+
+        --white: #ffffff;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+
+        --bg-body: linear-gradient(to bottom right, #f9fafb, #dbeafe, #f3e8ff);
+        --bg-card: rgba(255, 255, 255, 0.95);
+        --bg-card-hover: rgba(255, 255, 255, 1);
+        --bg-surface: rgba(255, 255, 255, 0.9);
+
+        --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+        --space-1: 0.25rem;
+        --space-2: 0.5rem;
+        --space-3: 0.75rem;
+        --space-4: 1rem;
+        --space-5: 1.25rem;
+        --space-6: 1.5rem;
+        --space-8: 2rem;
+        --space-10: 2.5rem;
+        --space-12: 3rem;
+        --space-16: 4rem;
+        --space-20: 5rem;
+
+        --radius-sm: 0.375rem;
+        --radius-md: 0.5rem;
+        --radius-lg: 0.75rem;
+        --radius-xl: 1rem;
+        --radius-2xl: 1.25rem;
+        --radius-3xl: 1.5rem;
+        --radius-full: 9999px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--bg-body);
+        min-height: 100vh;
+        color: var(--gray-900);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .header {
+        background: var(--white);
+        border-bottom: 4px solid #3b82f6;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      }
+
+      .header-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-4) var(--space-6);
+      }
+
+      .header-brand {
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+      }
+
+      .header-logo {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(to bottom right, #f59e0b, #f97316);
+        border-radius: var(--radius-xl);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        box-shadow: var(--shadow-xl);
+        color: white;
+      }
+
+      .header-title {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--gray-900);
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+
+      .header-subtitle {
+        font-size: 14px;
+        color: var(--gray-600);
+        font-weight: 500;
+        margin-top: var(--space-1);
+      }
+
+      .header-nav {
+        display: flex;
+        gap: var(--space-3);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-3) var(--space-5);
+        border: 1px solid var(--gray-300);
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--gray-700);
+        text-decoration: none;
+        cursor: pointer;
+        font-family: 'Cairo', sans-serif;
+      }
+
+      .btn:hover {
+        box-shadow: var(--shadow-lg);
+      }
+
+      .btn.primary {
+        background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+        border-color: transparent;
+        color: var(--white);
+        box-shadow: var(--shadow-md);
+      }
+
+      .btn.primary:hover {
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        box-shadow: var(--shadow-xl);
+      }
+
+      .btn.secondary {
+        background: linear-gradient(135deg, #64748b, #475569);
+        border-color: transparent;
+        color: var(--white);
+      }
+
+      .btn.secondary:hover {
+        background: linear-gradient(135deg, #475569, #334155);
+      }
+
+      .btn.danger {
+        background: linear-gradient(135deg, var(--danger-500), var(--danger-600));
+        border-color: transparent;
+        color: var(--white);
+      }
+
+      .btn.danger:hover {
+        background: linear-gradient(135deg, var(--danger-600), #b91c1c);
+      }
+      .container { 
+        max-width: 1400px; 
+        margin: 0 auto; 
+        padding: var(--space-8) var(--space-6); 
+      }
+
+      .card {
+        background: var(--bg-card);
+        backdrop-filter: blur(20px);
+        border-radius: var(--radius-2xl);
+        box-shadow: var(--shadow-xl);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        margin-bottom: var(--space-6);
+      }
+
+      .card-body {
+        padding: var(--space-8);
+      }
+
+      .actions { 
+        display: flex; 
+        gap: var(--space-4); 
+        margin-bottom: var(--space-6); 
+        align-items: center; 
+        justify-content: space-between; 
+        flex-wrap: wrap; 
+      }
+
+      .toolbar { 
+        display: flex; 
+        gap: var(--space-3); 
+        align-items: center; 
+        flex-wrap: wrap;
+      }
+
+      input, select { 
+        padding: var(--space-3) var(--space-4); 
+        border: 2px solid var(--gray-200); 
+        border-radius: var(--radius-lg); 
+        background: var(--white); 
+        color: var(--gray-900); 
+        font-size: 14px; 
+        font-family: 'Cairo', sans-serif;
+        font-weight: 600;
+      }
+
+      input:focus, select:focus { 
+        outline: none; 
+        border-color: var(--primary-500); 
+        background: var(--white); 
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); 
+      }
+
+      input::placeholder { 
+        color: var(--gray-400); 
+        font-weight: 500;
+      }
+
+      .search-section { 
+        background: linear-gradient(135deg, var(--primary-50), var(--primary-100)); 
+        padding: var(--space-6); 
+        border-radius: var(--radius-2xl);
+      }
+
+      table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        background: var(--white); 
+      }
+
+      th, td { 
+        text-align: right; 
+        padding: var(--space-4) var(--space-5); 
+        border-bottom: 1px solid var(--gray-100); 
+        vertical-align: middle;
+      }
+
+      th { 
+        background: linear-gradient(135deg, var(--gray-50), var(--gray-100)); 
+        color: var(--gray-700); 
+        font-weight: 700; 
+        font-size: 13px; 
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      tbody tr {
+        background: var(--white);
+      }
+
+      tbody tr:hover { 
+        background: var(--gray-50); 
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      .muted { 
+        color: var(--gray-500); 
+        font-size: 13px; 
+        font-weight: 500;
+      }
+
+      .tag { 
+        display: inline-flex; 
+        align-items: center; 
+        gap: var(--space-1); 
+        padding: var(--space-1) var(--space-3); 
+        border-radius: var(--radius-full); 
+        background: var(--primary-50); 
+        color: var(--primary-600); 
+        border: 1px solid var(--primary-200); 
+        font-size: 12px; 
+        font-weight: 600; 
+      }
+      
+      .suggest { 
+        position: relative; 
+      }
+
+      .suggest-list { 
+        position: absolute; 
+        z-index: 50; 
+        left: 0; 
+        right: 0; 
+        top: 100%; 
+        background: var(--white); 
+        border: 2px solid var(--gray-200); 
+        border-radius: var(--radius-lg); 
+        max-height: 240px; 
+        overflow: auto; 
+        display: none; 
+        box-shadow: var(--shadow-xl); 
+      }
+
+      .suggest-item { 
+        padding: var(--space-3) var(--space-4); 
+        border-bottom: 1px solid var(--gray-100); 
+        cursor: pointer; 
+        font-size: 14px; 
+        font-weight: 600;
+      }
+
+      .suggest-item:hover, .suggest-item:focus { 
+        background: var(--primary-50); 
+        color: var(--primary-600); 
+      }
+
+      .suggest-item:last-child { 
+        border-bottom: none; 
+      }
+      
+      .modal-backdrop { 
+        position: fixed; 
+        inset: 0; 
+        background: rgba(0, 0, 0, 0.5); 
+        display: none; 
+        align-items: center; 
+        justify-content: center; 
+        backdrop-filter: blur(4px); 
+        z-index: 1000; 
+      }
+
+      .modal { 
+        width: 900px; 
+        max-width: 95vw; 
+        background: var(--white); 
+        border-radius: var(--radius-2xl); 
+        padding: 0; 
+        box-shadow: var(--shadow-2xl); 
+        max-height: 90vh; 
+        display: flex; 
+        flex-direction: column; 
+      }
+
+      .modal header { 
+        background: linear-gradient(135deg, var(--primary-500), var(--primary-600)); 
+        color: var(--white); 
+        padding: var(--space-6) var(--space-8); 
+        border-top-left-radius: var(--radius-2xl); 
+        border-top-right-radius: var(--radius-2xl); 
+        font-size: 18px; 
+        font-weight: 800; 
+      }
+
+      .modal .body { 
+        padding: var(--space-8); 
+        display: grid; 
+        gap: var(--space-6); 
+        background: var(--white); 
+        overflow: auto; 
+        max-height: calc(90vh - 120px); 
+      }
+
+      .grid { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: var(--space-4); 
+      }
+
+      .row { 
+        display: flex; 
+        gap: var(--space-3); 
+        align-items: center; 
+      }
+
+      .help { 
+        font-size: 13px; 
+        color: var(--gray-600); 
+        line-height: 1.6; 
+        font-weight: 500;
+      }
+
+      .list { 
+        border-radius: var(--radius-2xl); 
+        overflow: hidden; 
+      }
+      
+      .modal label { 
+        display: block; 
+        margin-bottom: var(--space-2); 
+        font-weight: 700; 
+        color: var(--gray-700); 
+        font-size: 14px; 
+      }
+
+      .modal input, .modal select { 
+        width: 100%; 
+      }
+
+      .modal .suggest-item { 
+        font-size: 13px; 
+        padding: var(--space-2) var(--space-3); 
+      }
+      
+      .selected-item { 
+        background: linear-gradient(135deg, var(--success-50), var(--success-200)); 
+        color: var(--success-600); 
+        padding: var(--space-2) var(--space-3); 
+        border-radius: var(--radius-lg); 
+        font-size: 13px; 
+        font-weight: 700;
+        margin-top: var(--space-2); 
+        display: inline-block; 
+      }
+
+      .product-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
+        color: var(--primary-600);
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-lg);
+        font-size: 13px;
+        font-weight: 700;
+        border: 1px solid var(--primary-200);
+      }
+
+      .product-tag .remove-btn {
+        cursor: pointer;
+        background: var(--danger-500);
+        color: white;
+        border: none;
+        border-radius: var(--radius-full);
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 0;
+      }
+
+      .product-tag .remove-btn:hover {
+        background: var(--danger-600);
+      }
+      
+      .empty-state { 
+        text-align: center; 
+        padding: var(--space-10) var(--space-6); 
+        color: var(--gray-500); 
+      }
+
+      .empty-state h3 { 
+        margin: 0 0 var(--space-2) 0; 
+        font-size: 18px; 
+        font-weight: 700;
+        color: var(--gray-700);
+      }
+
+      .empty-state p { 
+        margin: 0; 
+        font-size: 14px; 
+        font-weight: 500;
+      }
+      
+      .price-cash { 
+        color: var(--success-600); 
+        font-weight: 700; 
+      }
+
+      .price-discount { 
+        color: var(--warning-500); 
+        font-weight: 700; 
+      }
+      
+      @media (max-width: 1024px) {
+        .modal { 
+          width: 95vw; 
+        }
+        .grid { 
+          grid-template-columns: 1fr; 
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container { 
+          padding: var(--space-4); 
+        }
+        .actions { 
+          flex-direction: column; 
+          align-items: stretch; 
+          gap: var(--space-3); 
+        }
+        .toolbar { 
+          flex-direction: column; 
+          align-items: stretch; 
+        }
+        table { 
+          font-size: 13px; 
+        }
+        th, td { 
+          padding: var(--space-3) var(--space-2); 
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="header-content">
+        <div class="header-brand">
+          <div class="header-logo">💰</div>
+          <div>
+            <div class="header-title">تخصيص الأسعار</div>
+            <div class="header-subtitle">إدارة الأسعار المخصصة للعملاء</div>
+          </div>
+        </div>
+        <nav class="header-nav">
+          <button class="btn secondary" id="backBtn">⬅ عودة</button>
+        </nav>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="card">
+        <div class="search-section">
+          <div class="actions">
+            <div style="display:flex; align-items:center; gap:var(--space-2);">
+              <span style="font-size:20px;">✨</span>
+              <strong style="font-size:18px; color:var(--primary-600); font-weight:800;">البحث والإضافة</strong>
+            </div>
+            <div class="toolbar">
+              <input id="searchBox" placeholder="🔍 بحث عن عميل، منتج، جوال أو باركود..." style="min-width:300px;" />
+              <button class="btn primary" id="searchBtn">🔍 بحث</button>
+              <button class="btn primary" id="addBtn">➕ إضافة تخصيص</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align:center; width:50px;">#</th>
+                <th style="min-width:180px;">👤 العميل</th>
+                <th style="min-width:180px;">📦 المنتج</th>
+                <th style="text-align:center; width:120px;">⚙️ العملية</th>
+                <th style="text-align:center; width:140px;">💰 التخصيص</th>
+                <th style="text-align:center; width:160px;">🔧 إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="rulesTbody">
+              <tr>
+                <td colspan="6" style="text-align:center; padding:40px; color:var(--gray-500);">
+                  ⏳ جاري تحميل البيانات...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div style="padding:var(--space-6); background:linear-gradient(135deg, var(--primary-50), var(--primary-100)); border-radius:var(--radius-2xl);">
+          <div style="display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-2);">
+            <span style="font-size:20px;">💡</span>
+            <strong style="color:var(--primary-600); font-weight:800;">نصائح مفيدة:</strong>
+          </div>
+          <div class="help">
+            • يمكنك تخصيص <strong>سعر نقدي ثابت</strong> أو <strong>خصم نسبة مئوية</strong> على السعر الأساسي<br>
+            • يمكنك اختيار <strong>عدة منتجات</strong> وتطبيق نفس التخصيص عليهم مرة واحدة<br>
+            • عند اختيار عملية محددة، سيتم تطبيق التخصيص على تلك العملية فقط<br>
+            • بدون تحديد عملية، سيُطبق التخصيص على المنتج بشكل عام لهذا العميل
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true">
+      <div class="modal">
+        <header>
+          <span>✨ إضافة/تعديل تخصيص سعر</span>
+        </header>
+        <div class="body">
+          <div class="grid">
+            <!-- بحث العميل -->
+            <div>
+              <label>👤 العميل المستهدف</label>
+              <div class="suggest">
+                <input id="custSearch" placeholder="ابحث بالاسم أو رقم الجوال..." />
+                <div id="custSuggest" class="suggest-list"></div>
+              </div>
+              <div class="selected-item" id="custSelected" style="margin-top:8px; display:none;"></div>
+            </div>
+            
+            <!-- بحث المنتج -->
+            <div>
+              <label>📦 المنتجات المستهدفة (يمكن اختيار أكثر من منتج)</label>
+              <div class="suggest">
+                <input id="prodSearch" placeholder="ابحث بالاسم أو الباركود..." />
+                <div id="prodSuggest" class="suggest-list"></div>
+              </div>
+              <div id="prodSelectedList" style="margin-top:8px; display:none; flex-wrap:wrap; gap:8px;"></div>
+            </div>
+            
+            <!-- العملية -->
+            <div id="opBox" style="display:none;">
+              <label>⚙️ العملية (اختياري)</label>
+              <select id="opSelect">
+                <option value="">اختر العملية...</option>
+              </select>
+              <div class="help" style="margin-top:4px;">تحديد عملية معينة (حجم مثلاً) أو تركه فارغاً للمنتج عموماً</div>
+            </div>
+            
+            <!-- نوع التخصيص -->
+            <div>
+              <label>💰 نوع التخصيص</label>
+              <select id="modeSelect">
+                <option value="cash">💵 سعر نقدي ثابت</option>
+                <option value="percent">📊 خصم نسبة مئوية</option>
+              </select>
+            </div>
+            
+            <!-- القيمة -->
+            <div>
+              <label id="valueLabel">💵 السعر الجديد</label>
+              <input id="valueInput" type="number" step="0.01" min="0" placeholder="أدخل القيمة..." />
+              <div class="help" style="margin-top:4px;" id="valueHelp">أدخل السعر الجديد بالريال</div>
+            </div>
+          </div>
+          
+          <!-- تعيين أسعار لكل عملية -->
+          <div id="bulkOpsBox" style="display:none; margin-top:8px;">
+            <label>⚙️ تحديد أسعار لكل عملية (لنفس المنتج)</label>
+            <div id="bulkOpsList" class="list" style="border:1px solid var(--border); border-radius:12px; overflow:auto; max-height:45vh;"></div>
+            <div class="row" style="justify-content:flex-end; margin-top:12px;">
+              <button class="btn primary" id="saveBulkBtn">💾 حفظ أسعار العمليات</button>
+            </div>
+            <div class="help">يمكنك إدخال سعر جديد لكل عملية. سيتم إنشاء/تحديث تخصيص لكل عملية.</div>
+          </div>
+          
+          <div id="previewSection" style="background:linear-gradient(135deg, var(--success-50), var(--success-100)); padding:var(--space-4); border-radius:var(--radius-xl); margin:var(--space-4) 0; display:none;">
+            <div style="display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-2);">
+              <span style="font-size:18px;">👁️</span>
+              <strong style="color:var(--success-600); font-weight:800;">معاينة التخصيص:</strong>
+            </div>
+            <div id="previewContent" class="help"></div>
+          </div>
+          
+          <div class="row" style="justify-content:flex-end; margin-top:var(--space-6);">
+            <button class="btn" id="cancelModal">❌ إلغاء</button>
+            <button class="btn primary" id="saveRule">💾 حفظ التخصيص</button>
+          </div>
+          
+          <div style="background:linear-gradient(135deg, var(--warning-50), var(--warning-100)); padding:var(--space-4); border-radius:var(--radius-xl); margin-top:var(--space-4);">
+            <div class="help">
+              <strong style="color:var(--warning-600); font-weight:700;">📌 ملاحظات مهمة:</strong><br>
+              • يمكنك اختيار <strong>عدة منتجات</strong> وسيتم تطبيق نفس التخصيص على جميع المنتجات المختارة<br>
+              • عند تحديد عملية: سيُطبق التخصيص على تلك العملية فقط (متاح عند اختيار منتج واحد فقط)<br>
+              • بدون تحديد عملية: سيُطبق التخصيص على المنتج عموماً لهذا العميل<br>
+              • السعر النقدي: يحل محل السعر الأصلي تماماً<br>
+              • الخصم النسبي: يتم تطبيقه على السعر الأساسي (سعر العملية أو سعر المنتج)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>

@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>الرئيسية - POS SA</title>
+    <link href="../../styles/output.css" rel="stylesheet">
+    <style>
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-ExtraBold.ttf') format('truetype'); font-weight: 800; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Black.ttf') format('truetype'); font-weight: 900; font-display: swap; }
+      
+      body {
+        font-family: 'Cairo', sans-serif;
+      }
+
+      .card-hover-effect {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .card-hover-effect:hover {
+        transform: translateY(-8px) scale(1.02);
+      }
+
+      .card-featured {
+        border: 3px solid #fb923c !important;
+        position: relative;
+      }
+
+      .card-featured::before {
+        content: 'إضافة منتج جديد';
+        position: absolute;
+        top: -12px;
+        right: 20px;
+        background: linear-gradient(135deg, #f59e0b, #f97316);
+        color: white;
+        padding: 4px 16px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 800;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-fade-in {
+        animation: fadeInUp 0.6s ease-out forwards;
+      }
+
+      .card-icon {
+        transition: transform 0.3s ease;
+      }
+
+      .card-hover-effect:hover .card-icon {
+        transform: scale(1.1) rotate(5deg);
+      }
+    </style>
+  </head>
+  <body class="bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50 border-b-4 border-blue-500">
+      <div class="container mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <!-- Brand -->
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-2xl font-black text-gray-800 brand-title">الشاشة الرئيسية</h1>
+              <p class="text-sm text-gray-500 font-semibold">نظام إدارة المطاعم</p>
+            </div>
+          </div>
+
+          <!-- Center POS Button -->
+          <div class="flex-1 flex justify-center">
+            <button id="posBtn" class="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+              <span>نقطة البيع</span>
+              <span class="text-xs opacity-75">(F1)</span>
+            </button>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center gap-3">
+            <button id="logoutBtn" class="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold rounded-xl hover:from-red-600 hover:to-red-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+              تسجيل الخروج
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+      <!-- Cards Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 cards">
+        
+        <!-- Row 1: Credit Notes, Invoices, New Invoice -->
+        <div id="cardCreditNotes" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-red-500">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #ef4444, #f97316);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">الفواتير الدائنة</h3>
+            <p class="text-gray-600 font-semibold text-sm">إشعارات دائنة منفصلة</p>
+          </div>
+        </div>
+
+        <div id="cardInvoices" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-green-400">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #22c55e, #86efac);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">الفواتير</h3>
+            <p class="text-gray-600 font-semibold text-sm">عرض وإدارة الفواتير</p>
+          </div>
+        </div>
+
+        <div id="cardCustomers" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-red-400">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #ef4444, #f87171);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">العملاء</h3>
+            <p class="text-gray-600 font-semibold text-sm">إضافة/إدارة العملاء</p>
+          </div>
+        </div>
+
+        <!-- New Invoice -->
+        <div id="cardNewInvoice" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-orange-400">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #f59e0b, #f97316);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">فاتورة جديدة</h3>
+            <p class="text-gray-600 font-semibold text-sm">بدء عملية بيع</p>
+          </div>
+        </div>
+
+        <!-- Row 2: Rooms, Products (Featured), Payments -->
+        <div id="cardRooms" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-pink-400">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #ec4899, #f472b6);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">الغرف</h3>
+            <p class="text-gray-600 font-semibold text-sm">غرف/طاولات المطعم</p>
+          </div>
+        </div>
+
+        <div id="cardProducts" class="card-hover-effect card-featured bg-white rounded-2xl shadow-2xl p-8 cursor-pointer hover:shadow-3xl">
+          <div class="flex flex-col items-center text-center justify-center">
+            <div class="card-icon w-24 h-24 rounded-3xl flex items-center justify-center shadow-2xl mb-5" style="background: linear-gradient(135deg, #f59e0b, #f97316);">
+              <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-black text-gray-800 mb-2">المنتجات</h3>
+            <p class="text-gray-600 font-semibold">إضافة منتج جديد</p>
+          </div>
+        </div>
+
+        <div id="cardPayments" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-purple-400">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">دفع الفاتورة</h3>
+            <p class="text-gray-600 font-semibold text-sm">سداد فواتير الآجل بالكامل</p>
+          </div>
+        </div>
+
+        <!-- Rest of cards -->
+        <div id="cardUsers" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-blue-400">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #3b82f6, #60a5fa);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">المستخدمون</h3>
+            <p class="text-gray-600 font-semibold text-sm">إدارة مستخدمي النظام</p>
+          </div>
+        </div>
+
+        <div id="cardPermissions" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-cyan-400">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #06b6d4, #38bdf8);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">الصلاحيات</h3>
+            <p class="text-gray-600 font-semibold text-sm">تحديد صلاحيات المستخدمين</p>
+          </div>
+        </div>
+
+        <div id="cardTypes" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-indigo-400">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #6366f1, #818cf8);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">الأنواع الرئيسية</h3>
+            <p class="text-gray-600 font-semibold text-sm">إدارة الأنواع الرئيسية</p>
+          </div>
+        </div>
+
+        <div id="cardSettings" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-gray-400">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #6b7280, #9ca3af);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">الإعدادات</h3>
+            <p class="text-gray-600 font-semibold text-sm">معلومات الشركة والضريبة</p>
+          </div>
+        </div>
+
+        <div id="cardOperations" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-teal-400">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #14b8a6, #2dd4bf);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">العمليات</h3>
+            <p class="text-gray-600 font-semibold text-sm">تعريف العمليات وربطها</p>
+          </div>
+        </div>
+
+        <div id="cardKitchen" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-lime-400">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #84cc16, #a3e635);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">طابعات المطبخ</h3>
+            <p class="text-gray-600 font-semibold text-sm">ربط الأقسام بطابعات</p>
+          </div>
+        </div>
+
+        <div id="cardPurchases" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-emerald-400">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #10b981, #34d399);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">المشتريات</h3>
+            <p class="text-gray-600 font-semibold text-sm">إضافة ومراجعة مشتريات</p>
+          </div>
+        </div>
+
+        <div id="cardInventory" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-sky-400">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #0ea5e9, #38bdf8);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">المخزون</h3>
+            <p class="text-gray-600 font-semibold text-sm">تعريف عناصر المخزون</p>
+          </div>
+        </div>
+
+        <div id="cardCustomerPricing" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-cyan-500">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #06b6d4, #67e8f9);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">تخصيص أسعار</h3>
+            <p class="text-gray-600 font-semibold text-sm">أسعار خاصة للعملاء</p>
+          </div>
+        </div>
+
+        <div id="cardOffers" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-yellow-400">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #eab308, #facc15);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">العروض والكوبونات</h3>
+            <p class="text-gray-600 font-semibold text-sm">عروض وكوبونات خصم</p>
+          </div>
+        </div>
+
+        <div id="cardDrivers" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-blue-500">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #3b82f6, #60a5fa);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">السائقون</h3>
+            <p class="text-gray-600 font-semibold text-sm">تسجيل وإدارة السائقين</p>
+          </div>
+        </div>
+
+        <div id="cardReports" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-purple-500">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">التقارير</h3>
+            <p class="text-gray-600 font-semibold text-sm">تقارير المبيعات</p>
+          </div>
+        </div>
+
+        <div id="cardZatca" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-green-500">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #10b981, #34d399);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">الفاتورة الإلكترونية</h3>
+            <p class="text-gray-600 font-semibold text-sm">إعداد نظام ZATCA</p>
+          </div>
+        </div>
+
+        <div id="cardWhatsApp" class="card-hover-effect bg-white rounded-2xl shadow-xl p-6 cursor-pointer border-2 border-transparent hover:border-green-600">
+          <div class="flex flex-col items-center text-center">
+            <div class="card-icon w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg mb-4" style="background: linear-gradient(135deg, #25d366, #128c7e);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">إدارة WhatsApp</h3>
+            <p class="text-gray-600 font-semibold text-sm">ربط وإرسال الفواتير</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="mt-12 text-center">
+        <div class="inline-block bg-white rounded-xl shadow-lg px-8 py-4">
+          <p class="text-gray-600 font-bold footer-note">نظام الرابط - إدارة المطاعم</p>
+        </div>
+      </div>
+    </main>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>

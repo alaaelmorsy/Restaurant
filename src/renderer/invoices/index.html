@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>الفواتير - الرابط</title>
+    <link rel="stylesheet" href="../../../assets/css/tailwind.min.css">
+    <style>
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Light.ttf') format('truetype'); font-weight: 300; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-ExtraBold.ttf') format('truetype'); font-weight: 800; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Black.ttf') format('truetype'); font-weight: 900; font-display: swap; }
+    </style>
+    <style>
+      *{box-sizing:border-box}
+      body{ font-family: 'Cairo', system-ui, -apple-system, Segoe UI, Roboto, "Noto Kufi Arabic", Arial, sans-serif; }
+      
+      button {
+        transition: none !important;
+        animation: none !important;
+      }
+      button:hover {
+        transform: none !important;
+      }
+      button:active {
+        transform: none !important;
+      }
+      
+      .error:empty{ display:none; }
+    </style>
+  </head>
+  <body class="bg-slate-50 min-h-screen">
+    <header class="sticky top-0 z-50 bg-white border-b-2 border-slate-200 shadow-lg">
+      <div class="flex items-center justify-between px-4 py-3 gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-md">
+            📄
+          </div>
+          <span class="text-xl font-black text-slate-800 hidden sm:inline">الفواتير</span>
+        </div>
+        <nav class="flex items-center gap-2">
+        </nav>
+      </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 py-5">
+      <!-- Search Bar -->
+      <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-4 mb-5">
+        <div class="flex flex-col lg:flex-row gap-3">
+          <div class="flex-1">
+            <div class="relative">
+              <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 text-lg">🔍</span>
+              <input id="q" placeholder="بحث برقم الفاتورة..." 
+                     class="w-full pr-12 pl-4 py-3.5 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm font-semibold text-slate-700 placeholder-slate-400" />
+            </div>
+          </div>
+          <div class="flex-1">
+            <div class="relative">
+              <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 text-lg">👤</span>
+              <input id="q2" placeholder="بحث بالعميل (جوال/اسم/رقم ضريبي)" 
+                     class="w-full pr-12 pl-4 py-3.5 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm font-semibold text-slate-700 placeholder-slate-400" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div id="error" class="error text-red-700 bg-red-100 border border-red-300 px-4 py-3 rounded-xl mb-4 shadow-sm font-medium"></div>
+
+      <!-- Page Controls -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
+        <div class="flex items-center gap-3 bg-white px-5 py-3 rounded-xl border-2 border-slate-200 shadow-md">
+          <span class="text-slate-700 font-bold text-sm">📋 عدد الصفوف:</span>
+          <select id="pageSize" 
+                  class="px-3 py-2 border-2 border-slate-300 rounded-lg bg-white text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="20">20 صف</option>
+            <option value="50">50 صف</option>
+            <option value="100">100 صف</option>
+            <option value="0">عرض الكل</option>
+          </select>
+        </div>
+        <div id="pagerTop" class="flex items-center gap-2"></div>
+      </div>
+
+      <!-- Table Container -->
+      <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-slate-100 border-b border-slate-200">
+                <th class="px-5 py-4 text-right text-sm font-bold text-blue-700">🆔 #</th>
+                <th class="px-5 py-4 text-right text-sm font-bold text-blue-700">📋 رقم الفاتورة</th>
+                <th class="px-5 py-4 text-right text-sm font-bold text-blue-700">👤 العميل</th>
+                <th class="px-5 py-4 text-right text-sm font-bold text-blue-700">📱 رقم الجوال</th>
+                <th class="px-5 py-4 text-right text-sm font-bold text-blue-700">💳 طريقة الدفع</th>
+                <th class="px-5 py-4 text-right text-sm font-bold text-blue-700">💰 الإجمالي</th>
+                <th class="px-5 py-4 text-right text-sm font-bold text-blue-700">📅 التاريخ</th>
+                <th id="thZatcaStatus" class="px-5 py-4 text-center text-sm font-bold text-blue-700">📋 حالة الهيئة</th>
+                <th class="px-5 py-4 text-center text-sm font-bold text-blue-700">⚙️ إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="tbody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Bottom Pager -->
+      <div id="pagerBottom" class="flex items-center justify-center gap-2 mt-5"></div>
+    </div>
+
+    <!-- Modal for full ZATCA response -->
+    <div id="zatcaModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); align-items:center; justify-content:center; z-index:1000;">
+      <div class="bg-white w-full max-w-4xl mx-4 max-h-[85vh] rounded-3xl overflow-hidden flex flex-col shadow-2xl border border-slate-200">
+        <div class="px-6 py-5 bg-blue-700 text-white flex justify-between items-center">
+          <div class="text-lg font-black">📋 تفاصيل رد هيئة الزكاة</div>
+          <button id="zatcaClose" class="px-4 py-2 bg-white text-blue-700 rounded-xl font-bold">إغلاق</button>
+        </div>
+        <pre id="zatcaContent" class="m-0 p-6 overflow-auto max-h-[70vh] text-sm" style="direction:ltr; text-align:left; white-space:pre-wrap;"></pre>
+      </div>
+    </div>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>

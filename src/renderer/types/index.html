@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>الأنواع الرئيسية - الرابط</title>
+    <link rel="stylesheet" href="../../../assets/css/tailwind.min.css">
+    <style>
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Light.ttf') format('truetype'); font-weight: 300; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-ExtraBold.ttf') format('truetype'); font-weight: 800; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Black.ttf') format('truetype'); font-weight: 900; font-display: swap; }
+    </style>
+    <style>
+      * { box-sizing: border-box; }
+      body { font-family: 'Cairo', system-ui, -apple-system, Segoe UI, Roboto, "Noto Kufi Arabic", Arial, sans-serif; }
+      button { transition: none !important; }
+      .error:empty { display: none; }
+      .type-card.drag-over { outline: 3px dashed #3b82f6; outline-offset: -4px; }
+    </style>
+  </head>
+  <body class="bg-gradient-to-br from-slate-50 via-white to-slate-50 min-h-screen">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+      <div class="flex items-center justify-between px-6 py-3.5 max-w-[1400px] mx-auto">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+            </svg>
+          </div>
+          <h1 class="text-xl font-extrabold text-slate-800">الأنواع الرئيسية</h1>
+          <span class="hidden lg:inline text-sm text-slate-500 font-medium">إدارة تصنيفات المنتجات</span>
+        </div>
+        <nav></nav>
+      </div>
+    </header>
+
+    <div class="max-w-[1400px] mx-auto px-6 py-5">
+      <!-- Action Buttons -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-5">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <button id="openAdd" class="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-lg font-bold text-sm shadow-md flex items-center gap-2">
+            <span>➕</span>
+            <span>إضافة نوع</span>
+          </button>
+          <button id="refreshBtn" class="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-bold text-sm shadow-md flex items-center gap-2">
+            <span>🔄</span>
+            <span>تحديث</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div id="error" class="error text-center bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 font-bold text-sm"></div>
+
+      <!-- Grid Container -->
+      <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+    </div>
+
+    <!-- Overlay and Modal -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-40 z-40"></div>
+    <div id="modal" class="hidden fixed inset-0 items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="bg-white w-full max-w-md mx-4 rounded-xl shadow-2xl border border-slate-200 p-5">
+        <h3 id="modalTitle" class="text-lg font-black text-slate-800 mb-4">إضافة نوع رئيسي</h3>
+        <div class="space-y-4">
+          <div>
+            <label for="m_name" class="block text-sm font-bold text-slate-700 mb-2">اسم النوع</label>
+            <input id="m_name" placeholder="مثال: إلكترونيات" 
+                   class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm font-semibold" />
+          </div>
+          <div class="flex items-center gap-3 pt-2">
+            <button id="m_save" class="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-lg font-bold text-sm shadow-md">حفظ</button>
+            <button id="m_cancel" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-sm border border-slate-300">إلغاء</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirmOverlay" class="hidden fixed inset-0 bg-black bg-opacity-40 z-40"></div>
+    <div id="confirmModal" class="hidden fixed inset-0 items-center justify-center z-50" role="dialog" aria-modal="true">
+      <div class="bg-white w-full max-w-md mx-4 rounded-xl shadow-2xl border border-slate-200 p-5">
+        <h3 id="c_title" class="text-lg font-black text-slate-800 mb-3">تأكيد</h3>
+        <div id="c_message" class="text-sm text-slate-600 mb-5 font-medium"></div>
+        <div class="flex items-center gap-3">
+          <button id="c_ok" class="px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-bold text-sm shadow-md">تأكيد</button>
+          <button id="c_cancel" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-sm border border-slate-300">إلغاء</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>

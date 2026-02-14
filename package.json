@@ -1,0 +1,100 @@
+{
+  "name": "pos-restaurant",
+  "version": "1.0.7",
+  "description": "POS Desktop App for KSA - Login skeleton (Electron + Node.js + MySQL)",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "set NODE_OPTIONS=--max-old-space-size=4096 --max-http-header-size=16384 && electron .",
+    "dev": "set NODE_OPTIONS=--max-old-space-size=4096 --max-http-header-size=16384 && electron .",
+    "optimize:mysql": "node src/main/mysql-optimizer.js",
+    "tailwind:build": "npx tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/output.css --minify",
+    "tailwind:watch": "npx tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/output.css --watch",
+    "dist:win": "node scripts/clean-dist.js && node scripts/gen-ico.js && electron-builder --win nsis",
+    "dist:msi": "node scripts/clean-dist.js && node scripts/gen-ico.js && electron-builder --win msi",
+    "dist:win:all": "node scripts/clean-dist.js && node scripts/gen-ico.js && electron-builder --win nsis msi",
+    "dist:portable": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.alrabt.restaurant",
+    "productName": "Restaurant",
+    "artifactName": "${productName}-Setup-${version}.${ext}",
+    "asar": true,
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "assets",
+        "to": "assets"
+      }
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "alaaelmorsy",
+      "repo": "Restaurant"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "msi"
+      ],
+      "icon": "assets/icon/app.ico",
+      "sign": null,
+      "signingHashAlgorithms": []
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "الرابط مطاعم",
+      "installerIcon": "assets/icon/app.ico",
+      "uninstallerIcon": "assets/icon/app.ico",
+      "installerHeaderIcon": "assets/icon/app.ico"
+    }
+  },
+  "keywords": [
+    "pos",
+    "electron",
+    "ksa",
+    "zakat"
+  ],
+  "author": "مؤسسة تعلم التقنيات",
+  "license": "ISC",
+  "dependencies": {
+    "@wppconnect-team/wppconnect": "^1.37.8",
+    "axios": "^1.12.1",
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "electron-is-dev": "^2.0.0",
+    "electron-log": "^5.4.3",
+    "electron-updater": "^6.7.3",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "moment-timezone": "^0.6.0",
+    "morgan": "^1.10.1",
+    "mysql2": "^3.9.7",
+    "node-forge": "^1.3.1",
+    "nodemailer": "^6.9.8",
+    "puppeteer-core": "^24.33.0",
+    "qrcode": "^1.5.4",
+    "serialport": "^12.0.0",
+    "sharp": "^0.34.3",
+    "systeminformation": "^5.27.13",
+    "uuid": "^13.0.0",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.22",
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.1",
+    "png-to-ico": "^3.0.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.0"
+  }
+}

@@ -1,0 +1,31 @@
+/* Tailwind CSS Base Styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Cairo Font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+
+/* Custom Styles (optional) */
+@layer base {
+  /* RTL Support */
+  [dir="rtl"] {
+    direction: rtl;
+  }
+  
+  [dir="ltr"] {
+    direction: ltr;
+  }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+  }
+}
+
+@layer components {
+  /* Add your custom component styles here */
+}
+
+@layer utilities {
+  /* Add your custom utility classes here */
+}

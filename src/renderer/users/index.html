@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>المستخدمون - الرابط</title>
+    <link rel="stylesheet" href="../../../assets/css/tailwind.min.css">
+    <style>
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Light.ttf') format('truetype'); font-weight: 300; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-ExtraBold.ttf') format('truetype'); font-weight: 800; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Black.ttf') format('truetype'); font-weight: 900; font-display: swap; }
+    </style>
+    <style>
+      * { box-sizing: border-box; }
+      body { font-family: 'Cairo', system-ui, -apple-system, Segoe UI, Roboto, "Noto Kufi Arabic", Arial, sans-serif; }
+      .error:empty { display: none; }
+      .notice:empty { display: none; }
+      select:disabled { opacity: 0.6; cursor: not-allowed; background-color: #f1f5f9; }
+    </style>
+  </head>
+  <body class="bg-gradient-to-br from-slate-50 via-white to-slate-50 min-h-screen">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+      <div class="flex items-center justify-between px-6 py-3.5 max-w-[1400px] mx-auto">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+          </div>
+          <h1 class="text-xl font-extrabold text-slate-800">المستخدمون</h1>
+          <span class="hidden lg:inline text-sm text-slate-500 font-medium">إدارة مستخدمي النظام</span>
+        </div>
+        <nav></nav>
+      </div>
+    </header>
+
+    <div class="max-w-[1400px] mx-auto px-6 py-5">
+      <!-- Action Buttons -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-5">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <button id="addUserBtn" class="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-lg font-bold text-sm shadow-md flex items-center gap-2">
+            <span>➕</span>
+            <span>إضافة مستخدم</span>
+          </button>
+          <button id="refreshBtn" class="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-bold text-sm shadow-md flex items-center gap-2">
+            <span>🔄</span>
+            <span>تحديث</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div id="notice" class="notice text-center bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg mb-4 font-bold text-sm"></div>
+      <div id="error" class="error text-center bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 font-bold text-sm"></div>
+
+      <!-- Table -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase tracking-wide">#</th>
+                <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase tracking-wide">اسم المستخدم</th>
+                <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase tracking-wide">الاسم الكامل</th>
+                <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase tracking-wide">الدور</th>
+                <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase tracking-wide">الحالة</th>
+                <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase tracking-wide">العمليات</th>
+              </tr>
+            </thead>
+            <tbody id="tbody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlay and Modal -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-40 z-40"></div>
+    <div id="modal" class="hidden fixed inset-0 items-center justify-center z-50" role="dialog" aria-modal="true">
+      <div class="bg-white w-full max-w-2xl mx-4 rounded-xl shadow-2xl border border-slate-200 p-5">
+        <h3 id="dlgTitle" class="text-lg font-black text-slate-800 mb-4">إضافة مستخدم</h3>
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="dlgUsername" class="block text-sm font-bold text-slate-700 mb-2">اسم المستخدم</label>
+              <input id="dlgUsername" placeholder="أدخل اسم المستخدم" 
+                     class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm font-semibold" />
+            </div>
+            <div>
+              <label for="dlgFullname" class="block text-sm font-bold text-slate-700 mb-2">الاسم الكامل</label>
+              <input id="dlgFullname" placeholder="أدخل الاسم الكامل" 
+                     class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm font-semibold" />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="dlgPassword" class="block text-sm font-bold text-slate-700 mb-2">كلمة المرور</label>
+              <div class="relative">
+                <input id="dlgPassword" type="password" placeholder="اتركها فارغة لعدم التغيير" 
+                       class="w-full pl-12 pr-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm font-semibold" />
+                <button id="dlgPasswordToggle" type="button" class="text-slate-700" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:9999px;background:#ffffff;border:1px solid #e2e8f0;box-shadow:0 1px 2px rgba(15,23,42,0.08);" aria-label="إظهار كلمة المرور" title="إظهار كلمة المرور">
+                  <svg id="dlgPasswordToggleEye" style="width:20px;height:20px;display:block;" viewBox="0 0 24 24">
+                    <path d="M12 5C7.25 5 3.2 8.06 1.75 12c1.45 3.94 5.5 7 10.25 7s8.8-3.06 10.25-7C20.8 8.06 16.75 5 12 5z" fill="#111827"/>
+                    <circle cx="12" cy="12" r="3.1" fill="#f97316"/>
+                    <circle cx="12" cy="12" r="1.6" fill="#111827"/>
+                  </svg>
+                  <span id="dlgPasswordToggleEyeOff" class="hidden" style="font-size:18px;line-height:1;">🙈</span>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label for="dlgRole" class="block text-sm font-bold text-slate-700 mb-2">الدور</label>
+              <select id="dlgRole" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm font-semibold">
+                <option value="admin">مدير</option>
+                <option value="cashier">كاشير</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="dlgActive" class="block text-sm font-bold text-slate-700 mb-2">الحالة</label>
+              <select id="dlgActive" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm font-semibold">
+                <option value="1">نشط</option>
+                <option value="0">موقوف</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 pt-2">
+            <button id="dlgSave" class="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-lg font-bold text-sm shadow-md">حفظ</button>
+            <button id="dlgClose" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-sm border border-slate-300">إلغاء</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>

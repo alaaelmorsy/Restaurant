@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>تقرير الفترة</title>
+  <link href="../../styles/output.css" rel="stylesheet">
+  <style>
+    @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-ExtraBold.ttf') format('truetype'); font-weight: 800; font-display: swap; }
+    @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Black.ttf') format('truetype'); font-weight: 900; font-display: swap; }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+    }
+
+    details>summary {
+      list-style: none;
+      cursor: pointer;
+      position: relative;
+      padding-right: 16px;
+    }
+
+    details>summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details>summary::before {
+      content: '▸';
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+
+    details[open]>summary::before {
+      content: '▾';
+    }
+
+    .credit-row td {
+      background: #fff7ed;
+    }
+
+    /* شبكة كاملة داخل الملخص التفصيلي (على الشاشة والمعاينة والتصدير) */
+    .summary-section table{ border:1px solid #000; border-collapse:collapse; width: 100%; table-layout: fixed; }
+    .summary-section th, .summary-section td{ border:1px solid #000; padding: 8px 12px; text-align: center; white-space: nowrap; overflow: hidden; max-width: 100%; }
+    .summary-section thead th{ background: #f3f4f6; font-weight: bold; }
+    .summary-section tfoot th{ border-top:2px solid #000; background: #dbeafe; font-weight: 900; }
+    
+    /* عمود البيان يلتف، الأعمدة الأخرى لا تلتف */
+    .summary-section .tbl-sum th:first-child,
+    .summary-section .tbl-sum td:first-child { 
+      white-space: normal; 
+      word-break: break-word; 
+      text-align: right;
+      width: 40%;
+      overflow: hidden;
+      padding: 8px 8px;
+    }
+    
+    .summary-section .tbl-sum th:not(:first-child),
+    .summary-section .tbl-sum td:not(:first-child) { 
+      white-space: nowrap; 
+      word-break: keep-all;
+      overflow: hidden;
+      text-overflow: clip;
+      width: 15%;
+      padding: 8px 2px;
+    }
+
+    /* إخفاء أعمدة قبل الضريبة والضريبة عند عدم وجود ضريبة */
+    .tbl-sum.no-vat thead th:nth-child(2),
+    .tbl-sum.no-vat thead th:nth-child(4),
+    .tbl-sum.no-vat tbody td:nth-child(2),
+    .tbl-sum.no-vat tbody td:nth-child(4),
+    .tbl-sum.no-vat tfoot th:nth-child(2),
+    .tbl-sum.no-vat tfoot th:nth-child(4){
+      display: none;
+    }
+
+
+
+    /* هوامش الطباعة: نصف سنتيمتر يمين ويسار */
+    @page {
+      margin-left: 0.5cm;
+      margin-right: 0.5cm;
+    }
+
+    /* تخطيط معاينة للفواتير والإشعارات الدائنة مطابق لتقرير الفترة */
+    .tbl-inv,
+    .tbl-cn {
+      border: 1px solid #cbd5e1;
+      border-collapse: collapse;
+      table-layout: auto;
+    }
+
+    .tbl-inv th,
+    .tbl-inv td,
+    .tbl-cn th,
+    .tbl-cn td {
+      border: 1px solid #e2e8f0;
+      padding: 8px 12px;
+    }
+
+    /* تنسيق الجداول العامة */
+    table tbody tr:hover {
+      background: #f9fafb;
+    }
+
+    table tbody tr {
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    /* أعمدة قصيرة مضغوطة (لا تلتف) */
+    .tbl-inv th:nth-child(1),
+    .tbl-inv td:nth-child(1),
+    .tbl-inv th:nth-child(4),
+    .tbl-inv td:nth-child(4),
+    .tbl-inv th:nth-child(5),
+    .tbl-inv td:nth-child(5),
+    .tbl-cn th:nth-child(1),
+    .tbl-cn td:nth-child(1),
+    .tbl-cn th:nth-child(4),
+    .tbl-cn td:nth-child(4),
+    .tbl-cn th:nth-child(5),
+    .tbl-cn td:nth-child(5) {
+      white-space: nowrap;
+      width: 1%;
+    }
+
+    /* أعمدة العميل والتاريخ قابلة للالتفاف لتستوعب البيانات */
+    .tbl-inv th:nth-child(2),
+    .tbl-inv td:nth-child(2),
+    .tbl-inv th:nth-child(3),
+    .tbl-inv td:nth-child(3),
+    .tbl-cn th:nth-child(2),
+    .tbl-cn td:nth-child(2),
+    .tbl-cn th:nth-child(3),
+    .tbl-cn td:nth-child(3) {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* احتواء رقم العميل داخل الخلية على الشاشة أيضًا */
+    .tbl-inv th:nth-child(2),
+    .tbl-inv td:nth-child(2),
+    .tbl-cn th:nth-child(2),
+    .tbl-cn td:nth-child(2) {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-wrap: break-word;
+      word-break: break-all;
+      line-break: anywhere;
+      max-width: 100%;
+      overflow: hidden;
+      direction: ltr;
+      unicode-bidi: plaintext;
+      text-align: left;
+    }
+
+    /* إخفاء عمود "عرض" أثناء الطباعة كإجراء احتياطي */
+    @media print {
+
+      .tbl-inv thead th:last-child,
+      .tbl-inv tbody td:last-child,
+      .tbl-inv tfoot th:last-child {
+        display: none !important;
+      }
+
+      .tbl-cn thead th:last-child,
+      .tbl-cn tbody td:last-child,
+      .tbl-cn tfoot th:last-child {
+        display: none !important;
+      }
+    }
+
+    @font-face {
+      font-family: 'saudi_riyal';
+      src: url('../../../assets/fonts/saudi-riyal.woff') format('woff'),
+        url('../../../assets/fonts/saudi-riyal.ttf') format('truetype');
+      font-display: swap;
+      unicode-range: U+E900;
+    }
+
+    :root {
+      --m-left: 0mm;
+      --m-right: 0mm;
+    }
+
+    /* تنسيقات الطباعة مطابقة لتقرير اليومي مع خط Cairo */
+    @media print {
+      @page {
+        margin-left: 8mm;
+        margin-right: 8mm;
+      }
+
+      body {
+        padding-left: var(--m-left);
+        padding-right: var(--m-right);
+      }
+
+      /* إخفاء العناصر غير الضرورية */
+      header,
+      button,
+      .range-actions {
+        display: none !important;
+      }
+
+      /* إخفاء الأقسام المطوية بالكامل */
+      details:not([open]) {
+        display: none !important;
+      }
+
+      /* إظهار الأقسام المفتوحة بالكامل */
+      details[open] {
+        display: block !important;
+        visibility: visible !important;
+      }
+
+      /* إظهار عناوين الأقسام المفتوحة فقط */
+      details[open]>summary {
+        display: block !important;
+        font-weight: 900 !important;
+        font-size: 16px !important;
+        margin-bottom: 3mm !important;
+        margin-top: 5mm !important;
+        padding-bottom: 2mm !important;
+        border-bottom: 2px solid #000 !important;
+        color: #000 !important;
+        list-style: none !important;
+      }
+
+      /* إظهار محتوى الأقسام المفتوحة */
+      details[open] .overflow-x-auto {
+        display: block !important;
+        overflow: visible !important;
+      }
+
+      details[open] table {
+        display: table !important;
+        visibility: visible !important;
+      }
+
+      details>summary::before {
+        display: none !important;
+      }
+
+      /* منع تجاوز المحتوى للحدود */
+      .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      .bg-white,
+      .section {
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        page-break-inside: avoid;
+      }
+
+      table {
+        width: 100% !important;
+        page-break-inside: auto;
+        border-collapse: collapse !important;
+        border: 2px solid #000 !important;
+      }
+
+      th,
+      td {
+        padding: 2mm 1.5mm !important;
+        border: 1px solid #000 !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+      }
+
+      thead th {
+        background: #f3f4f6 !important;
+        font-weight: 700 !important;
+        border: 1px solid #000 !important;
+      }
+
+      tbody tr {
+        page-break-inside: avoid;
+      }
+
+      .overflow-x-auto {
+        overflow: visible !important;
+      }
+
+      /* خط Cairo لكل العناصر */
+      *,
+      *::before,
+      *::after {
+        font-family: 'Cairo', sans-serif !important;
+        font-weight: 800 !important;
+        color: #0f172a !important;
+        font-size: 14px !important;
+      }
+
+      /* منع خروج المحتوى خارج حدود الورقة */
+      body {
+        max-width: 100% !important;
+        overflow: hidden !important;
+      }
+
+      table {
+        table-layout: fixed !important;
+      }
+
+      /* تكبير خط الملخص التفصيلي في التصدير */
+      .summary-section h3 {
+        font-size: 20px !important;
+        margin-bottom: 4mm !important;
+      }
+
+      .summary-section .tbl-sum {
+        table-layout: fixed !important;
+        width: 100% !important;
+      }
+
+      .summary-section .tbl-sum td,
+      .summary-section .tbl-sum th {
+        font-size: 12px !important;
+        white-space: nowrap !important;
+        padding: 2mm 1mm !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        word-break: keep-all !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+        max-width: 100% !important;
+      }
+
+      .summary-section .tbl-sum th {
+        font-weight: 900 !important;
+      }
+
+      .summary-section .tbl-sum td:first-child,
+      .summary-section .tbl-sum th:first-child {
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+        width: 40% !important;
+        max-width: 40% !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+        text-align: right !important;
+        padding: 2mm 2mm !important;
+        line-height: 1.2 !important;
+      }
+
+      .summary-section .tbl-sum td:nth-child(2),
+      .summary-section .tbl-sum th:nth-child(2),
+      .summary-section .tbl-sum td:nth-child(3),
+      .summary-section .tbl-sum th:nth-child(3),
+      .summary-section .tbl-sum td:nth-child(4),
+      .summary-section .tbl-sum th:nth-child(4),
+      .summary-section .tbl-sum td:nth-child(5),
+      .summary-section .tbl-sum th:nth-child(5) {
+        white-space: nowrap !important;
+        word-break: keep-all !important;
+        overflow-wrap: normal !important;
+        text-overflow: clip !important;
+        width: 15% !important;
+        max-width: 15% !important;
+        overflow: hidden !important;
+        padding: 2mm 0.5mm !important;
+        font-size: 11px !important;
+      }
+
+
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 min-h-screen">
+  <header class="bg-white shadow-lg sticky top-0 z-50 border-b-4 border-blue-500">
+    <div class="container mx-auto px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div
+            class="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl flex items-center justify-center shadow-xl">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-black text-gray-800">تقرير الفترة</h1>
+            <p class="text-sm text-gray-500 font-semibold">نظام إدارة المطاعم</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="btnBack"
+            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold rounded-xl hover:from-blue-700 hover:to-blue-800 shadow-lg">
+            الرجوع
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container mx-auto px-6 py-8 max-w-7xl">
+    <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-100">
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-wrap gap-3 items-center">
+          <label for="fromAt" class="font-semibold text-gray-700">من:</label>
+          <input id="fromAt"
+            class="px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+            type="datetime-local" />
+          <label for="toAt" class="font-semibold text-gray-700">إلى:</label>
+          <input id="toAt"
+            class="px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
+            type="datetime-local" />
+          <button id="applyRangeBtn"
+            class="px-6 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-bold rounded-xl hover:from-purple-700 hover:to-purple-800 shadow-md">
+            تطبيق
+          </button>
+        </div>
+        <div class="flex items-center justify-between gap-4">
+          <div class="text-gray-600 font-semibold" id="range"></div>
+          <div class="flex flex-wrap gap-3">
+            <button id="exportPdfBtn"
+              class="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold rounded-xl hover:from-red-600 hover:to-red-700 shadow-md">
+              تصدير PDF
+            </button>
+            <button id="exportExcelBtn"
+              class="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl hover:from-green-600 hover:to-green-700 shadow-md">
+              تصدير Excel
+            </button>
+            <button id="printReportBtn"
+              class="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-xl hover:from-blue-600 hover:to-blue-700 shadow-md">
+              طباعة التقرير
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-100 summary-section">
+      <h3 class="text-xl font-black text-gray-800 mb-4 pb-3 border-b-2 border-blue-500">الملخص التفصيلي</h3>
+      <div class="overflow-x-auto">
+        <table class="tbl-sum w-full">
+          <thead>
+            <tr>
+              <th>البيان</th>
+              <th>قبل الضريبة</th>
+              <th>رسوم التبغ</th>
+              <th>الضريبة</th>
+              <th>بعد الضريبة</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>المبيعات</td>
+              <td id="salesPre">0.00</td>
+              <td id="salesTob">0.00</td>
+              <td id="salesVat">0.00</td>
+              <td id="salesAfter">0.00</td>
+            </tr>
+            <tr>
+              <td>الخصومات</td>
+              <td>0.00</td>
+              <td>0.00</td>
+              <td>0.00</td>
+              <td id="discTotal">0.00</td>
+            </tr>
+            <tr>
+              <td>المبيعات بعد الخصم</td>
+              <td id="salesAfterDiscPre">0.00</td>
+              <td id="salesAfterDiscTob">0.00</td>
+              <td id="salesAfterDiscVat">0.00</td>
+              <td id="salesAfterDiscAfter">0.00</td>
+            </tr>
+            <tr>
+              <td>إشعارات الدائن (المرتجعات)</td>
+              <td id="retPre">0.00</td>
+              <td id="retTob">0.00</td>
+              <td id="retVat">0.00</td>
+              <td id="retAfter">0.00</td>
+            </tr>
+            <tr>
+              <td>إجمالي المبيعات بعد الخصم بعد المرتجعات</td>
+              <td id="salesAfterDiscNetPre">0.00</td>
+              <td id="salesAfterDiscNetTob">0.00</td>
+              <td id="salesAfterDiscNetVat">0.00</td>
+              <td id="salesAfterDiscNetAfter">0.00</td>
+            </tr>
+            <tr>
+              <td>المشتريات</td>
+              <td id="purPre">0.00</td>
+              <td>0.00</td>
+              <td id="purVat">0.00</td>
+              <td id="purAfter">0.00</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th>الصافي</th>
+              <th id="netPre">0.00</th>
+              <th id="netTob">0.00</th>
+              <th id="netVat">0.00</th>
+              <th id="netAfter">0.00</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-100">
+      <h3 class="text-xl font-black text-gray-800 mb-4 pb-3 border-b-2 border-blue-500">طرق الدفع</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr>
+              <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">الطريقة</th>
+              <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">الإجمالي</th>
+            </tr>
+          </thead>
+          <tbody id="payTbody"></tbody>
+          <tfoot>
+            <tr class="bg-blue-100 font-black">
+              <th class="p-3 border-t-2 border-gray-400">الإجمالي الكلي</th>
+              <th class="p-3 border-t-2 border-gray-400" id="sumTotal">0.00</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-100">
+      <details>
+        <summary class="text-xl font-black text-gray-800 mb-4 pb-3 border-b-2 border-blue-500 cursor-pointer">المنتجات
+          المباعة</summary>
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">المنتج</th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">الكمية</th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">الإجمالي</th>
+              </tr>
+            </thead>
+            <tbody id="soldItemsTbody"></tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-100">
+      <details>
+        <summary class="text-xl font-black text-gray-800 mb-4 pb-3 border-b-2 border-blue-500 cursor-pointer">المشتريات
+        </summary>
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">اسم المشتريات</th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">التاريخ</th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">الإجمالي</th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">ملاحظات</th>
+              </tr>
+            </thead>
+            <tbody id="purTbody"></tbody>
+          </table>
+        </div>
+        <div class="text-gray-600 text-sm mt-3">الإجمالي: <b id="purCount">0</b></div>
+      </details>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-100">
+      <details>
+        <summary class="text-xl font-black text-gray-800 mb-4 pb-3 border-b-2 border-blue-500 cursor-pointer">الفواتير
+        </summary>
+        <div class="text-gray-600 text-sm mb-3">تشمل الفواتير غير الدائنة فقط ضمن الفترة.</div>
+        <div class="overflow-x-auto">
+          <table class="tbl-inv w-full border-collapse has-view">
+            <thead>
+              <tr>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">رقم</th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">العميل</th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">التاريخ</th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">طريقة الدفع
+                </th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">الإجمالي</th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">عرض</th>
+              </tr>
+            </thead>
+            <tbody id="invTbody"></tbody>
+          </table>
+        </div>
+        <div class="text-gray-600 text-sm mt-3">الإجمالي: <b id="invCount">0</b></div>
+      </details>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-100">
+      <details>
+        <summary class="text-xl font-black text-gray-800 mb-4 pb-3 border-b-2 border-blue-500 cursor-pointer">
+          مرتجع/إشعارات دائنة</summary>
+        <div class="overflow-x-auto mt-4">
+          <table class="tbl-cn w-full border-collapse has-view">
+            <thead>
+              <tr>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">رقم الإشعار
+                </th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">العميل</th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">التاريخ</th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">طريقة الدفع
+                </th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">القيمة</th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">عرض</th>
+              </tr>
+            </thead>
+            <tbody id="cnTbody"></tbody>
+          </table>
+        </div>
+        <div class="text-gray-600 text-sm mt-3">الإجمالي: <b id="cnCount">0</b></div>
+      </details>
+    </div>
+
+  </div>
+  <script src="./print-margins.js"></script>
+  <script src="./period.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تقرير البلدية</title>
+    <link href="../../styles/output.css" rel="stylesheet">
+    <style>
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-ExtraBold.ttf') format('truetype'); font-weight: 800; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Black.ttf') format('truetype'); font-weight: 900; font-display: swap; }
+      
+      body {
+        font-family: 'Cairo', sans-serif;
+      }
+      
+      :root{ --bg:#f6f8fb; --card:#ffffff; --border:#e6eaf0; --text:#0f172a; --muted:#64748b; --brand:#0b3daa; }
+      *{box-sizing:border-box}
+      html,body{height:100%}
+
+      .muted{color:var(--muted)}
+      
+      table{border-collapse:collapse}
+      thead{ display: table-header-group }
+      tbody tr:hover{ background: #f9fafb; }
+      tbody tr{ border-bottom: 1px solid #e5e7eb; }
+      /* Detail grouping card to distinguish from other invoices */
+      .detail-card{ background:#fff; border:1px solid var(--border); border-inline-start:4px solid var(--brand); border-radius:10px; padding:10px; margin:10px 0; box-shadow:0 6px 16px rgba(15,23,42,.06); break-inside: avoid; page-break-inside: avoid }
+      .detail-card.credit{ border-inline-start-color:#ef4444 }
+      .inv-summary{ margin-bottom:8px }
+
+      @media print{
+        @page{ margin-left: 8mm; margin-right: 8mm; }
+        body{ padding-left: var(--m-left); padding-right: var(--m-right); background:#fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        
+        /* إخفاء العناصر غير الضرورية */
+        header, button, .range-actions {
+          display: none !important;
+        }
+        
+        /* إخفاء الأقسام المطوية بالكامل */
+        details:not([open]) {
+          display: none !important;
+        }
+        
+        /* إظهار عناوين الأقسام المفتوحة فقط */
+        details[open] > summary {
+          display: block !important;
+          font-weight: 900 !important;
+          font-size: 16px !important;
+          margin-bottom: 3mm !important;
+          margin-top: 5mm !important;
+          padding-bottom: 2mm !important;
+          border-bottom: 2px solid #000 !important;
+          color: #000 !important;
+          list-style: none !important;
+        }
+        
+        details > summary::before {
+          display: none !important;
+        }
+        
+        /* منع تجاوز المحتوى للحدود */
+        .container {
+          max-width: 100% !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+        
+        .bg-white {
+          box-shadow: none !important;
+          border: none !important;
+          border-radius: 0 !important;
+          page-break-inside: avoid;
+        }
+        
+        table {
+          width: 100% !important;
+          page-break-inside: auto;
+          border-collapse: collapse !important;
+          border: 2px solid #000 !important;
+        }
+        
+        th, td {
+          padding: 2mm 1.5mm !important;
+          border: 1px solid #000 !important;
+          word-wrap: break-word !important;
+          overflow-wrap: break-word !important;
+        }
+        
+        thead th {
+          background: #f3f4f6 !important;
+          font-weight: 700 !important;
+          border: 1px solid #000 !important;
+        }
+        
+        tbody tr {
+          page-break-inside: avoid;
+        }
+        
+        .overflow-x-auto {
+          overflow: visible !important;
+        }
+        
+        .inv-summary{ 
+          margin: 6px 0; 
+          padding:6px; 
+          background:#f3f4f6 !important; 
+          border:1px solid #000 !important; 
+          border-radius:0 !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        
+        .detail-card{ 
+          box-shadow: none; 
+          margin: 8px 0; 
+          border: 1px solid #000 !important;
+          border-inline-start-width: 3px !important;
+          border-inline-start-color: #000 !important;
+          border-radius: 0 !important;
+          page-break-inside: avoid;
+        }
+        
+        .detail-card.credit{ 
+          border-inline-start-color: #000 !important;
+        }
+        
+        tfoot{ 
+          display: table-row-group !important;
+        }
+        
+        .company-banner{ 
+          display:flex !important; 
+          background:#fff !important; 
+          border:1px solid #000 !important; 
+          border-radius:0 !important; 
+          padding:8px; 
+          margin: 0 0 8px 0;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        
+        /* خط Cairo لكل العناصر */
+        *, *::before, *::after{
+          font-family: 'Cairo', 'saudi_riyal', sans-serif !important;
+          font-weight: 800 !important;
+          color: #0f172a !important;
+          font-size: 14px !important;
+        }
+      }
+
+      /* Company banner (print-only) */
+      .company-banner{ display:none; align-items:center; gap:12px; background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:10px; margin:12px 0 }
+      .company-banner img{ max-height:60px; max-width:160px; object-fit:contain }
+      .company-banner .name{ font-weight:700; font-size:16px }
+      .company-banner .info{ display:grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap:6px; font-size:12px }
+      .company-banner .label{ color: var(--muted); margin-inline-start:6px }
+
+      @font-face{
+        font-family: 'saudi_riyal';
+        src: url('../../../assets/fonts/saudi-riyal.woff') format('woff'),
+             url('../../../assets/fonts/saudi-riyal.ttf') format('truetype');
+        font-display: swap;
+        unicode-range: U+E900;
+      }
+      :root{ --m-left: 0mm; --m-right: 0mm; }
+    </style>
+  </head>
+  <body class="bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 min-h-screen">
+    <header class="bg-white shadow-lg sticky top-0 z-50 border-b-4 border-blue-500">
+      <div class="container mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-2xl font-black text-gray-800">تقرير البلدية</h1>
+              <p class="text-sm text-gray-500 font-semibold">فواتير تحتوي رسوم تبغ</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="btnBack" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold rounded-xl hover:from-blue-700 hover:to-blue-800 shadow-lg">
+              الرجوع
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8 max-w-7xl">
+      <div id="companyBanner" class="company-banner">
+        <img id="companyLogo" alt="logo" style="display:none"/>
+        <div>
+          <div class="name" id="companyName"></div>
+          <div class="info">
+            <div><span class="label">الجوال:</span> <span id="companyMobile"></span></div>
+            <div><span class="label">العنوان:</span> <span id="companyAddress"></span></div>
+            <div><span class="label">الرقم الضريبي:</span> <span id="companyVat"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-100">
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-wrap items-center gap-3">
+            <label for="fromAt" class="font-semibold text-gray-700">من:</label>
+            <input id="fromAt" class="px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none" type="datetime-local" />
+            <label for="toAt" class="font-semibold text-gray-700">إلى:</label>
+            <input id="toAt" class="px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none" type="datetime-local" />
+            <label class="flex items-center gap-2 font-semibold text-gray-700">
+              <input type="checkbox" id="excludeCn" class="w-4 h-4" />
+              <span>استبعاد إشعارات الدائن</span>
+            </label>
+            <button id="applyRangeBtn" class="px-6 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold rounded-xl hover:from-purple-600 hover:to-purple-700 shadow-md">
+              تطبيق
+            </button>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="text-gray-600 font-semibold" id="range"></div>
+            <div class="flex flex-wrap gap-3">
+              <button id="exportPdfBtn" class="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold rounded-xl hover:from-red-600 hover:to-red-700 shadow-md">
+                تصدير PDF
+              </button>
+              <button id="exportExcelBtn" class="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl hover:from-green-600 hover:to-green-700 shadow-md">
+                تصدير Excel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-100">
+        <h3 class="text-2xl font-black text-gray-800 mb-4 pb-3 border-b-2 border-blue-500">الفواتير المحتوية على رسوم تبغ</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="px-4 py-3 text-right font-bold">رقم الفاتورة</th>
+                <th class="px-4 py-3 text-right font-bold">طريقة الدفع</th>
+                <th class="px-4 py-3 text-right font-bold">المجموع</th>
+                <th class="px-4 py-3 text-right font-bold">الخصم</th>
+                <th class="px-4 py-3 text-right font-bold">الضريبة</th>
+                <th class="px-4 py-3 text-right font-bold">رسوم التبغ</th>
+                <th class="px-4 py-3 text-right font-bold">الإجمالي</th>
+                <th class="px-4 py-3 text-right font-bold">تاريخ الدفع</th>
+                <th class="px-4 py-3 text-right font-bold">عرض</th>
+                <th class="px-4 py-3 text-right font-bold">تفاصيل</th>
+              </tr>
+            </thead>
+            <tbody id="invTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-100">
+        <details open>
+          <summary class="text-xl font-black text-gray-800 cursor-pointer hover:text-blue-600 mb-4">ملخص أصناف التبغ</summary>
+          <div class="overflow-x-auto mt-4">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="px-4 py-3 text-right font-bold">المنتج</th>
+                  <th class="px-4 py-3 text-right font-bold">العملية</th>
+                  <th class="px-4 py-3 text-right font-bold">سعر المنتج</th>
+                  <th class="px-4 py-3 text-right font-bold">الكمية</th>
+                  <th class="px-4 py-3 text-right font-bold">الإجمالي</th>
+                </tr>
+              </thead>
+              <tbody id="tobaccoSummaryRows"></tbody>
+            </table>
+          </div>
+        </details>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-100">
+        <h3 class="text-2xl font-black text-gray-800 mb-4 pb-3 border-b-2 border-blue-500">الإجماليات</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="px-4 py-3 text-right font-bold" colspan="3"></th>
+                <th class="px-4 py-3 text-right font-bold">المجموع</th>
+                <th class="px-4 py-3 text-right font-bold">الخصم</th>
+                <th class="px-4 py-3 text-right font-bold">الضريبة</th>
+                <th class="px-4 py-3 text-right font-bold">رسوم التبغ</th>
+                <th class="px-4 py-3 text-right font-bold">الإجمالي</th>
+                <th class="px-4 py-3 text-right font-bold">العدد</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th class="px-4 py-3 text-right font-bold" colspan="3">إجمالي الفواتير</th>
+                <th class="px-4 py-3 text-right" id="sumSubInv">0.00</th>
+                <th class="px-4 py-3 text-right" id="sumDiscInv">0.00</th>
+                <th class="px-4 py-3 text-right" id="sumVatInv">0.00</th>
+                <th class="px-4 py-3 text-right" id="sumTobInv">0.00</th>
+                <th class="px-4 py-3 text-right" id="sumGrandInv">0.00</th>
+                <th class="px-4 py-3 text-right" id="sumCountInv">0</th>
+              </tr>
+              <tr>
+                <th class="px-4 py-3 text-right font-bold" colspan="3">إجمالي إشعارات الدائن</th>
+                <th class="px-4 py-3 text-right" id="sumSubCN">0.00</th>
+                <th class="px-4 py-3 text-right" id="sumDiscCN">0.00</th>
+                <th class="px-4 py-3 text-right" id="sumVatCN">0.00</th>
+                <th class="px-4 py-3 text-right" id="sumTobCN">0.00</th>
+                <th class="px-4 py-3 text-right" id="sumGrandCN">0.00</th>
+                <th class="px-4 py-3 text-right" id="sumCountCN">0</th>
+              </tr>
+              <tr class="bg-blue-50">
+                <th class="px-4 py-3 text-right font-black" colspan="3">الصافي</th>
+                <th class="px-4 py-3 text-right font-black" id="sumSub">0.00</th>
+                <th class="px-4 py-3 text-right font-black" id="sumDisc">0.00</th>
+                <th class="px-4 py-3 text-right font-black" id="sumVat">0.00</th>
+                <th class="px-4 py-3 text-right font-black" id="sumTob">0.00</th>
+                <th class="px-4 py-3 text-right font-black" id="sumGrand">0.00</th>
+                <th class="px-4 py-3 text-right font-black" id="sumCount">0</th>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <script src="./print-margins.js"></script>
+    <script src="./municipality.js"></script>
+  </body>
+</html>

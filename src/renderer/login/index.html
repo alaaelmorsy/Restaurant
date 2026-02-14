@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تسجيل الدخول - نظام الرابط</title>
+    <style>
+      :root{
+        --primary: #0057FF; /* أزرق احترافي عميق */
+        --primary-600: #003DC7;
+        --primary-light: #4C85FF;
+        --accent: #00B894; /* أخضر زمردي */
+        --accent-light: #55EFC4;
+        --gold: #FFD700;
+        --danger: #E63946;
+        --text: #1A1D29;
+        --text-light: #2C3E50;
+        --muted: #6C7293;
+        --bg: linear-gradient(135deg, #f0f9ff 0%, #dcfce7 50%, #bbf7d0 100%);
+        --card: rgba(255,255,255,0.95);
+        --card-glass: rgba(255,255,255,0.9);
+        --border: rgba(26,29,41,0.08);
+        --shadow-primary: 0 20px 40px rgba(0,87,255,0.15);
+        --shadow-card: 0 32px 64px rgba(0,0,0,0.12);
+      }
+      *{box-sizing:border-box}
+      body{
+        font-family: "Cairo", "Tajawal", system-ui, -apple-system, Segoe UI, Roboto, "Noto Kufi Arabic", Arial, sans-serif; 
+        background: var(--bg); 
+        margin:0; 
+        color:var(--text);
+        overflow-x: hidden;
+      } 
+
+      /* خلفية احترافية متطورة */
+      .bg{
+        position: fixed; 
+        inset:0; 
+        overflow:hidden; 
+        pointer-events:none;
+        /* خلفية بصورة back.png فقط */
+        background: url('../../../assets/icon/back.png') center/cover no-repeat fixed;
+      }
+      .shape{
+        position:absolute; 
+        filter:blur(60px); 
+        opacity:.4;
+      }
+      .shape.pos1{
+        width:600px; 
+        height:600px; 
+        background: radial-gradient(closest-side, rgba(34,197,94,.25), transparent 70%); 
+        right:-300px; 
+        top:-200px; 
+        border-radius:50%;
+      }
+      .shape.pos2{
+        width:500px; 
+        height:500px; 
+        background: radial-gradient(closest-side, rgba(16,185,129,.2), transparent 70%); 
+        left:-250px; 
+        bottom:-150px; 
+        border-radius:50%;
+      }
+
+      .container{ 
+        position:relative; 
+        min-height:100vh; 
+        display:grid; 
+        place-items:center; 
+        padding: 20px 16px; 
+      }
+      .card{
+        width:min(95vw, 460px);
+        background: var(--card);
+        border:2px solid rgba(255,255,255,0.3);
+        border-radius:24px; 
+        padding: 16px 20px; 
+        box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.2);
+        backdrop-filter: blur(20px);
+        position: relative;
+        overflow: hidden;
+      }
+      .card::before{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+      }
+      
+      .brand{ 
+        display:flex; 
+        align-items:center; 
+        gap:16px; 
+        justify-content:center; 
+        margin-bottom:10px; 
+      }
+      .logo{ 
+        width:64px; 
+        height:64px; 
+        border-radius:18px; 
+        display:grid; 
+        place-items:center; 
+        background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+        color:#fff; 
+        box-shadow: var(--shadow-primary), inset 0 1px 0 rgba(255,255,255,0.3); 
+        font-weight:900; 
+        font-size:20px;
+        position: relative;
+      }
+      .logo::after{
+        content: '';
+        position: absolute;
+        inset: 3px;
+        border-radius: 15px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+      }
+      .brand h1{ 
+        margin:0; 
+        font-size:36px; 
+        font-weight:900;
+        letter-spacing:1px; 
+        background: linear-gradient(135deg, #1e40af, #3b82f6, #8b5cf6, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 6px 12px rgba(59,130,246,0.4);
+        filter: drop-shadow(0 3px 6px rgba(139,92,246,0.5));
+        position: relative;
+        font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        text-transform: uppercase;
+        transform: perspective(500px) rotateX(10deg);
+        text-align: center;
+      }
+      .brand h1::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(139,92,246,0.12));
+        border-radius: 12px;
+        z-index: -1;
+        transform: translateY(4px);
+      }
+      .brand h1::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, transparent, rgba(59,130,246,0.3), rgba(139,92,246,0.3), transparent);
+        border-radius: 14px;
+        z-index: -2;
+        animation: glow 2s ease-in-out infinite alternate;
+      }
+      .plus-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+        color: #1A1D29 !important;
+        font-size: 18px;
+        font-weight: 900;
+        border-radius: 8px;
+        margin-right: 8px;
+        box-shadow: 0 4px 12px rgba(255,215,0,0.4);
+        position: relative;
+        top: -2px;
+        letter-spacing: 1px;
+        -webkit-text-fill-color: #1A1D29 !important;
+        -webkit-background-clip: unset !important;
+        background-clip: unset !important;
+        text-shadow: none;
+        filter: none;
+      }
+      @keyframes glow {
+        from { 
+          opacity: 0.6;
+          transform: scale(1);
+        }
+        to { 
+          opacity: 1;
+          transform: scale(1.02);
+        }
+      }
+      .subtitle{ 
+        text-align:center; 
+        color:var(--muted); 
+        font-size:16px; 
+        font-weight:500;
+        margin-bottom:14px; 
+      }
+      
+      /* شارة مؤسسة تعلم التقنيات */
+      .subtitle::after{
+        content: '🏢 مؤسسة تعلم التقنيات';
+        display: block;
+        margin-top: 14px;
+        color: #059669;
+        font-size: 20px;
+        font-weight: 900;
+        letter-spacing: .5px;
+        padding: 10px 18px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(5,150,105,0.12), rgba(16,185,129,0.08));
+        border: 3px solid rgba(5,150,105,0.2);
+        width: fit-content;
+        margin-inline: auto;
+        text-shadow: 0 2px 6px rgba(5,150,105,0.3);
+        box-shadow: 0 8px 24px rgba(5,150,105,0.15);
+        position: relative;
+        overflow: hidden;
+      }
+
+      label{ 
+        display:block; 
+        margin: 12px 8px 6px; 
+        font-weight:700; 
+        font-size:15px; 
+        color:var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: .3px;
+      }
+      .input{ position:relative; margin-bottom: 12px; }
+      input, select{
+        width:100%; 
+        padding: 16px 18px; 
+        border-radius:14px; 
+        border:2px solid rgba(0,0,0,0.06);
+        background: rgba(255,255,255,0.9); 
+        color:var(--text); 
+        outline:none; 
+        transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 15px;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      }
+      input::placeholder, select::placeholder{ 
+        color:var(--muted); 
+        font-weight: 400;
+      }
+      input:focus, select:focus{ 
+        border-color: var(--primary); 
+        box-shadow: 0 0 0 4px rgba(0,87,255,0.12), 0 8px 24px rgba(0,87,255,0.15);
+        background: #fff;
+      }
+
+      .options{ 
+        display:flex; 
+        justify-content:space-between; 
+        align-items:center; 
+        margin:20px 0; 
+      }
+      .remember{ 
+        display:flex; 
+        align-items:center; 
+        gap:10px; 
+        font-size:14px; 
+        color:var(--muted); 
+        cursor:pointer; 
+        font-weight: 500;
+      }
+      .remember input{ 
+        width:auto; 
+        padding: 0;
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+      }
+      .actions{ margin-top:24px; }
+      button{
+        width:100%; 
+        padding: 16px 24px; 
+        border:0; 
+        border-radius:14px; 
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color:white; 
+        font-weight:700; 
+        font-size:16px;
+        cursor:pointer; 
+        letter-spacing:.3px; 
+        box-shadow: var(--shadow-primary);
+        transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+      button::before{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left .4s ease;
+      }
+      button:hover{ 
+        transform: translateY(-1px);
+        box-shadow: 0 12px 32px rgba(0,87,255,0.25);
+      }
+      button:hover::before{
+        left: 100%;
+      }
+      button:active{ 
+        transform: translateY(0); 
+        box-shadow: var(--shadow-primary);
+      }
+      button:disabled{ 
+        opacity:.6; 
+        cursor:not-allowed; 
+        transform: none !important;
+      }
+
+      .error{ 
+        color: var(--danger); 
+        background: linear-gradient(135deg, rgba(230,57,70,0.08), rgba(230,57,70,0.04)); 
+        border:2px solid rgba(230,57,70,0.2); 
+        padding:14px 18px; 
+        border-radius:14px; 
+        margin-top:16px; 
+        text-align:center;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(230,57,70,0.1);
+      }
+      .error:empty{ display:none; }
+
+      .footer-hint{ 
+        text-align:center; 
+        color:var(--muted); 
+        font-size:14px; 
+        margin-top:16px; 
+        font-weight: 500;
+      }
+
+      .saved-users{ 
+        display:flex; 
+        flex-wrap:wrap; 
+        gap:10px; 
+        margin-top:16px; 
+      }
+      .chip{
+        display:flex; 
+        align-items:center; 
+        gap:8px; 
+        padding:8px 14px; 
+        border-radius:20px; 
+        border:2px solid rgba(0,0,0,0.06); 
+        background: rgba(255,255,255,0.8);
+        color:var(--text); 
+        font-size:13px; 
+        font-weight: 500;
+        cursor:pointer; 
+        user-select:none;
+        transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(10px);
+      }
+      .chip .x{ 
+        color:var(--muted); 
+        font-weight:700; 
+        padding-inline-start:4px; 
+        cursor:pointer; 
+        transition: color .2s;
+      }
+      .chip:hover{ 
+        border-color:var(--primary); 
+        background: rgba(255,255,255,0.95);
+        box-shadow: 0 4px 12px rgba(0,87,255,0.1);
+      }
+      .chip:hover .x{
+        color: var(--danger);
+      }
+
+      .eye{ 
+        position:absolute; 
+        left:12px; 
+        top:50%; 
+        transform:translateY(-50%); 
+        cursor:pointer; 
+        color:var(--muted); 
+        font-size: 18px;
+        transition: color .2s;
+      }
+      .eye:hover{
+        color: var(--primary);
+      }
+
+      /* Update notification styles */
+      .update-notification {
+        position: fixed;
+        top: -200px;
+        right: 20px;
+        left: auto;
+        transform: none;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        z-index: 9999;
+        transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        max-width: 420px;
+        min-width: 320px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        width: fit-content;
+      }
+      .update-notification.show {
+        top: 20px;
+      }
+      .update-notification .icon {
+        font-size: 24px;
+      }
+      .update-notification .content {
+        flex: 1;
+      }
+      .update-notification .title {
+        font-weight: 700;
+        font-size: 16px;
+        margin-bottom: 4px;
+      }
+      .update-notification .message {
+        font-size: 13px;
+        opacity: 0.95;
+      }
+      .update-notification.expired {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+      }
+      @media (max-width: 768px) {
+        .update-notification {
+          right: 10px;
+          left: auto;
+          max-width: calc(100vw - 20px);
+          min-width: auto;
+          width: auto;
+        }
+      }
+
+      /* Support info styles - محسن */
+      .support-info{
+        position:relative;
+        display:flex; align-items:center; justify-content:space-between;
+        margin:16px 0 12px; padding:12px 18px; min-height:40px; width:100%;
+        border-radius:16px; border:2px solid rgba(0,87,255,0.1);
+        background: rgba(255,255,255,0.8);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        backdrop-filter: blur(10px);
+      }
+      .support-info .group{ 
+        display:inline-flex; 
+        align-items:center; 
+        gap:10px; 
+        flex:0 1 auto; 
+        white-space:nowrap; 
+      }
+      .support-info .label{ 
+        font-size:13px; 
+        color:var(--muted); 
+        font-weight:600; 
+        line-height:1; 
+      }
+      .support-info .date{ 
+        font-weight:700; 
+        font-size:13px; 
+        line-height:1; 
+        color:var(--text); 
+        letter-spacing:.2px; 
+        direction:ltr; 
+        unicode-bidi:isolate; 
+        font-variant-numeric:tabular-nums; 
+      }
+      .support-info .badge{ 
+        display:inline-flex; 
+        align-items:center; 
+        height:28px; 
+        line-height:1; 
+        font-weight:700; 
+        font-size:12px; 
+        padding:0 12px; 
+        border-radius:14px; 
+        border:2px solid transparent; 
+        transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .support-info .badge.status-ok{ 
+        background: linear-gradient(135deg, rgba(0,184,148,0.1), rgba(0,184,148,0.05));
+        border-color: rgba(0,184,148,0.2);
+        color: var(--accent);
+      }
+      .support-info .badge.status-warn{ 
+        background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.08));
+        border-color: rgba(255,215,0,0.3);
+        color: var(--gold);
+      }
+      .support-info .badge.status-expired{ 
+        background: linear-gradient(135deg, rgba(230,57,70,0.1), rgba(230,57,70,0.05));
+        border-color: rgba(230,57,70,0.2);
+        color: var(--danger);
+      }
+      /* خطوط Cairo للتصميم العربي */
+      @font-face {
+        font-family: 'Cairo';
+        src: url('../../../assets/fonts/Cairo-Regular.ttf') format('truetype');
+        font-weight: 400; font-style: normal; font-display: swap;
+      }
+      @font-face {
+        font-family: 'Cairo';
+        src: url('../../../assets/fonts/Cairo-Bold.ttf') format('truetype');
+        font-weight: 700; font-style: normal; font-display: swap;
+      }
+      @font-face {
+        font-family: 'Cairo';
+        src: url('../../../assets/fonts/Cairo-Black.ttf') format('truetype');
+        font-weight: 900; font-style: normal; font-display: swap;
+      }
+
+      /* تحسين الأزرار الثانوية */
+      #openConnDialog, #deleteSavedBtn, #connClose {
+        background: rgba(255,255,255,0.8) !important;
+        color: var(--text) !important;
+        border: 2px solid rgba(0,0,0,0.06) !important;
+        backdrop-filter: blur(10px);
+        font-weight: 600 !important;
+        transition: all .2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      }
+      #openConnDialog:hover, #deleteSavedBtn:hover {
+        background: rgba(255,255,255,0.95) !important;
+        border-color: var(--primary) !important;
+        box-shadow: 0 4px 12px rgba(0,87,255,0.1) !important;
+      }
+      #connClose {
+        background: linear-gradient(135deg, var(--danger), #E63946) !important;
+        color: white !important;
+        border: 2px solid rgba(230,57,70,0.3) !important;
+      }
+      #connClose:hover {
+        box-shadow: 0 4px 12px rgba(230,57,70,0.2) !important;
+      }
+
+      /* تحسينات الاستجابة للشاشات الصغيرة */
+      @media (max-width: 480px) {
+        .container {
+          padding: 16px 12px;
+        }
+        .card {
+          padding: 14px 18px;
+        }
+        .brand h1 {
+          font-size: 30px;
+          transform: perspective(400px) rotateX(8deg);
+        }
+        .brand {
+          margin-bottom: 8px;
+        }
+        .logo {
+          width: 48px;
+          height: 48px;
+          font-size: 16px;
+        }
+        .subtitle {
+          margin-bottom: 12px;
+        }
+        .subtitle::after {
+          font-size: 17px;
+          padding: 8px 14px;
+          margin-top: 10px;
+        }
+      }
+
+      /* Context Menu Styles */
+      #contextMenu {
+        user-select: none;
+        animation: contextFadeIn 0.15s ease-out;
+      }
+      @keyframes contextFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-4px) scale(0.96);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      #ctxCopy:hover, #ctxPaste:hover {
+        background: linear-gradient(135deg, rgba(0,87,255,0.08), rgba(0,87,255,0.04));
+        color: var(--primary);
+      }
+      #ctxCopy:active, #ctxPaste:active {
+        background: linear-gradient(135deg, rgba(0,87,255,0.12), rgba(0,87,255,0.08));
+        transform: scale(0.98);
+      }
+
+      /* رسالة تحذيرية - نسخة تجريبية */
+      .trial-warning {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin: 0 0 16px;
+        padding: 16px 24px;
+        min-height: 56px;
+        width: 100%;
+        border-radius: 16px;
+        border: 3px solid rgba(230, 57, 70, 0.3);
+        background: linear-gradient(135deg, rgba(230, 57, 70, 0.15), rgba(230, 57, 70, 0.08));
+        box-shadow: 0 8px 24px rgba(230, 57, 70, 0.2);
+        backdrop-filter: blur(10px);
+        animation: pulseWarning 2s ease-in-out infinite;
+      }
+      .trial-warning .warning-icon {
+        font-size: 32px;
+        line-height: 1;
+        filter: drop-shadow(0 2px 4px rgba(230, 57, 70, 0.3));
+      }
+      .trial-warning .warning-text {
+        font-size: 18px;
+        font-weight: 900;
+        color: #dc2626;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 4px rgba(220, 38, 38, 0.15);
+        line-height: 1.4;
+      }
+      @keyframes pulseWarning {
+        0%, 100% {
+          box-shadow: 0 8px 24px rgba(230, 57, 70, 0.2);
+          border-color: rgba(230, 57, 70, 0.3);
+        }
+        50% {
+          box-shadow: 0 12px 32px rgba(230, 57, 70, 0.35);
+          border-color: rgba(230, 57, 70, 0.5);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- اتصال IP Modal -->
+    <div id="connModal" style="position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(15,23,42,.25); z-index:50;">
+      <div style="width:min(92vw,480px); background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow: 0 20px 40px rgba(15,23,42,.15);">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--border);">
+          <div style="font-weight:800;">إعداد الاتصال بالجهاز الرئيسي</div>
+          <button id="connClose" style="width:auto; padding:6px 10px; background:#dc2626; color:#fff; border:1px solid #b91c1c; border-radius:8px;">إغلاق</button>
+        </div>
+        <div style="padding:16px;">
+          <div style="margin-bottom:20px;">
+            <label style="display:block; margin:0 0 12px; font-weight:700; font-size:15px; color:#2C3E50;">نوع الجهاز</label>
+            <div style="display:flex; gap:12px;">
+              <label style="flex:1; display:flex; align-items:center; gap:8px; padding:12px 16px; border:2px solid rgba(0,87,255,0.2); border-radius:14px; cursor:pointer; background:linear-gradient(135deg, rgba(0,87,255,0.08), rgba(0,87,255,0.04)); transition:all 0.2s;">
+                <input type="radio" name="deviceMode" value="primary" id="modePrimary" checked style="width:18px; height:18px; accent-color:#0057FF;" />
+                <span style="font-weight:600; font-size:14px;">جهاز رئيسي</span>
+              </label>
+              <label style="flex:1; display:flex; align-items:center; gap:8px; padding:12px 16px; border:2px solid rgba(0,0,0,0.06); border-radius:14px; cursor:pointer; background:rgba(255,255,255,0.9); transition:all 0.2s;">
+                <input type="radio" name="deviceMode" value="secondary" id="modeSecondary" style="width:18px; height:18px; accent-color:#0057FF;" />
+                <span style="font-weight:600; font-size:14px;">جهاز فرعي</span>
+              </label>
+            </div>
+          </div>
+          <div id="secondaryFields" style="display:none;">
+            <div class="input">
+              <label for="serverIp">IP الجهاز الرئيسي</label>
+              <div style="display:flex; gap:8px;">
+                <input id="serverIp" placeholder="مثال: 192.168.1.10 أو 192.168.1.10:3307" style="flex:1;" />
+                <button id="clearIpBtn" style="width:auto; padding:12px 16px; background:#dc2626; color:#fff; border:0; border-radius:14px; font-weight:700; cursor:pointer;">مسح</button>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:12px;">
+              <button id="testIpBtn" style="flex:1; background:linear-gradient(135deg, var(--accent), #22c55e);">اختبار الاتصال</button>
+              <button id="saveIpBtn" style="flex:1; background:linear-gradient(135deg, var(--primary), #3b82f6);">حفظ واستخدام</button>
+            </div>
+          </div>
+          <div id="primarySaveBtn" style="margin-top:16px; display:none;">
+            <button id="savePrimaryBtn" style="width:100%; padding:14px 20px; border:0; border-radius:14px; background:linear-gradient(135deg, #0057FF, #3b82f6); color:white; font-weight:700; font-size:15px; cursor:pointer;">حفظ كجهاز رئيسي</button>
+          </div>
+          <div id="ipMsg" class="error" style="margin-top:12px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="bg">
+      <div class="shape pos1"></div>
+      <div class="shape pos2"></div>
+    </div>
+
+    <!-- Context Menu for username field -->
+    <div id="contextMenu" style="display:none; position:fixed; z-index:9999; background:#fff; border:2px solid rgba(0,87,255,0.15); border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.15); overflow:hidden; min-width:140px; backdrop-filter:blur(10px);">
+      <div id="ctxCopy" style="padding:10px 16px; font-size:14px; font-weight:600; color:#1A1D29; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>📋</span><span>نسخ</span>
+      </div>
+      <div style="height:1px; background:rgba(0,0,0,0.06); margin:0 8px;"></div>
+      <div id="ctxPaste" style="padding:10px 16px; font-size:14px; font-weight:600; color:#1A1D29; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>📄</span><span>لصق</span>
+      </div>
+    </div>
+
+    <!-- إشعار التحديث (مخفي افتراضياً) -->
+    <div id="updateNotification" class="update-notification" style="display: none;">
+      <div class="icon">🎉</div>
+      <div class="content">
+        <div class="title" id="updateTitle">يتوفر تحديث جديد!</div>
+        <div class="message" id="updateMessage">توجه إلى الإعدادات لتحديث البرنامج</div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="card">
+        <div class="brand">
+          <h1>نظام الرابط <span class="plus-badge">PLUS</span></h1>
+        </div>
+        <div class="subtitle"></div>
+
+        <!-- رسالة تحذيرية - نسخة تجريبية -->
+        <div id="trialWarning" class="trial-warning" style="display:none">
+          <div class="warning-icon">⚠️</div>
+          <div class="warning-text">هذه النسخة تجريبية</div>
+        </div>
+
+        <div id="supportInfo" class="support-info" style="display:none">
+          <div class="group">
+            <div class="label">تاريخ انتهاء الدعم الفني:</div>
+            <div class="date" id="supportEndDate">—</div>
+          </div>
+          <div class="group">
+            <div class="badge" id="supportDaysLeft">—</div>
+          </div>
+        </div>
+
+        <div class="input">
+          <label for="username">اسم المستخدم</label>
+          <div style="position:relative; display:flex; gap:8px; align-items:center;">
+            <input id="username" list="savedUsersList" autocomplete="username" placeholder="مثال: admin" style="flex:1" />
+            <button id="deleteSavedBtn" title="حذف هذا الحساب المحفوظ" style="display:none; width:auto; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:#fff; color:#b91c1c; font-weight:700;">حذف</button>
+          </div>
+          <datalist id="savedUsersList"></datalist>
+        </div>
+
+        <div class="input" style="margin-top:8px;">
+          <label for="password">كلمة المرور</label>
+          <input id="password" type="password" autocomplete="current-password" placeholder="••••••" />
+          <span id="toggleEye" class="eye">👁️</span>
+        </div>
+
+        <div class="options">
+          <label class="remember"><input type="checkbox" id="rememberCheck" /> تذكرني</label>
+          <div style="font-size:12px; color:#3b82f6"></div>
+        </div>
+
+        <div class="actions"><button id="loginBtn">دخول</button></div>
+        <div class="error" id="error"></div>
+
+        <div class="footer-hint"></div>
+
+        <div style="margin-top:16px; display:flex; justify-content:flex-end;">
+          <button id="openConnDialog" style="width:auto; padding:8px 12px; background:#f8fafc; color:#0f172a; border:1px solid var(--border); border-radius:10px;">إعداد الاتصال بالجهاز الرئيسي…</button>
+        </div>
+
+        <div id="savedWrap" style="margin-top:12px; display:none;">
+          <div style="font-weight:700; font-size:13px; color:#334155; margin:4px 2px;">حسابات محفوظة</div>
+          <div id="savedUsers" class="saved-users"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>الفواتير الدائنة - الرابط</title>
+    <link rel="stylesheet" href="../../../assets/css/tailwind.min.css">
+    <style>
+      @font-face{
+        font-family: 'saudi_riyal';
+        src: url('../../../assets/fonts/saudi-riyal.woff') format('woff'),
+             url('../../../assets/fonts/saudi-riyal.ttf') format('truetype');
+        font-display: swap;
+        unicode-range: U+FDFC, U+E900;
+      }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Light.ttf') format('truetype'); font-weight: 300; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-ExtraBold.ttf') format('truetype'); font-weight: 800; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Black.ttf') format('truetype'); font-weight: 900; font-display: swap; }
+    </style>
+    <style>
+      * { box-sizing: border-box; }
+      body { font-family: 'Cairo', system-ui, -apple-system, Segoe UI, Roboto, "Noto Kufi Arabic", Arial, sans-serif; }
+      button { transition: none !important; }
+      .error:empty { display: none; }
+      input[type="datetime-local"] { font-family: 'Cairo', sans-serif; }
+      .currency-symbol{ font-family: 'saudi_riyal', 'Cairo', system-ui, -apple-system, Segoe UI, Roboto, "Noto Kufi Arabic", Arial, sans-serif; }
+    </style>
+  </head>
+  <body class="bg-gradient-to-br from-slate-50 via-white to-slate-50 min-h-screen">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+      <div class="flex items-center justify-between px-6 py-3.5 max-w-[1600px] mx-auto">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h1 class="text-xl font-extrabold text-slate-800">الفواتير الدائنة</h1>
+          <span class="hidden lg:inline text-sm text-slate-500 font-medium">عرض الإشعارات الدائنة منفصلة</span>
+        </div>
+        <nav></nav>
+      </div>
+    </header>
+
+    <div class="max-w-[1600px] mx-auto px-6 py-5">
+      <!-- Search Filters -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+          <input id="q" placeholder="🔍 بحث برقم الإشعار/الفاتورة أو العميل" 
+                 class="px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm font-semibold text-slate-700 placeholder-slate-400" />
+          
+          <input id="q2" placeholder="👤 بحث بالهاتف/الضريبي/اسم العميل" 
+                 class="px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm font-semibold text-slate-700 placeholder-slate-400" />
+          
+          <div class="flex items-center gap-2">
+            <label class="text-sm font-bold text-slate-600 whitespace-nowrap">من:</label>
+            <input id="dateFrom" type="datetime-local" 
+                   class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm font-semibold" />
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <label class="text-sm font-bold text-slate-600 whitespace-nowrap">إلى:</label>
+            <input id="dateTo" type="datetime-local" 
+                   class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm font-semibold" />
+          </div>
+          
+          <button id="applyBtn" title="تطبيق الفلترة بالتاريخ"
+                  class="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-lg font-bold text-sm shadow-md flex items-center justify-center gap-2">
+            <span>🔄</span>
+            <span>عرض</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div id="error" class="error text-center bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 font-bold text-sm"></div>
+
+      <!-- Controls Bar -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
+        <div class="flex items-center gap-3 bg-white px-4 py-2.5 rounded-lg border border-slate-200 shadow-sm">
+          <span class="text-slate-700 font-bold text-sm">📊 عدد الصفوف:</span>
+          <select id="pageSize" 
+                  class="px-3 py-1.5 border border-slate-300 rounded-lg bg-white text-sm font-bold focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+            <option value="20" selected>20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="0">الكل</option>
+          </select>
+        </div>
+        <div id="pagerTop" class="flex items-center gap-2"></div>
+      </div>
+
+      <!-- Table -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gradient-to-r from-orange-50 to-red-50 border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">#</th>
+                <th class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">رقم الإشعار</th>
+                <th class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">الفاتورة الأساسية</th>
+                <th class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">العميل</th>
+                <th class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">الهاتف</th>
+                <th class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">الإجمالي</th>
+                <th class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">التاريخ</th>
+                <th id="thZatcaStatus" class="px-4 py-3.5 text-center text-xs font-extrabold text-orange-700 uppercase tracking-wide">حالة الهيئة</th>
+                <th class="px-4 py-3.5 text-center text-xs font-extrabold text-orange-700 uppercase tracking-wide">إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="tbody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Bottom Pager -->
+      <div id="pagerBottom" class="flex items-center justify-center gap-2 mt-4"></div>
+    </div>
+
+    <!-- ZATCA Modal -->
+    <div id="zatcaModal" class="hidden fixed inset-0 bg-black bg-opacity-40 items-center justify-center z-50">
+      <div class="bg-white w-full max-w-4xl mx-4 max-h-[85vh] rounded-xl overflow-hidden flex flex-col shadow-2xl border border-slate-200">
+        <div class="px-5 py-4 bg-gradient-to-r from-orange-500 to-red-600 text-white flex justify-between items-center">
+          <div class="text-base font-black flex items-center gap-2">
+            <span>📋</span>
+            <span>تفاصيل رد هيئة الزكاة</span>
+          </div>
+          <button id="zatcaClose" class="px-4 py-2 bg-white text-orange-600 rounded-lg font-bold hover:bg-slate-50 text-sm shadow-md">إغلاق</button>
+        </div>
+        <pre id="zatcaContent" class="m-0 p-5 overflow-auto max-h-[70vh] text-xs font-mono bg-slate-50" style="direction:ltr; text-align:left; white-space:pre-wrap;"></pre>
+      </div>
+    </div>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>

@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تقرير الأنواع</title>
+    <link href="../../styles/output.css" rel="stylesheet">
+    <style>
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-ExtraBold.ttf') format('truetype'); font-weight: 800; font-display: swap; }
+      @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Black.ttf') format('truetype'); font-weight: 900; font-display: swap; }
+      
+      body {
+        font-family: 'Cairo', sans-serif;
+      }
+
+      /* شبكة كاملة للجداول (عرض الشاشة) */
+      .grid-table{ 
+        border: 1px solid #cbd5e1; 
+        border-collapse: collapse; 
+        table-layout: auto;
+      }
+      .grid-table th, .grid-table td{ 
+        border: 1px solid #e2e8f0; 
+        padding: 8px 12px;
+      }
+      .grid-table tfoot th{ 
+        border-top: 2px solid #cbd5e1;
+        background: #dbeafe;
+        font-weight: 900;
+      }
+      
+      /* تنسيق الجداول العامة */
+      table tbody tr:hover{ background: #f9fafb; }
+      table tbody tr{ border-bottom: 1px solid #e5e7eb; }
+
+      details > summary {
+        list-style: none;
+        cursor: pointer;
+        position: relative;
+        padding-right: 24px;
+        font-weight: 600;
+        color: #4b5563;
+      }
+      details > summary::-webkit-details-marker { display: none; }
+      details > summary::before {
+        content: '▸';
+        position: absolute;
+        right: 0;
+        top: 0;
+        color: #6b7280;
+        transform: translateY(2px);
+        transition: transform 0.2s;
+      }
+      details[open] > summary::before {
+        transform: rotate(90deg) translateX(2px);
+      }
+
+      @font-face{
+        font-family: 'saudi_riyal';
+        src: url('../../../assets/fonts/saudi-riyal.woff') format('woff'),
+             url('../../../assets/fonts/saudi-riyal.ttf') format('truetype');
+        font-display: swap;
+        unicode-range: U+E900;
+      }
+      :root{ --m-left: 0mm; --m-right: 0mm; }
+      
+      /* طباعة: ضبط المقاس A4 */
+      @media print {
+        header, .range-actions, .range-inputs { display: none !important; }
+        
+        /* إزالة المقاس الحراري في الطباعة العامة لضمان عرض A4 عند التصدير */
+        @page { margin: 1cm; }
+        html, body { width: auto; max-width: none; margin: 0; padding: 0; }
+        .container { max-width: 1100px; margin: 16px auto; padding: 0 12px; }
+        div[style*="overflow:auto"]{ overflow: visible !important; }
+        table { table-layout: fixed; font-size: 8px !important; line-height: 1.15; }
+        th, td { padding: 1px 2px; }
+        /* تحسين الالتفاف: السماح للنصوص العربية بالالتفاف ومنع التفاف الأرقام */
+        .grid-table th, .grid-table td { word-break: break-word; overflow-wrap: anywhere; white-space: normal; }
+        .num, .num * { white-space: nowrap !important; word-break: keep-all !important; overflow-wrap: normal !important; direction: ltr; text-align: left; }
+      }
+    </style>
+  </head>
+  <body class="bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 min-h-screen">
+    <header class="bg-white shadow-lg sticky top-0 z-50 border-b-4 border-blue-500">
+      <div class="container mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-2xl font-black text-gray-800">تقرير الأنواع</h1>
+              <p class="text-sm text-gray-500 font-semibold">نظام إدارة المطاعم</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="btnBack" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold rounded-xl hover:from-blue-700 hover:to-blue-800 shadow-lg">
+              الرجوع
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8 max-w-7xl">
+      <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-100">
+        <!-- قسم الفلاتر -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
+          <!-- تاريخ من -->
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <span class="text-lg">📅</span>
+              من
+            </label>
+            <input id="fromAt" type="datetime-local" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm hover:border-blue-400 transition-colors" />
+          </div>
+          
+          <!-- تاريخ إلى -->
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <span class="text-lg">📅</span>
+              إلى
+            </label>
+            <input id="toAt" type="datetime-local" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm hover:border-blue-400 transition-colors" />
+          </div>
+          
+          <!-- زر التطبيق -->
+          <div class="flex items-end">
+            <button id="loadBtn" class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-black rounded-xl hover:from-purple-700 hover:to-purple-800 shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
+              <span class="text-lg">✓</span>
+              تطبيق
+            </button>
+          </div>
+        </div>
+        
+        <!-- قسم الأزرار -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t-2 border-gray-100">
+          <div class="text-gray-600 font-bold flex items-center gap-2" id="range">
+            <span class="text-lg">📊</span>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="exportPdfBtn" class="px-5 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-black rounded-xl hover:from-red-600 hover:to-red-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+              <span class="text-lg">📄</span>
+              تصدير PDF
+            </button>
+            <button id="exportExcelBtn" class="px-5 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-black rounded-xl hover:from-green-600 hover:to-green-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+              <span class="text-lg">📊</span>
+              تصدير Excel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-100">
+        <details>
+          <summary class="text-lg mb-4">تفصيل الأصناف لكل تصنيف</summary>
+          <div id="catDetails" class="mt-4"></div>
+        </details>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border-2 border-gray-100">
+        <h3 class="text-2xl font-black text-gray-800 mb-4 pb-3 border-b-2 border-blue-500">تجميع حسب التصنيفات</h3>
+        <div class="overflow-x-auto">
+          <table class="grid-table w-full">
+            <thead>
+              <tr>
+                <th class="bg-gradient-to-r from-slate-50 to-slate-100 text-blue-700 font-bold">التصنيف</th>
+                <th class="bg-gradient-to-r from-slate-50 to-slate-100 text-blue-700 font-bold">عدد الأصناف المباعة</th>
+                <th class="bg-gradient-to-r from-slate-50 to-slate-100 text-blue-700 font-bold">إجمالي الكمية</th>
+                <th class="bg-gradient-to-r from-slate-50 to-slate-100 text-blue-700 font-bold">إجمالي المبيعات</th>
+              </tr>
+            </thead>
+            <tbody id="catTbody"></tbody>
+            <tfoot>
+              <tr>
+                <th class="text-gray-800">الإجماليات</th>
+                <th id="sumItems" class="text-gray-800">0</th>
+                <th id="sumQty" class="text-gray-800">0.00</th>
+                <th id="sumAmount" class="text-gray-800">0.00</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script src="./print-margins.js"></script>
+    <script src="./types.js"></script>
+  </body>
+</html>

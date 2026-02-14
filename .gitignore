@@ -1,0 +1,4 @@
+src/styles/output.css 
+node_modules
+dist
+.env

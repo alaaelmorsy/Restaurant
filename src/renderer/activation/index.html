@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self' 'unsafe-inline'">
+  <title>تفعيل البرنامج - POS SA</title>
+  <style>
+    :root{
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #818cf8;
+      --accent: #10b981;
+      --accent-dark: #059669;
+      --danger: #ef4444;
+      --danger-dark: #dc2626;
+      --text: #0f172a;
+      --text-secondary: #475569;
+      --muted: #94a3b8;
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+    }
+
+    @font-face {
+      font-family: 'Cairo';
+      src: url('../../../assets/fonts/Cairo-Regular.ttf') format('truetype');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Cairo';
+      src: url('../../../assets/fonts/Cairo-Bold.ttf') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Cairo';
+      src: url('../../../assets/fonts/Cairo-Black.ttf') format('truetype');
+      font-weight: 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    *{
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body{
+      font-family: "Cairo", "Tajawal", system-ui, -apple-system, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      padding: 20px;
+    }
+
+    .container{
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .card{
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 40px 32px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .header{
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .title{
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--text);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle{
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .company-info{
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      padding: 12px 20px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .company-info span{
+      color: white;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.3px;
+    }
+
+    .form-group{
+      margin-bottom: 24px;
+    }
+
+    .form-label{
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper{
+      position: relative;
+    }
+
+    .form-input{
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+      background: white;
+      outline: none;
+    }
+
+    .form-input::placeholder{
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .form-input:focus{
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .btn-group{
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .btn{
+      flex: 1;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .btn-primary{
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-primary:hover{
+      opacity: 0.95;
+    }
+
+    .btn-primary:active{
+      opacity: 1;
+    }
+
+    .btn-secondary{
+      background: #f8fafc;
+      color: var(--text-secondary);
+      border: 2px solid var(--border);
+    }
+
+    .btn-secondary:hover{
+      background: #f1f5f9;
+      border-color: var(--muted);
+    }
+
+    .btn:disabled{
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .message{
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .message.error{
+      background: #fee2e2;
+      color: var(--danger-dark);
+      border: 1px solid #fecaca;
+    }
+
+    .message.success{
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .message:not(:empty){
+      display: block;
+    }
+
+    .settings-link{
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .link-btn{
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 8px;
+    }
+
+    .link-btn:hover{
+      background: #f1f5f9;
+      color: var(--primary);
+    }
+
+    @media (max-width: 480px) {
+      .card{
+        padding: 32px 24px;
+      }
+      .title{
+        font-size: 22px;
+      }
+    }
+
+    #contextMenu {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+      min-width: 160px;
+      user-select: none;
+    }
+
+    .ctx-item{
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ctx-item:hover{
+      background: rgba(99, 102, 241, 0.05);
+      color: var(--primary);
+    }
+
+    .ctx-divider{
+      height: 1px;
+      background: var(--border);
+      margin: 4px 8px;
+    }
+  </style>
+</head>
+<body>
+  <!-- اتصال IP Modal -->
+  <div id="connModal" style="position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(15,23,42,.6); z-index:50;">
+    <div style="width:min(92vw,500px); background:#fff; border-radius:24px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:20px 24px; border-bottom:2px solid #e2e8f0;">
+        <div style="font-weight:900; font-size:18px; color:#0f172a;">⚙️ إعداد الاتصال بالجهاز الرئيسي</div>
+        <button id="connClose" style="width:auto; padding:10px 16px; background:#ef4444; color:#fff; border:0; border-radius:10px; font-weight:700; cursor:pointer;">إغلاق</button>
+      </div>
+      <div style="padding:24px;">
+        <div style="margin-bottom:24px;">
+          <label style="display:block; margin:0 0 12px; font-weight:700; font-size:15px; color:#0f172a;">نوع الجهاز</label>
+          <div style="display:flex; gap:12px;">
+            <label style="flex:1; display:flex; align-items:center; gap:10px; padding:14px 18px; border:2px solid #6366f1; border-radius:14px; cursor:pointer; background:linear-gradient(135deg, rgba(99,102,241,0.1), rgba(99,102,241,0.05));">
+              <input type="radio" name="deviceMode" value="primary" id="modePrimary" checked style="width:20px; height:20px; accent-color:#6366f1;" />
+              <span style="font-weight:700; font-size:14px; color:#0f172a;">🖥️ جهاز رئيسي</span>
+            </label>
+            <label style="flex:1; display:flex; align-items:center; gap:10px; padding:14px 18px; border:2px solid #e2e8f0; border-radius:14px; cursor:pointer; background:#fff;">
+              <input type="radio" name="deviceMode" value="secondary" id="modeSecondary" style="width:20px; height:20px; accent-color:#6366f1;" />
+              <span style="font-weight:700; font-size:14px; color:#0f172a;">💻 جهاز فرعي</span>
+            </label>
+          </div>
+        </div>
+        <div id="secondaryFields" style="display:none;">
+          <div style="position:relative; margin-bottom: 16px;">
+            <label for="serverIp" style="display:block; margin:0 0 10px; font-weight:700; font-size:15px; color:#0f172a;">📡 IP الجهاز الرئيسي</label>
+            <div style="display:flex; gap:10px;">
+              <input id="serverIp" placeholder="مثال: 192.168.1.10 أو 192.168.1.10:3307" style="flex:1; width:100%; padding:14px 16px; border-radius:12px; border:2px solid #e2e8f0; background:#fff; font-size:14px; font-weight:500; outline:none;" />
+              <button id="clearIpBtn" style="width:auto; padding:12px 18px; background:#ef4444; color:#fff; border:0; border-radius:12px; font-weight:700; cursor:pointer;">🗑️ مسح</button>
+            </div>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:16px;">
+            <button id="testIpBtn" style="flex:1; padding:14px 20px; border:0; border-radius:12px; background:linear-gradient(135deg, #10b981, #059669); color:white; font-weight:700; font-size:15px; cursor:pointer;">🔍 اختبار الاتصال</button>
+            <button id="saveIpBtn" style="flex:1; padding:14px 20px; border:0; border-radius:12px; background:linear-gradient(135deg, #6366f1, #4f46e5); color:white; font-weight:700; font-size:15px; cursor:pointer;">💾 حفظ واستخدام</button>
+          </div>
+        </div>
+        <div id="primarySaveBtn" style="margin-top:16px; display:none;">
+          <button id="savePrimaryBtn" style="width:100%; padding:14px 20px; border:0; border-radius:12px; background:linear-gradient(135deg, #6366f1, #4f46e5); color:white; font-weight:700; font-size:15px; cursor:pointer;">💾 حفظ كجهاز رئيسي</button>
+        </div>
+        <div id="ipMsg" style="margin-top:14px; padding:14px 18px; border-radius:12px; display:none; font-weight:600; font-size:14px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Context Menu -->
+  <div id="contextMenu">
+    <div id="ctxCopy" class="ctx-item">
+      <span>📋</span><span>نسخ</span>
+    </div>
+    <div class="ctx-divider"></div>
+    <div id="ctxPaste" class="ctx-item">
+      <span>📄</span><span>لصق</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <h1 class="title">تفعيل البرنامج</h1>
+        <p class="subtitle">أدخل كود التفعيل للبدء في استخدام النظام</p>
+      </div>
+
+      <div class="company-info">
+        <span>🏢 مؤسسة تعلم التقنيات</span>
+      </div>
+
+      <div id="msg" class="message error"></div>
+      <div id="ok" class="message success"></div>
+
+      <div class="form-group">
+        <label for="code" class="form-label">🔑 كود التفعيل</label>
+        <div class="input-wrapper">
+          <input id="code" type="password" class="form-input" placeholder="أدخل كود التفعيل المرسل من الدعم" autocomplete="off" autofocus />
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button id="activateBtn" class="btn btn-primary">✅ تفعيل الآن</button>
+        <button id="quitBtn" class="btn btn-secondary">❌ خروج</button>
+      </div>
+
+      <div class="settings-link">
+        <button id="openConnDialog" class="link-btn">⚙️ إعداد الاتصال بالجهاز الرئيسي</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (async function(){
+      // إذا كان مُفعلاً بالفعل أو متصل بجهاز رئيسي، الانتقال مباشرة لشاشة الدخول
+      try{
+        const r = await window.api.license_check();
+        if(r && r.ok){ location.replace('../login/index.html'); return; }
+      }catch(_){ /* تجاهل */ }
+
+      // التحقق من الاتصال بالجهاز الرئيسي
+      try{
+        const cfg = await window.api.db_get_config();
+        if(cfg && cfg.ok && cfg.config){
+          const h = cfg.config.host || '127.0.0.1';
+          if(h && !/^127\.0\.0\.1$/.test(h) && !/^localhost$/i.test(h)){
+            const t = await window.api.db_test({ host: h, port: cfg.config.port || 3306 });
+            if(t && t.ok){
+              location.replace('../login/index.html');
+              return;
+            }
+          }
+        }
+      }catch(_){ /* تجاهل */ }
+
+      let retryTimer = null;
+      let retryRunning = false;
+      async function tryAutoConnect(){
+        if(retryRunning) return;
+        retryRunning = true;
+        try{
+          const cfg = await window.api.db_get_config();
+          if(cfg && cfg.ok && cfg.config){
+            const h = cfg.config.host || '127.0.0.1';
+            if(h && !/^127\.0\.0\.1$/.test(h) && !/^localhost$/i.test(h)){
+              const t = await window.api.db_test({ host: h, port: cfg.config.port || 3306 });
+              if(t && t.ok){ location.replace('../login/index.html'); return; }
+            }
+          }
+        }catch(_){ }
+        finally{ retryRunning = false; }
+      }
+      function scheduleRetry(){
+        retryTimer = setTimeout(async () => {
+          await tryAutoConnect();
+          scheduleRetry();
+        }, 5000);
+      }
+      await tryAutoConnect();
+      scheduleRetry();
+
+      const msg = document.getElementById('msg');
+      const okBox = document.getElementById('ok');
+      function showError(t){ msg.textContent = t||''; msg.style.display = t ? '' : 'none'; }
+      function showSuccess(t){ okBox.textContent = t||''; okBox.style.display = t ? '' : 'none'; }
+
+      function normalize(code){
+        return String(code||'').replace(/\s|-/g,'').toUpperCase();
+      }
+
+      async function doActivate(inputCode){
+        showError(''); showSuccess('');
+        const code = normalize(inputCode);
+        if(!code){ showError('يرجى إدخال كود التفعيل'); return; }
+        const res = await window.api.license_activate(code);
+        if(!res || !res.ok){ showError(res && res.error ? res.error : 'فشل التفعيل'); return; }
+        showSuccess('تم تفعيل البرنامج بنجاح ✅');
+        location.replace('../login/index.html');
+      }
+
+      document.getElementById('activateBtn').addEventListener('click', async () => {
+        const raw = document.getElementById('code').value;
+        await doActivate(raw);
+      });
+
+      document.getElementById('quitBtn').addEventListener('click', () => {
+        try{ window.api.app_quit(); }catch(_){ }
+      });
+
+      document.getElementById('code').addEventListener('keydown', (e)=>{ if(e.key==='Enter') document.getElementById('activateBtn').click(); });
+
+      // Modal الاتصال بالجهاز الرئيسي
+      const connModal = document.getElementById('connModal');
+      const openConnDialog = document.getElementById('openConnDialog');
+      const connClose = document.getElementById('connClose');
+      const serverIpInput = document.getElementById('serverIp');
+      const testIpBtn = document.getElementById('testIpBtn');
+      const saveIpBtn = document.getElementById('saveIpBtn');
+      const clearIpBtn = document.getElementById('clearIpBtn');
+      const savePrimaryBtn = document.getElementById('savePrimaryBtn');
+      const ipMsg = document.getElementById('ipMsg');
+      const modePrimary = document.getElementById('modePrimary');
+      const modeSecondary = document.getElementById('modeSecondary');
+      const secondaryFields = document.getElementById('secondaryFields');
+      const primarySaveBtn = document.getElementById('primarySaveBtn');
+
+      function updateDeviceModeUI(){
+        const isPrimary = modePrimary.checked;
+        secondaryFields.style.display = isPrimary ? 'none' : 'block';
+        primarySaveBtn.style.display = isPrimary ? 'block' : 'none';
+        showIpMsg('', false);
+      }
+
+      modePrimary.addEventListener('change', updateDeviceModeUI);
+      modeSecondary.addEventListener('change', updateDeviceModeUI);
+      updateDeviceModeUI();
+
+      function showIpMsg(text, isSuccess){
+        ipMsg.textContent = text;
+        ipMsg.style.display = text ? 'block' : 'none';
+        if(isSuccess){
+          ipMsg.style.background = '#dcfce7';
+          ipMsg.style.borderColor = '#bbf7d0';
+          ipMsg.style.color = '#166534';
+          ipMsg.style.border = '2px solid #bbf7d0';
+        } else {
+          ipMsg.style.background = 'linear-gradient(135deg, rgba(230,57,70,0.08), rgba(230,57,70,0.04))';
+          ipMsg.style.borderColor = 'rgba(230,57,70,0.2)';
+          ipMsg.style.color = '#E63946';
+          ipMsg.style.border = '2px solid rgba(230,57,70,0.2)';
+        }
+      }
+
+      function normalizeHost(raw){
+        const s = String(raw||'').trim();
+        if(!s) return { host: null, port: null };
+        const parts = s.split(':');
+        const host = parts[0] || null;
+        const port = parts[1] ? parseInt(parts[1], 10) : null;
+        return { host, port };
+      }
+
+      if(openConnDialog){
+        openConnDialog.addEventListener('click', async () => {
+          connModal.style.display = 'flex';
+          showIpMsg('', false);
+          try{
+            const r = await window.api.db_get_config();
+            if(r && r.ok && r.config){
+              const h = r.config.host || '127.0.0.1';
+              serverIpInput.value = (h && !/^127\.0\.0\.1$/.test(h) && !/^localhost$/i.test(h)) ? h : '';
+            }
+          }catch(_){ serverIpInput.value=''; }
+        });
+      }
+
+      if(connClose){
+        connClose.addEventListener('click', () => {
+          connModal.style.display = 'none';
+        });
+      }
+
+      if(testIpBtn){
+        testIpBtn.addEventListener('click', async () => {
+          showIpMsg('', false);
+          testIpBtn.disabled = true; saveIpBtn.disabled = true;
+          try{
+            const raw = serverIpInput.value.trim();
+            if(!raw){ showIpMsg('يرجى إدخال IP', false); return; }
+            const { host, port } = normalizeHost(raw);
+            const r = await window.api.db_test({ host: host, port: port||3306 });
+            if(r && r.ok){ showIpMsg('الاتصال ناجح ✅', true); }
+            else { showIpMsg((r && r.error) || 'تعذر الاتصال', false); }
+          }catch(e){ showIpMsg('حدث خطأ أثناء الاختبار', false); }
+          finally{ testIpBtn.disabled = false; saveIpBtn.disabled = false; }
+        });
+      }
+
+      if(clearIpBtn){
+        clearIpBtn.addEventListener('click', async () => {
+          showIpMsg('', false);
+          clearIpBtn.disabled = true;
+          try{
+            const a = await window.api.db_apply({ host: '127.0.0.1', port: 3306 });
+            if(a && a.ok){
+              serverIpInput.value = '';
+              showIpMsg('تم مسح IP. البرنامج يستخدم الاتصال المحلي الآن.', true);
+            } else {
+              showIpMsg((a && a.error) || 'تعذر المسح', false);
+            }
+          }catch(e){ showIpMsg('حدث خطأ أثناء المسح', false); }
+          finally{ clearIpBtn.disabled = false; }
+        });
+      }
+
+      if(savePrimaryBtn){
+        savePrimaryBtn.addEventListener('click', async () => {
+          showIpMsg('', false);
+          savePrimaryBtn.disabled = true;
+          try{
+            await window.api.device_set_mode({ mode: 'primary', api_host: '127.0.0.1', api_port: 4310 });
+            await window.api.db_apply({ host: '127.0.0.1', port: 3306 });
+            showIpMsg('تم الحفظ كجهاز رئيسي بنجاح! ✅', true);
+            setTimeout(() => {
+              connModal.style.display = 'none';
+            }, 1500);
+          }catch(e){ showIpMsg('حدث خطأ أثناء الحفظ', false); }
+          finally{ savePrimaryBtn.disabled = false; }
+        });
+      }
+
+      if(saveIpBtn){
+        saveIpBtn.addEventListener('click', async () => {
+          showIpMsg('', false);
+          saveIpBtn.disabled = true; testIpBtn.disabled = true;
+          try{
+            const raw = serverIpInput.value.trim();
+            if(!raw){ showIpMsg('يرجى إدخال IP أو استخدم زر "مسح" للعودة للاتصال المحلي', false); return; }
+            const { host, port } = normalizeHost(raw);
+            const t = await window.api.db_test({ host: host, port: port||3306 });
+            if(!(t && t.ok)){ showIpMsg((t && t.error) || 'تعذر الاتصال بالجهاز الرئيسي', false); return; }
+            const a = await window.api.db_apply({ host: host, port: port||3306 });
+            if(a && a.ok){
+              await window.api.device_set_mode({ mode: 'secondary', api_host: host, api_port: 4310 });
+              showIpMsg('تم الحفظ بنجاح! جاري الانتقال لشاشة الدخول...', true);
+              setTimeout(() => {
+                location.replace('../login/index.html');
+              }, 1500);
+            }
+            else { showIpMsg((a && a.error) || 'تعذر الحفظ', false); }
+          }catch(e){ showIpMsg('حدث خطأ أثناء الحفظ', false); }
+          finally{ saveIpBtn.disabled = false; testIpBtn.disabled = false; }
+        });
+      }
+
+      // Context Menu for activation code field
+      (function(){
+        const contextMenu = document.getElementById('contextMenu');
+        const ctxCopy = document.getElementById('ctxCopy');
+        const ctxPaste = document.getElementById('ctxPaste');
+        const codeInput = document.getElementById('code');
+        
+        if(!contextMenu || !ctxCopy || !ctxPaste || !codeInput) return;
+        
+        let activeField = null;
+        
+        codeInput.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          activeField = codeInput;
+          contextMenu.style.display = 'block';
+          contextMenu.style.left = e.pageX + 'px';
+          contextMenu.style.top = e.pageY + 'px';
+        });
+        
+        document.addEventListener('click', (e) => {
+          if(!contextMenu.contains(e.target) && e.target !== codeInput){
+            contextMenu.style.display = 'none';
+            activeField = null;
+          }
+        });
+        
+        ctxCopy.addEventListener('click', () => {
+          if(!activeField) return;
+          const text = activeField.value;
+          if(text){
+            navigator.clipboard.writeText(text).then(() => {
+              contextMenu.style.display = 'none';
+            }).catch(() => {
+              activeField.select();
+              document.execCommand('copy');
+              contextMenu.style.display = 'none';
+            });
+          }
+        });
+        
+        ctxPaste.addEventListener('click', () => {
+          if(!activeField) return;
+          navigator.clipboard.readText().then((text) => {
+            activeField.value = text;
+            contextMenu.style.display = 'none';
+            activeField.focus();
+          }).catch(() => {
+            activeField.focus();
+            document.execCommand('paste');
+            contextMenu.style.display = 'none';
+          });
+        });
+        
+        document.addEventListener('keydown', (e) => {
+          if(e.key === 'Escape'){
+            contextMenu.style.display = 'none';
+            activeField = null;
+          }
+        });
+      })();
+    })();
+  </script>
+</body>
+</html>
