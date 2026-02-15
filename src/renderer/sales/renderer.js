@@ -2423,11 +2423,15 @@ try{
 
       // إرسال الأصناف الجديدة فقط: delta = qty - kitchen_sent_qty
       const itemsToSend = [];
+      const sentSnapshot = new Map();
       for(const it of cart){
         const total = Math.max(0, Number(it.qty||0));
         const sent = Math.max(0, Number(it.kitchen_sent_qty||0));
         const delta = total - sent;
-        if(delta > 0){ itemsToSend.push({ ...it, qty: delta }); }
+        if(delta > 0){ 
+          itemsToSend.push({ ...it, qty: delta }); 
+          sentSnapshot.set(it.id, { sentBefore: sent, delta: delta });
+        }
       }
       if(itemsToSend.length === 0){ setError(__currentLang.noNewItemsKitchen || 'لا توجد أصناف جديدة لإرسالها للمطبخ'); return; }
 
@@ -2436,10 +2440,10 @@ try{
       // عند النجاح وعدم التخطي (لا توجد طابعات)، قم بوسم العناصر على أنها مُرسلة
       if(r && r.ok && !r.skipped){
         for(const it of cart){
-          const total = Math.max(0, Number(it.qty||0));
-          const sent = Math.max(0, Number(it.kitchen_sent_qty||0));
-          const delta = total - sent;
-          if(delta > 0){ it.kitchen_sent_qty = sent + delta; }
+          const snapshot = sentSnapshot.get(it.id);
+          if(snapshot){
+            it.kitchen_sent_qty = snapshot.sentBefore + snapshot.delta;
+          }
         }
         if(__currentRoomId){ try{ await __saveRoomCart(__currentRoomId, cart); }catch(_){ } }
       }
@@ -2861,15 +2865,19 @@ btnPay.addEventListener('click', async () => {
 
     // طباعة تفاضلية دائمًا عند الحفظ — أرسل فقط الزيادة الجديدة
     const itemsToSend = [];
+    const sentSnapshot = new Map();
     for(const it of cart){
       const total = Math.max(0, Number(it.qty||0));
       const sent = Math.max(0, Number(it.kitchen_sent_qty||0));
       const delta = total - sent;
-      if(delta > 0){ itemsToSend.push({ ...it, qty: delta }); }
+      if(delta > 0){ 
+        itemsToSend.push({ ...it, qty: delta }); 
+        sentSnapshot.set(it.id, { sentBefore: sent, delta: delta });
+      }
     }
 
     if(itemsToSend.length){
-      __kitchenPayload = { items: itemsToSend, room_name: (roomMeta?roomMeta.name:null), sale_id: r.sale_id, waiter_name: waiterName, copies_per_section: 1, order_no: r.order_no };
+      __kitchenPayload = { items: itemsToSend, room_name: (roomMeta?roomMeta.name:null), sale_id: r.sale_id, waiter_name: waiterName, copies_per_section: 1, order_no: r.order_no, sentSnapshot: sentSnapshot };
     }
   }catch(_){ /* ignore kitchen prep errors */ }
 
@@ -2905,13 +2913,14 @@ btnPay.addEventListener('click', async () => {
       if(__kitchenDone) return; __kitchenDone = true;
       if(__kitchenPayload){
         try{
+          const sentSnapshot = __kitchenPayload.sentSnapshot || new Map();
           const rKitchen = await window.api.kitchen_print_order(__kitchenPayload);
           if(rKitchen && rKitchen.ok && !rKitchen.skipped){
             for(const it of cart){
-              const total = Math.max(0, Number(it.qty||0));
-              const sent = Math.max(0, Number(it.kitchen_sent_qty||0));
-              const delta = total - sent;
-              if(delta > 0){ it.kitchen_sent_qty = sent + delta; }
+              const snapshot = sentSnapshot.get(it.id);
+              if(snapshot){
+                it.kitchen_sent_qty = snapshot.sentBefore + snapshot.delta;
+              }
             }
             if(__currentRoomId){ try{ await __saveRoomCart(__currentRoomId, cart); }catch(_){ } }
           }

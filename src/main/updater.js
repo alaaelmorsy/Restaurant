@@ -69,11 +69,6 @@ function getAutoUpdater() {
       updater.autoDownload = false;
       updater.autoInstallOnAppQuit = true;
       
-      if (isDev) {
-        updater.forceDevUpdateConfig = true;
-        console.log('Update: Development mode - forcing update config');
-      }
-      
       updater.setFeedURL({
         provider: 'github',
         owner: 'alaaelmorsy',
@@ -156,6 +151,15 @@ function sendStatusToWindow(status, data) {
 function registerUpdateIPC() {
   ipcMain.handle('check-for-updates', async () => {
     try {
+      if (isDev) {
+        console.log('Update: Development mode - updates disabled');
+        sendStatusToWindow('update-not-available', { 
+          version: app.getVersion(),
+          message: 'التحديث غير متاح في وضع التطوير'
+        });
+        return { success: true, devMode: true };
+      }
+      
       const supportStatus = await checkSupportValidity();
       console.log('Update: Support status:', supportStatus);
       
@@ -204,6 +208,11 @@ function registerUpdateIPC() {
 
   ipcMain.handle('download-update', async () => {
     try {
+      if (isDev) {
+        console.log('Download: Development mode - updates disabled');
+        return { success: false, error: 'التحديث غير متاح في وضع التطوير', devMode: true };
+      }
+      
       const supportStatus = global.supportStatus || await checkSupportValidity();
       console.log('Download: Support status check:', supportStatus);
       
@@ -254,6 +263,11 @@ function registerUpdateIPC() {
 
   ipcMain.handle('install-update', async () => {
     try {
+      if (isDev) {
+        console.log('Install: Development mode - updates disabled');
+        return { success: false, error: 'التحديث غير متاح في وضع التطوير', devMode: true };
+      }
+      
       const supportStatus = global.supportStatus || await checkSupportValidity();
       console.log('Install: Support status check:', supportStatus);
       
