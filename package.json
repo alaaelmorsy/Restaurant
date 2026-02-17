@@ -1,6 +1,6 @@
 {
   "name": "pos-restaurant",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "POS Desktop App for KSA - Login skeleton (Electron + Node.js + MySQL)",
   "main": "src/main/main.js",
   "scripts": {
@@ -9,10 +9,10 @@
     "optimize:mysql": "node src/main/mysql-optimizer.js",
     "tailwind:build": "npx tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/output.css --minify",
     "tailwind:watch": "npx tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/output.css --watch",
-    "dist:win": "node scripts/clean-dist.js && node scripts/gen-ico.js && electron-builder --win nsis",
-    "dist:msi": "node scripts/clean-dist.js && node scripts/gen-ico.js && electron-builder --win msi",
-    "dist:win:all": "node scripts/clean-dist.js && node scripts/gen-ico.js && electron-builder --win nsis msi",
-    "dist:portable": "electron-builder --win portable"
+    "dist:win": "npm run tailwind:build && node scripts/clean-dist.js && node scripts/gen-ico.js && electron-builder --win nsis",
+    "dist:msi": "npm run tailwind:build && node scripts/clean-dist.js && node scripts/gen-ico.js && electron-builder --win msi",
+    "dist:win:all": "npm run tailwind:build && node scripts/clean-dist.js && node scripts/gen-ico.js && electron-builder --win nsis msi",
+    "dist:portable": "npm run tailwind:build && electron-builder --win portable"
   },
   "build": {
     "appId": "com.alrabt.restaurant",

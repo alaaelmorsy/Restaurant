@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-src/styles/output.css 
-node_modules
-dist
-.env
-=======
+# Tailwind CSS output
+src/styles/output.css
+
 # Logs
 logs
 *.log
@@ -143,4 +140,12 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
->>>>>>> 03f3f9ac60b21f405197717e7310553fd65c111f
+
+# Node modules and dist
+node_modules/
+dist/
+
+# Environment
+.env
+.env.*
+!.env.example
