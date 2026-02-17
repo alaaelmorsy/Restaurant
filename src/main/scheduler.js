@@ -34,28 +34,73 @@ function msUntil(timeHHMM){
 }
 
 async function generateDailyReportPDFBuffer(){
+  // احفظ النافذة الحالية النشطة لإرجاع التركيز إليها لاحقاً
+  const { BrowserWindow: BW } = require('electron');
+  const activeWin = BW.getFocusedWindow();
+  
   // Load the same daily.html in a hidden BrowserWindow with the app preload to access IPC and data
   const win = new BrowserWindow({
     show: false,
-    width: 1100,
-    height: 800,
+    width: 1200,
+    height: 900,
+    x: -20000,
+    y: -20000,
+    skipTaskbar: true,
+    focusable: false,
+    frame: false,
+    transparent: false,
+    alwaysOnTop: false,
+    minimizable: false,
+    maximizable: false,
+    closable: true,
+    hasShadow: false,
+    thickFrame: false,
+    enableLargerThanScreen: true,
+    acceptFirstMouse: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: false,
+      backgroundThrottling: false,
+    }
+  });
+  
+  // منع النافذة من الظهور أو التركيز عليها
+  win.on('focus', () => {
+    if(activeWin && !activeWin.isDestroyed()){
+      activeWin.focus();
     }
   });
   try{
     const fileUrl = path.join(__dirname, '../renderer/reports/daily.html');
     await win.loadFile(fileUrl);
-    // Wait for data to populate: either range text filled or payment rows loaded (works even if there are 0 rows)
+    // Wait for data to populate: check for load complete flag
     await win.webContents.executeJavaScript(`new Promise(resolve=>{
-      const check=()=>{ try{ const range=document.getElementById('range'); const pay=document.getElementById('payTbody');
-        if((range && range.textContent && range.textContent.trim().length>0) || (pay && pay.children && pay.children.length>0)){ resolve(true); return; } }catch(_){ }
+      let checkCount = 0;
+      const check=()=>{ 
+        checkCount++;
+        try{ 
+          // التحقق من أن دالة load() قد اكتملت
+          if(window.__dailyReportLoadComplete === true){
+            console.log('[PDF] Load complete flag detected at check:', checkCount);
+            resolve(true); 
+            return; 
+          } 
+        }catch(e){ 
+          console.log('[PDF] Check error:', e);
+        }
+        if(checkCount > 75){ 
+          console.log('[PDF] Timeout reached after', checkCount, 'checks');
+          resolve(true); 
+          return; 
+        }
         setTimeout(check, 400);
-      }; check();
-    })`, { timeout: 30000 });
+      }; 
+      check();
+    })`, { timeout: 60000 });
+    // انتظار إضافي للتأكد من تحميل جميع البيانات بالكامل وعرضها في DOM
+    await new Promise(resolve => setTimeout(resolve, 3000));
     // فتح جميع الأقسام المطوية (details) لعرضها في التقرير الكامل
     await win.webContents.executeJavaScript(`
       try{
@@ -64,16 +109,28 @@ async function generateDailyReportPDFBuffer(){
       }catch(_){}
     `);
     // انتظار قصير للتأكد من تطبيق التغييرات
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log('[PDF] Starting PDF generation...');
     const pdf = await win.webContents.printToPDF({
       marginsType: 1,
       pageSize: 'A4',
       printBackground: true,
       landscape: false,
     });
+    console.log('[PDF] PDF generated successfully. Size:', pdf.length, 'bytes');
     return pdf; // Buffer
   } finally {
-    try{ win.destroy(); }catch(_){ }
+    try{ 
+      // تأكد من إغلاق النافذة تماماً
+      if(!win.isDestroyed()){
+        win.destroy(); 
+      }
+      // أعد التركيز على النافذة الأصلية
+      if(activeWin && !activeWin.isDestroyed()){
+        activeWin.focus();
+        activeWin.show();
+      }
+    }catch(_){ }
   }
 }
 
@@ -198,19 +255,26 @@ function registerDailyEmailScheduler(){
   // Manual immediate send of daily report (generate now and email)
   ipcMain.handle('scheduler:send_daily_now', async ()=>{
     try{
+      console.log('[Scheduler] Starting manual daily report send...');
       const pool = await getPool();
       const conn = await pool.getConnection();
       try{
         await conn.query(`USE \`${DB_NAME}\``);
         const s = await readSettings(conn);
+        console.log('[Scheduler] Settings loaded, generating PDF...');
         const pdf = await generateDailyReportPDFBuffer();
+        console.log('[Scheduler] PDF generated, preparing to send email...');
         const now = new Date();
         const y = now.getFullYear(); const m = String(now.getMonth()+1).padStart(2,'0'); const d = String(now.getDate()).padStart(2,'0');
         const name = `daily-report-${y}-${m}-${d}.pdf`;
         await sendEmail(s, name, pdf);
+        console.log('[Scheduler] Email sent successfully!');
         return { ok:true };
       } finally { conn.release(); }
-    }catch(e){ return { ok:false, error: String(e && e.message || e) }; }
+    }catch(e){ 
+      console.error('[Scheduler] Error sending daily report:', e);
+      return { ok:false, error: String(e && e.message || e) }; 
+    }
   });
 }
 

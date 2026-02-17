@@ -167,9 +167,8 @@ function __applyLang(lang){
     creditNotesHeaders[5].textContent = t.view;
   }
   
-  // Persist language
+  // Persist language locally
   try{ localStorage.setItem(__langKey, base); }catch(_){ }
-  try{ window.api.app_set_locale(base); }catch(_){ }
 }
 
 // Initialize language
@@ -686,6 +685,8 @@ function computeDailyRange(closingHour){
 }
 
 async function load(){
+  // Reset load flag
+  window.__dailyReportLoadComplete = false;
   try{
     const st = await window.api.settings_get();
     const s = (st && st.ok) ? st.item : {};
@@ -1058,8 +1059,13 @@ async function load(){
     // Approximate profit: netAfter - purchases
     const profit = netAfter - purchasesTotal;
     if(stProfit){ stProfit.textContent = fmt(profit); }
+    
+    // Set flag indicating load complete (for email scheduler)
+    console.log('[Daily Report] Load completed successfully. Sales count:', invoices.length, 'Credit notes:', creditNotes.length);
+    window.__dailyReportLoadComplete = true;
   }catch(e){
-    console.error(e);
+    console.error('[Daily Report] Load error:', e);
+    window.__dailyReportLoadComplete = true; // Set even on error to avoid infinite wait
   }
 }
 

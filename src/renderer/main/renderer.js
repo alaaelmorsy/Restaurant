@@ -3,7 +3,7 @@
 // Language state
 const langSelect = document.getElementById('langSelect') || document.getElementById('appLangSelect');
 const __langKey = 'app_lang';
-function __applyLang(lang){
+function __applyLang(lang, skipNotify = false){
   // Normalize locale variants like ar-SA/en-US to base codes
   const base = (typeof lang==='string' ? lang.split('-')[0].toLowerCase() : 'ar');
   const isAr = (base==='ar');
@@ -47,30 +47,6 @@ function __applyLang(lang){
     if(posSpan) posSpan.textContent = t.pos_btn;
   }
   // cards text
-  const map = [
-    ['cardUsers', 'users_h', 'users_p'],
-    ['cardPermissions', 'perms_h', 'perms_p'],
-    ['cardCustomers', 'customers_h', 'customers_p'],
-    ['cardNewInvoice', 'newinv_h', 'newinv_p'],
-    ['cardInvoices', 'invoices_h', 'invoices_p'],
-    ['cardCreditNotes', 'credit_h', 'credit_p'],
-    ['cardPayments', 'pay_h', 'pay_p'],
-    ['cardProducts', 'products_h', 'products_p'],
-    ['cardRooms', 'rooms_h', 'rooms_p'],
-    ['cardTypes', 'types_h', 'types_p'],
-    ['cardSettings', 'settings_h', 'settings_p'],
-    ['cardOperations', 'ops_h', 'ops_p'],
-    ['cardKitchen', 'kitchen_h', 'kitchen_p'],
-    ['cardPurchases', 'purchases_h', 'purchases_p'],
-    ['cardInventory', 'inventory_h', 'inventory_p'],
-    ['cardCustomerPricing', 'cp_h', 'cp_p'],
-    ['cardOffers', 'offers_h', 'offers_p'],
-    ['cardDrivers', 'drivers_h', 'drivers_p'],
-    ['cardReports', 'reports_h', 'reports_p'],
-    ['cardZatca', 'zatca_h', 'zatca_p'],
-    ['cardWhatsApp', 'whatsapp_h', 'whatsapp_p'],
-  ];
-  
   map.forEach(([id, hKey, pKey]) => {
     const el = document.getElementById(id); if(!el) return;
     const h3 = el.querySelector('h3'); if(h3) h3.textContent = t[hKey];
@@ -81,8 +57,10 @@ function __applyLang(lang){
   // persist
   try{ localStorage.setItem(__langKey, base); }catch(_){ }
   if(langSelect){ langSelect.value = base; }
-  // Update app-wide DB locale and notify other windows
-  try{ window.api.app_set_locale(base); }catch(_){ }
+  // Update app-wide DB locale and notify other windows ONLY if not a skipNotify load
+  if (!skipNotify) {
+    try{ window.api.app_set_locale(base); }catch(_){ }
+  }
   // Trigger DOM translate burst to ensure icons/cards pick up correct language immediately
   try{ window.__i18n_burst && window.__i18n_burst(base); }catch(_){ }
 }
@@ -90,14 +68,27 @@ function __applyLang(lang){
 (function initLang(){
   // Apply initial from DB
   (async ()=>{
-    try{ const r = await window.api.app_get_locale(); const L=(r&&r.lang)||'ar'; __applyLang(L); if(langSelect) langSelect.value=L; }catch(_){ __applyLang('ar'); }
+    try{ 
+      const r = await window.api.app_get_locale(); 
+      const L=(r&&r.lang)||'ar'; 
+      __applyLang(L, true); // skipNotify during init to avoid infinite loops
+      if(langSelect) langSelect.value=L; 
+    }catch(_){ 
+      __applyLang('ar', true); 
+    }
   })();
   // listen for global changes
-  try{ window.api.app_on_locale_changed((L)=>{ __applyLang(L); if(langSelect) langSelect.value=L; try{ window.__i18n_burst && window.__i18n_burst(L); }catch(_){ } }); }catch(_){ }
+  try{ 
+    window.api.app_on_locale_changed((L)=>{ 
+      __applyLang(L, true); // skipNotify when receiving external change to avoid loop
+      if(langSelect) langSelect.value=L; 
+      try{ window.__i18n_burst && window.__i18n_burst(L); }catch(_){ } 
+    }); 
+  }catch(_){ }
   if(langSelect){
     langSelect.addEventListener('change', (e) => {
       const v = e.target.value === 'en' ? 'en' : 'ar';
-      __applyLang(v);
+      __applyLang(v, false); // Notify when user explicitly changes language
     });
   }
 })();

@@ -399,29 +399,44 @@ function createMainWindow() {
   });
   ipcMain.handle('app:set_locale', async (event, { lang }) => {
     const v = (lang==='en'?'en':'ar');
-    try{ await (require('./settings').__set_app_locale())(v); }catch(_){ }
+    
+    // Check current locale to avoid unnecessary reloads
+    let current = 'ar';
+    try {
+      const p = path.join(app.getPath('userData'), 'app-locale.json');
+      if (fs.existsSync(p)) {
+        const j = JSON.parse(fs.readFileSync(p, 'utf-8'));
+        current = (j && j.lang === 'en') ? 'en' : 'ar';
+      }
+    } catch (_) { }
+
+    try { await (require('./settings').__set_app_locale())(v); } catch (_) { }
     // Persist to local file as well for robustness (e.g., if DB not reachable early)
-    try{
+    try {
       const p = path.join(app.getPath('userData'), 'app-locale.json');
       fs.writeFileSync(p, JSON.stringify({ lang: v }), 'utf-8');
-    }catch(_){ }
-    try{
+    } catch (_) { }
+
+    // If language is the same, just return without reloading windows
+    if (v === current) return { ok: true };
+
+    try {
       const senderId = event && event.sender && event.sender.id;
       BrowserWindow.getAllWindows().forEach(w => {
-        try{ w.webContents.send('app:locale_changed', v); }catch(_){ }
+        try { w.webContents.send('app:locale_changed', v); } catch (_) { }
         // Reload all other windows except the one that initiated the change to avoid flicker
-        try{
-          if(w.webContents && w.webContents.id !== senderId){
+        try {
+          if (w.webContents && w.webContents.id !== senderId) {
             if (typeof w.webContents.reloadIgnoringCache === 'function') {
               w.webContents.reloadIgnoringCache();
             } else {
               w.webContents.reload();
             }
           }
-        }catch(_){ }
+        } catch (_) { }
       });
-    }catch(_){ }
-    return { ok:true };
+    } catch (_) { }
+    return { ok: true };
   });
 
   // Saved accounts fallback (userData JSON)

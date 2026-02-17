@@ -106,7 +106,33 @@ function registerTypesIPC(){
       try{
         await conn.query(`USE \`${DB_NAME}\``);
         await ensureTable(conn);
+        
+        // 1) Get old name to update linked products
+        const [[oldRow]] = await conn.query('SELECT name FROM main_types WHERE id=?', [tid]);
+        const oldName = oldRow ? oldRow.name : null;
+
+        // 2) Update main type name
         await conn.query('UPDATE main_types SET name=? WHERE id=?', [name, tid]);
+
+        // 3) Cascade change to products table if name actually changed
+        if (oldName && oldName !== name) {
+          await conn.query('UPDATE products SET category=? WHERE category=?', [name, oldName]);
+          
+          // Also update global offers excluded_categories if they contain the old name
+          try {
+            const [offers] = await conn.query('SELECT id, excluded_categories FROM offers WHERE excluded_categories IS NOT NULL');
+            for (const offer of offers) {
+              try {
+                let cats = JSON.parse(offer.excluded_categories);
+                if (Array.isArray(cats) && cats.includes(oldName)) {
+                  cats = cats.map(c => c === oldName ? name : c);
+                  await conn.query('UPDATE offers SET excluded_categories=? WHERE id=?', [JSON.stringify(cats), offer.id]);
+                }
+              } catch (_) { /* ignore parse errors */ }
+            }
+          } catch (_) { /* ignore table missing errors */ }
+        }
+
         return { ok:true };
       } finally { conn.release(); }
     }catch(e){
@@ -144,7 +170,32 @@ function registerTypesIPC(){
       try{
         await conn.query(`USE \`${DB_NAME}\``);
         await ensureTable(conn);
+
+        // Get name before delete
+        const [[row]] = await conn.query('SELECT name FROM main_types WHERE id=?', [tid]);
+        const typeName = row ? row.name : null;
+
         await conn.query('DELETE FROM main_types WHERE id=?', [tid]);
+
+        // Cascade to products: clear category name
+        if (typeName) {
+          await conn.query('UPDATE products SET category=NULL WHERE category=?', [typeName]);
+          
+          // Also remove from global offers excluded_categories
+          try {
+            const [offers] = await conn.query('SELECT id, excluded_categories FROM offers WHERE excluded_categories IS NOT NULL');
+            for (const offer of offers) {
+              try {
+                let cats = JSON.parse(offer.excluded_categories);
+                if (Array.isArray(cats) && cats.includes(typeName)) {
+                  cats = cats.filter(c => c !== typeName);
+                  await conn.query('UPDATE offers SET excluded_categories=? WHERE id=?', [JSON.stringify(cats), offer.id]);
+                }
+              } catch (_) { /* ignore parse errors */ }
+            }
+          } catch (_) { /* ignore table missing errors */ }
+        }
+
         return { ok:true };
       } finally { conn.release(); }
     }catch(e){ console.error(e); return { ok:false, error:'فشل الحذف' }; }

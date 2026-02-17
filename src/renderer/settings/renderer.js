@@ -243,7 +243,6 @@ function __applyLang(lang){
   if(btnResetPurchases) btnResetPurchases.textContent = t.resetPurchases;
   
   try{ localStorage.setItem(__langKey, base); }catch(_){ }
-  try{ window.api.app_set_locale(base); }catch(_){ }
 }
 
 (function initLang(){
@@ -724,6 +723,9 @@ const emSendDaily = document.getElementById('em_send_daily');
 emSendDaily?.addEventListener('click', async ()=>{
   try{
     setError('');
+    emSendDaily.disabled = true;
+    const originalText = emSendDaily.textContent;
+    emSendDaily.textContent = '⏳ جاري إنشاء وإرسال التقرير...';
     const showOk = (msg)=>{
       const text = msg || 'تم الإرسال بنجاح';
       if (dailyEmailDlg && dailyEmailDlg.open) {
@@ -731,17 +733,27 @@ emSendDaily?.addEventListener('click', async ()=>{
         toast.className = 'success';
         toast.textContent = text;
         dailyEmailDlg.appendChild(toast);
-        setTimeout(()=>{ try{ toast.remove(); }catch(_){} }, 2000);
+        setTimeout(()=>{ try{ toast.remove(); }catch(_){} }, 3000);
       } else {
         okDiv.textContent = text;
         okDiv.style.display = 'block';
-        setTimeout(()=>{ okDiv.style.display = 'none'; okDiv.textContent=''; }, 2000);
+        setTimeout(()=>{ okDiv.style.display = 'none'; okDiv.textContent=''; }, 3000);
       }
     };
     const r = await window.api.scheduler_send_daily_now();
-    if(!r || !r.ok){ setError((r && r.error) || 'فشل إرسال التقرير اليومي'); }
-    else { showOk('تم إرسال التقرير اليومي بنجاح'); }
-  }catch(e){ setError(String(e&&e.message||e)); }
+    if(!r || !r.ok){ 
+      setError((r && r.error) || 'فشل إرسال التقرير اليومي'); 
+    }
+    else { 
+      showOk('✅ تم إرسال التقرير اليومي بنجاح'); 
+    }
+    emSendDaily.disabled = false;
+    emSendDaily.textContent = originalText;
+  }catch(e){ 
+    setError(String(e&&e.message||e)); 
+    emSendDaily.disabled = false;
+    emSendDaily.textContent = '📧 إرسال الآن';
+  }
 });
 
 // Open/close backup email dialog

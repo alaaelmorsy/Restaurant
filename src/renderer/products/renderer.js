@@ -263,7 +263,6 @@ function __applyLang(lang){
   if(miniPromptCancel) miniPromptCancel.textContent = t.cancel;
   
   try{ localStorage.setItem(__langKey, base); }catch(_){ }
-  try{ window.api.app_set_locale(base); }catch(_){ }
 }
 
 (function initLang(){

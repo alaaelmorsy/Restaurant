@@ -1,6 +1,6 @@
 {
   "name": "pos-restaurant",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "POS Desktop App for KSA - Login skeleton (Electron + Node.js + MySQL)",
   "main": "src/main/main.js",
   "scripts": {

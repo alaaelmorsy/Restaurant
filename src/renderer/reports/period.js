@@ -178,7 +178,6 @@ function __applyLang(lang){
   }
   
   try{ localStorage.setItem(__langKey, base); }catch(_){ }
-  try{ window.api.app_set_locale(base); }catch(_){ }
 }
 
 (function initLang(){

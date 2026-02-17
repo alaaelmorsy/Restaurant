@@ -327,7 +327,6 @@ function __applyLang(lang){
   
   // Persist language
   try{ localStorage.setItem(__langKey, base); }catch(_){ }
-  try{ window.api.app_set_locale(base); }catch(_){ }
 }
 
 // Initialize language
