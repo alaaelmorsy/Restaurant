@@ -304,6 +304,9 @@ function registerSettingsIPC(){
     if(missing('whatsapp_messages_sent')){
       await conn.query("ALTER TABLE app_settings ADD COLUMN whatsapp_messages_sent INT NOT NULL DEFAULT 0 AFTER whatsapp_messages_limit");
     }
+    if(missing('branch_name')){
+      await conn.query("ALTER TABLE app_settings ADD COLUMN branch_name VARCHAR(255) NULL AFTER whatsapp_messages_sent");
+    }
   }
 
   async function ensureSingleton(conn){

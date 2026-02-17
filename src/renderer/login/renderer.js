@@ -223,6 +223,17 @@ if(deleteSavedBtn){
       }catch(_){ /* ignore */ }
     }
 
+    // Display branch name if present
+    const branchNotification = document.getElementById('branchNotification');
+    const branchNameEl = document.getElementById('branchName');
+    if(st.branch_name && branchNotification && branchNameEl){
+      branchNameEl.textContent = st.branch_name;
+      branchNotification.style.display = 'flex';
+      requestAnimationFrame(() => {
+        branchNotification.classList.add('show');
+      });
+    }
+
     // Control visibility of connection setup by MySQL flag (app_settings.show_conn_modal)
     const enable = st && (st.show_conn_modal ? 1 : 0);
     if(openConnDialogBtn){ openConnDialogBtn.style.display = enable ? 'inline-block' : 'none'; }

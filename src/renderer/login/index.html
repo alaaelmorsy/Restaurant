@@ -197,25 +197,38 @@
         margin-bottom:14px; 
       }
       
-      /* شارة مؤسسة تعلم التقنيات */
+      /* شارة نظام ادارة المطاعم */
       .subtitle::after{
-        content: '🏢 مؤسسة تعلم التقنيات';
+        content: '🍽️ نظام إدارة المطاعم';
         display: block;
         margin-top: 14px;
-        color: #059669;
-        font-size: 20px;
-        font-weight: 900;
-        letter-spacing: .5px;
-        padding: 10px 18px;
-        border-radius: 18px;
-        background: linear-gradient(135deg, rgba(5,150,105,0.12), rgba(16,185,129,0.08));
-        border: 3px solid rgba(5,150,105,0.2);
+        color: #1e40af;
+        font-size: 19px;
+        font-weight: 800;
+        letter-spacing: .6px;
+        padding: 12px 24px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(30,64,175,0.12), rgba(59,130,246,0.08));
+        border: 3px solid rgba(30,64,175,0.25);
         width: fit-content;
         margin-inline: auto;
-        text-shadow: 0 2px 6px rgba(5,150,105,0.3);
-        box-shadow: 0 8px 24px rgba(5,150,105,0.15);
+        text-shadow: 0 2px 4px rgba(30,64,175,0.15);
+        box-shadow: 0 8px 24px rgba(30,64,175,0.18), inset 0 1px 0 rgba(255,255,255,0.4);
         position: relative;
         overflow: hidden;
+        backdrop-filter: blur(8px);
+      }
+      .subtitle::after::before{
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 14px;
+        padding: 2px;
+        background: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(30,64,175,0.3));
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
       }
 
       label{ 
@@ -415,6 +428,35 @@
       }
       .update-notification.show {
         top: 20px;
+      }
+
+      /* Branch name notification styles */
+      .branch-notification {
+        position: fixed;
+        top: -100px;
+        left: 20px;
+        right: auto;
+        transform: none;
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--text);
+        padding: 8px 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+        z-index: 9999;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        backdrop-filter: blur(10px);
+      }
+      .branch-notification.show {
+        top: 20px;
+      }
+      .branch-notification .branch-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-light);
+        letter-spacing: 0.3px;
       }
       .update-notification .icon {
         font-size: 24px;
@@ -707,6 +749,11 @@
         <div class="title" id="updateTitle">يتوفر تحديث جديد!</div>
         <div class="message" id="updateMessage">توجه إلى الإعدادات لتحديث البرنامج</div>
       </div>
+    </div>
+
+    <!-- إشعار اسم الفرع (مخفي افتراضياً) -->
+    <div id="branchNotification" class="branch-notification" style="display: none;">
+      <div class="branch-name" id="branchName">—</div>
     </div>
 
     <div class="container">
