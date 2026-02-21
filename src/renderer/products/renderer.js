@@ -400,20 +400,79 @@ async function miniConfirm(message){
 }
 
 // Quick add main type
-if(catQuickAdd){
-  catQuickAdd.addEventListener('click', async () => {
-    const name = await miniPrompt(__currentLang.categoryPrompt || 'اسم النوع الرئيسي الجديد:');
-    if(!name) return;
-    const res = await window.api.types_add({ name });
-    if(!res || !res.ok){ alert(res && res.error ? res.error : (__currentLang.categoryAddFailed || 'فشل إضافة النوع الرئيسي')); return; }
-    await populateCategories();
-    await populateCategoryFilter();
-    // حدّد النوع المُضاف تلقائياً
+const catAddDlg = document.getElementById('catAddDlg');
+const catAddName = document.getElementById('catAddName');
+const catAddNameEn = document.getElementById('catAddNameEn');
+const catAddSave = document.getElementById('catAddSave');
+const catAddCancel = document.getElementById('catAddCancel');
+const catAddError = document.getElementById('catAddError');
+const btnTranslateCatAdd = document.getElementById('btnTranslateCatAdd');
+
+function showCatAddError(msg){ if(catAddError){ catAddError.textContent = msg; catAddError.classList.remove('hidden'); } }
+function hideCatAddError(){ if(catAddError){ catAddError.textContent=''; catAddError.classList.add('hidden'); } }
+
+if(btnTranslateCatAdd){
+  btnTranslateCatAdd.addEventListener('click', async () => {
+    const arName = (catAddName.value || '').trim();
+    if(!arName) return;
+    const orig = btnTranslateCatAdd.innerHTML;
+    btnTranslateCatAdd.disabled = true;
+    btnTranslateCatAdd.innerHTML = '⏳';
     try{
-      const opts = Array.from(f_category.options);
-      const found = opts.find(o => o.value === name);
-      if(found){ f_category.value = name; }
+      const res = await window.api.products_translate(arName);
+      if(res && res.ok && res.text) catAddNameEn.value = res.text;
     }catch(_){ }
+    finally{
+      btnTranslateCatAdd.disabled = false;
+      btnTranslateCatAdd.innerHTML = orig;
+    }
+  });
+}
+
+if(catAddCancel) catAddCancel.addEventListener('click', () => { catAddDlg.close(); });
+if(catAddName){
+  catAddName.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){ e.preventDefault(); catAddSave && catAddSave.click(); }
+  });
+}
+if(catAddNameEn){
+  catAddNameEn.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){ e.preventDefault(); catAddSave && catAddSave.click(); }
+  });
+}
+
+if(catAddSave){
+  catAddSave.addEventListener('click', async () => {
+    const name = (catAddName.value || '').trim();
+    if(!name){ showCatAddError('يرجى إدخال اسم النوع'); catAddName.focus(); return; }
+    hideCatAddError();
+    const name_en = (catAddNameEn.value || '').trim() || null;
+    const origText = catAddSave.textContent;
+    catAddSave.disabled = true;
+    catAddSave.textContent = '⏳ جاري الحفظ...';
+    try{
+      const res = await window.api.types_add({ name, name_en });
+      if(!res || !res.ok){ showCatAddError(res && res.error ? res.error : (__currentLang.categoryAddFailed || 'فشل إضافة النوع الرئيسي')); return; }
+      catAddDlg.close();
+      await populateCategories();
+      await populateCategoryFilter();
+      try{
+        const opts = Array.from(f_category.options);
+        const found = opts.find(o => o.value === name);
+        if(found){ f_category.value = name; }
+      }catch(_){ }
+    }catch(_){ showCatAddError(__currentLang.categoryAddFailed || 'فشل إضافة النوع الرئيسي'); }
+    finally{ catAddSave.disabled = false; catAddSave.textContent = origText; }
+  });
+}
+
+if(catQuickAdd){
+  catQuickAdd.addEventListener('click', () => {
+    catAddName.value = '';
+    catAddNameEn.value = '';
+    hideCatAddError();
+    catAddDlg.showModal();
+    setTimeout(() => catAddName.focus(), 50);
   });
 }
 
@@ -749,19 +808,78 @@ opList.addEventListener('click', (e)=>{
   }
 });
 
-// Quick add operation via small popup
-if(opQuickAdd){
-  opQuickAdd.addEventListener('click', async ()=>{
-    const name = await miniPrompt(__currentLang.operationPrompt || 'اسم العملية الجديدة:');
-    if(!name) return;
-    const res = await window.api.ops_add({ name });
-    if(!res || !res.ok){ alert(res && res.error ? res.error : (__currentLang.operationAddFailed || 'فشل إضافة العملية')); return; }
-    await loadAllOps();
-    // اختر العملية المضافة تلقائياً
+// Quick add operation via full modal dialog
+const opAddDlg = document.getElementById('opAddDlg');
+const opAddName = document.getElementById('opAddName');
+const opAddNameEn = document.getElementById('opAddNameEn');
+const opAddSave = document.getElementById('opAddSave');
+const opAddCancel = document.getElementById('opAddCancel');
+const opAddError = document.getElementById('opAddError');
+const btnTranslateOpAdd = document.getElementById('btnTranslateOpAdd');
+
+function showOpAddError(msg){ if(opAddError){ opAddError.textContent = msg; opAddError.classList.remove('hidden'); } }
+function hideOpAddError(){ if(opAddError){ opAddError.textContent=''; opAddError.classList.add('hidden'); } }
+
+if(btnTranslateOpAdd){
+  btnTranslateOpAdd.addEventListener('click', async () => {
+    const arName = (opAddName.value || '').trim();
+    if(!arName) return;
+    const orig = btnTranslateOpAdd.innerHTML;
+    btnTranslateOpAdd.disabled = true;
+    btnTranslateOpAdd.innerHTML = '⏳';
     try{
-      const added = (allOps||[]).find(o => String(o.id) === String(res.id));
-      if(added){ opSelect.value = String(added.id); opPrice.focus(); }
+      const res = await window.api.products_translate(arName);
+      if(res && res.ok && res.text) opAddNameEn.value = res.text;
     }catch(_){ }
+    finally{
+      btnTranslateOpAdd.disabled = false;
+      btnTranslateOpAdd.innerHTML = orig;
+    }
+  });
+}
+
+if(opAddCancel) opAddCancel.addEventListener('click', () => { opAddDlg.close(); });
+if(opAddName){
+  opAddName.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){ e.preventDefault(); opAddSave && opAddSave.click(); }
+  });
+}
+if(opAddNameEn){
+  opAddNameEn.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){ e.preventDefault(); opAddSave && opAddSave.click(); }
+  });
+}
+
+if(opAddSave){
+  opAddSave.addEventListener('click', async () => {
+    const name = (opAddName.value || '').trim();
+    if(!name){ showOpAddError('يرجى إدخال اسم العملية'); opAddName.focus(); return; }
+    hideOpAddError();
+    const name_en = (opAddNameEn.value || '').trim() || null;
+    const origText = opAddSave.textContent;
+    opAddSave.disabled = true;
+    opAddSave.textContent = '⏳ جاري الحفظ...';
+    try{
+      const res = await window.api.ops_add({ name, name_en });
+      if(!res || !res.ok){ showOpAddError(res && res.error ? res.error : (__currentLang.operationAddFailed || 'فشل إضافة العملية')); return; }
+      opAddDlg.close();
+      await loadAllOps();
+      try{
+        const added = (allOps||[]).find(o => String(o.id) === String(res.id));
+        if(added){ opSelect.value = String(added.id); opPrice.focus(); }
+      }catch(_){ }
+    }catch(_){ showOpAddError(__currentLang.operationAddFailed || 'فشل إضافة العملية'); }
+    finally{ opAddSave.disabled = false; opAddSave.textContent = origText; }
+  });
+}
+
+if(opQuickAdd){
+  opQuickAdd.addEventListener('click', ()=>{
+    opAddName.value = '';
+    opAddNameEn.value = '';
+    hideOpAddError();
+    opAddDlg.showModal();
+    setTimeout(() => opAddName.focus(), 50);
   });
 }
 

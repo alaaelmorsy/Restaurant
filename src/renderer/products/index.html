@@ -65,6 +65,9 @@
         width: min(85vw, 300px);
         border-radius: 12px;
       }
+      dialog#opAddDlg, dialog#catAddDlg {
+        width: min(95vw, 480px);
+      }
       dialog::backdrop {
         background: rgba(0, 0, 0, 0.6);
         backdrop-filter: blur(4px);
@@ -316,6 +319,92 @@
           <button id="dlgSave" 
                   class="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl font-bold shadow-md hover:from-purple-600 hover:to-purple-700 transition-all">
             ✅ حفظ
+          </button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Category Quick Add Dialog -->
+    <dialog id="catAddDlg">
+      <div class="bg-white rounded-3xl overflow-hidden">
+        <div class="px-6 py-5 bg-gradient-to-r from-green-500 to-green-600 text-white flex items-center gap-3">
+          <span class="text-xl">📂</span>
+          <div class="text-lg font-black">إضافة نوع رئيسي جديد</div>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">اسم النوع (عربي)</label>
+            <input id="catAddName"
+                   class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm font-semibold text-slate-700"
+                   placeholder="مثال: مشروبات" />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">اسم النوع (English)</label>
+            <div class="flex items-center gap-2">
+              <input id="catAddNameEn" dir="ltr"
+                     class="flex-1 px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm font-semibold text-slate-700"
+                     placeholder="e.g. Beverages" />
+              <button id="btnTranslateCatAdd" type="button" title="ترجمة الاسم العربي إلى إنجليزي"
+                      class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-400 transition-all shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="#4285F4">
+                  <path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div id="catAddError" class="hidden text-red-600 text-sm font-bold bg-red-50 border border-red-200 px-3 py-2 rounded-lg"></div>
+        </div>
+        <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex gap-3 justify-end">
+          <button id="catAddCancel"
+                  class="px-5 py-2.5 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-xl font-bold shadow-md hover:from-slate-700 hover:to-slate-800 transition-all text-sm">
+            ❌ إلغاء
+          </button>
+          <button id="catAddSave"
+                  class="px-5 py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-bold shadow-md hover:from-green-600 hover:to-green-700 transition-all text-sm">
+            💾 حفظ النوع
+          </button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Operation Quick Add Dialog -->
+    <dialog id="opAddDlg">
+      <div class="bg-white rounded-3xl overflow-hidden">
+        <div class="px-6 py-5 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white flex items-center gap-3">
+          <span class="text-xl">⚙️</span>
+          <div class="text-lg font-black">إضافة عملية جديدة</div>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">اسم العملية (عربي)</label>
+            <input id="opAddName"
+                   class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm font-semibold text-slate-700"
+                   placeholder="أدخل اسم العملية..." />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">اسم العملية (English)</label>
+            <div class="flex items-center gap-2">
+              <input id="opAddNameEn" dir="ltr"
+                     class="flex-1 px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm font-semibold text-slate-700"
+                     placeholder="Enter operation name..." />
+              <button id="btnTranslateOpAdd" type="button" title="ترجمة الاسم العربي إلى إنجليزي"
+                      class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-400 transition-all shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="#4285F4">
+                  <path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div id="opAddError" class="hidden text-red-600 text-sm font-bold bg-red-50 border border-red-200 px-3 py-2 rounded-lg"></div>
+        </div>
+        <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex gap-3 justify-end">
+          <button id="opAddCancel"
+                  class="px-5 py-2.5 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-xl font-bold shadow-md hover:from-slate-700 hover:to-slate-800 transition-all text-sm">
+            ❌ إلغاء
+          </button>
+          <button id="opAddSave"
+                  class="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-xl font-bold shadow-md hover:from-indigo-600 hover:to-indigo-700 transition-all text-sm">
+            💾 حفظ العملية
           </button>
         </div>
       </div>
