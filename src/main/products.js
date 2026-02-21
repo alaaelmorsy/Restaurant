@@ -3,6 +3,7 @@ const path = require('path');
 const { ipcMain, app } = require('electron');
 const { getPool, DB_NAME } = require('../db/connection');
 const { isSecondaryDevice, fetchFromAPI } = require('./api-client');
+const translate = require('translate-google');
 
 function getResourcePath(relativePath) {
   if (app.isPackaged) {
@@ -539,6 +540,16 @@ function registerProductsIPC(){
       } catch(e){ await conn.rollback(); throw e; }
       finally { conn.release(); }
     }catch(e){ console.error(e); return { ok:false, error:'فشل إعادة تعيين المنتجات' }; }
+  });
+
+  ipcMain.handle('products:translate', async (_e, { text }) => {
+    try {
+      const result = await translate(text, { from: 'ar', to: 'en' });
+      return { ok: true, text: result };
+    } catch(e) {
+      console.error('translate error', e);
+      return { ok: false, error: e.message };
+    }
   });
 }
 

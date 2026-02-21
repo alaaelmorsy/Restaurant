@@ -478,6 +478,7 @@ contextBridge.exposeInMainWorld('api', {
   products_image_get: (id) => ipcRenderer.invoke('products:image_get', { id }),
   products_images_get_batch: (ids) => ipcRenderer.invoke('products:images_get_batch', ids),
   products_ops_get_batch: (ids) => ipcRenderer.invoke('products:ops_get_batch', ids),
+  products_translate: (text) => ipcRenderer.invoke('products:translate', { text }),
   
   // Sprite Sheet (Image optimization)
   sprite_generate: () => ipcRenderer.invoke('sprite:generate'),

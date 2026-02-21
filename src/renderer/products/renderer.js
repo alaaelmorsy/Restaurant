@@ -767,6 +767,27 @@ if(opQuickAdd){
 
 dlgCancel.addEventListener('click', closeDialog);
 
+const btnTranslateName = document.getElementById('btnTranslateName');
+if(btnTranslateName){
+  btnTranslateName.addEventListener('click', async () => {
+    const arName = (document.getElementById('f_name').value || '').trim();
+    if(!arName) return;
+    const orig = btnTranslateName.innerHTML;
+    btnTranslateName.disabled = true;
+    btnTranslateName.innerHTML = '⏳';
+    try{
+      const res = await window.api.products_translate(arName);
+      if(res && res.ok && res.text){
+        document.getElementById('f_name_en').value = res.text;
+      }
+    }catch(_){ }
+    finally{
+      btnTranslateName.disabled = false;
+      btnTranslateName.innerHTML = orig;
+    }
+  });
+}
+
 dlgSave.addEventListener('click', async () => {
   setError('');
   const payload = {

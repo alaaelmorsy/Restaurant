@@ -164,6 +164,28 @@ openAdd.addEventListener('click', () => {
 // Refresh button
 refreshBtn?.addEventListener('click', () => loadTypes());
 
+// Translate button
+const btnTranslateTypeName = document.getElementById('btnTranslateTypeName');
+if(btnTranslateTypeName){
+  btnTranslateTypeName.addEventListener('click', async () => {
+    const arName = (mName.value || '').trim();
+    if(!arName) return;
+    const orig = btnTranslateTypeName.innerHTML;
+    btnTranslateTypeName.disabled = true;
+    btnTranslateTypeName.innerHTML = '⏳';
+    try{
+      const res = await window.api.products_translate(arName);
+      if(res && res.ok && res.text){
+        mNameEn.value = res.text;
+      }
+    }catch(_){ }
+    finally{
+      btnTranslateTypeName.disabled = false;
+      btnTranslateTypeName.innerHTML = orig;
+    }
+  });
+}
+
 // Modal actions
 mCancel.addEventListener('click', hideModal);
 overlay.addEventListener('click', hideModal);

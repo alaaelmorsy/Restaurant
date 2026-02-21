@@ -189,6 +189,27 @@ refreshBtn.addEventListener('click', load);
 
 dlgCancel.addEventListener('click', closeDlg);
 
+const btnTranslateOpName = document.getElementById('btnTranslateOpName');
+if(btnTranslateOpName){
+  btnTranslateOpName.addEventListener('click', async () => {
+    const arName = (f_name.value || '').trim();
+    if(!arName) return;
+    const orig = btnTranslateOpName.innerHTML;
+    btnTranslateOpName.disabled = true;
+    btnTranslateOpName.innerHTML = '⏳';
+    try{
+      const res = await window.api.products_translate(arName);
+      if(res && res.ok && res.text){
+        f_name_en.value = res.text;
+      }
+    }catch(_){ }
+    finally{
+      btnTranslateOpName.disabled = false;
+      btnTranslateOpName.innerHTML = orig;
+    }
+  });
+}
+
 dlgSave.addEventListener('click', async () => {
   setError('');
   const name = (f_name.value||'').trim();
