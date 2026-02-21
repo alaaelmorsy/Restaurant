@@ -10,6 +10,7 @@ function registerTypesIPC(){
       CREATE TABLE IF NOT EXISTS main_types (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(128) NOT NULL UNIQUE,
+        name_en VARCHAR(128) DEFAULT NULL,
         sort_order INT NOT NULL DEFAULT 0,
         is_active TINYINT NOT NULL DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -22,11 +23,16 @@ function registerTypesIPC(){
       // Initialize sort_order to id for stable default ordering
       await conn.query("UPDATE main_types SET sort_order = id WHERE sort_order = 0");
     }
+    // Migration for older databases: add name_en if missing
+    const [colNameEn] = await conn.query("SHOW COLUMNS FROM main_types LIKE 'name_en'");
+    if(!colNameEn.length){
+      await conn.query("ALTER TABLE main_types ADD COLUMN name_en VARCHAR(128) DEFAULT NULL AFTER name");
+    }
   }
 
   // add
   ipcMain.handle('types:add', async (_evt, payload) => {
-    const { name } = payload || {};
+    const { name, name_en } = payload || {};
     if(!name) return { ok:false, error:'اسم النوع الرئيسي مطلوب' };
     try{
       const pool = await getPool();
@@ -37,7 +43,8 @@ function registerTypesIPC(){
         // Place new type at the end of the list
         const [mx] = await conn.query('SELECT COALESCE(MAX(sort_order), -1) AS m FROM main_types');
         const next = Number(mx && mx[0] && mx[0].m != null ? mx[0].m : -1) + 1;
-        await conn.query('INSERT INTO main_types (name, sort_order) VALUES (?, ?)', [name, next]);
+        const nameEnVal = (name_en && name_en.trim()) ? name_en.trim() : null;
+        await conn.query('INSERT INTO main_types (name, name_en, sort_order) VALUES (?, ?, ?)', [name, nameEnVal, next]);
         return { ok:true };
       } finally { conn.release(); }
     }catch(e){
@@ -55,7 +62,7 @@ function registerTypesIPC(){
       try{
         await conn.query(`USE \`${DB_NAME}\``);
         await ensureTable(conn);
-        const [rows] = await conn.query('SELECT id, name FROM main_types WHERE is_active=1 ORDER BY sort_order ASC, name ASC');
+        const [rows] = await conn.query('SELECT id, name, name_en FROM main_types WHERE is_active=1 ORDER BY sort_order ASC, name ASC');
         return { ok:true, items: rows };
       } finally { conn.release(); }
     }catch(e){ console.error(e); return { ok:false, error:'تعذر تحميل الأنواع' }; }
@@ -98,7 +105,7 @@ function registerTypesIPC(){
   ipcMain.handle('types:update', async (_e, id, payload) => {
     const tid = (id && id.id) ? id.id : id;
     if(!tid) return { ok:false, error:'معرّف مفقود' };
-    const { name } = payload || {};
+    const { name, name_en } = payload || {};
     if(!name) return { ok:false, error:'الاسم مطلوب' };
     try{
       const pool = await getPool();
@@ -111,8 +118,9 @@ function registerTypesIPC(){
         const [[oldRow]] = await conn.query('SELECT name FROM main_types WHERE id=?', [tid]);
         const oldName = oldRow ? oldRow.name : null;
 
-        // 2) Update main type name
-        await conn.query('UPDATE main_types SET name=? WHERE id=?', [name, tid]);
+        // 2) Update main type name and English name
+        const nameEnVal = (name_en && name_en.trim()) ? name_en.trim() : null;
+        await conn.query('UPDATE main_types SET name=?, name_en=? WHERE id=?', [name, nameEnVal, tid]);
 
         // 3) Cascade change to products table if name actually changed
         if (oldName && oldName !== name) {

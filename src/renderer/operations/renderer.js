@@ -40,6 +40,7 @@ function miniConfirm(message){
 const dlg = document.getElementById('dlg');
 const dlgTitle = document.getElementById('dlgTitle');
 const f_name = document.getElementById('f_name');
+const f_name_en = document.getElementById('f_name_en');
 const dlgSave = document.getElementById('dlgSave');
 const dlgCancel = document.getElementById('dlgCancel');
 
@@ -62,6 +63,7 @@ function openAdd(){
   editId=null; 
   dlgTitle.textContent='إضافة عملية جديدة'; 
   f_name.value='';
+  f_name_en.value='';
   f_name.focus();
   dlg.showModal();
 }
@@ -69,6 +71,7 @@ function openEdit(item){
   editId=item.id; 
   dlgTitle.textContent='تعديل عملية: ' + item.name; 
   f_name.value=item.name||''; 
+  f_name_en.value=item.name_en||'';
   f_name.focus();
   dlg.showModal(); 
 }
@@ -112,6 +115,7 @@ function renderRows(items){
       <td style="font-weight: 700; color: var(--text-muted);">${idx+1}</td>
       <td>
         <div class="operation-name">${it.name}</div>
+        ${it.name_en ? `<div class="operation-order" dir="ltr" style="font-weight:600;">${it.name_en}</div>` : ''}
         <div class="operation-order">ترتيب: ${Number(it.sort_order||0)}</div>
       </td>
       <td>${it.is_active ? '<span class="status-active">نشطة</span>' : '<span class="status-inactive">موقوفة</span>'}</td>
@@ -136,7 +140,7 @@ function renderRows(items){
         const it2 = currentItems[i];
         const newOrder = i;
         if(Number(it2.sort_order||0) !== newOrder){
-          const r = await window.api.ops_update(it2.id, { name: it2.name, sort_order: newOrder, is_active: it2.is_active });
+          const r = await window.api.ops_update(it2.id, { name: it2.name, name_en: it2.name_en||null, sort_order: newOrder, is_active: it2.is_active });
           if(!r.ok){ setError(r.error||'فشل حفظ الترتيب'); return; }
           it2.sort_order = newOrder;
         }
@@ -188,6 +192,7 @@ dlgCancel.addEventListener('click', closeDlg);
 dlgSave.addEventListener('click', async () => {
   setError('');
   const name = (f_name.value||'').trim();
+  const name_en = (f_name_en.value||'').trim() || null;
   
   if(!name){ 
     setError('يرجى إدخال اسم العملية'); 
@@ -223,11 +228,11 @@ dlgSave.addEventListener('click', async () => {
       // تعديل الاسم فقط، لا نغيّر الترتيب بالأرقام
       const item = currentItems.find(x=>x.id===editId);
       const currentOrder = item ? Number(item.sort_order||0) : 0;
-      r = await window.api.ops_update(editId, { name, sort_order: currentOrder, is_active: item ? item.is_active : 1 });
+      r = await window.api.ops_update(editId, { name, name_en, sort_order: currentOrder, is_active: item ? item.is_active : 1 });
     } else {
       // الإضافة: ضعه في آخر الترتيب
       const next = (currentItems.length ? Math.max(...currentItems.map(x => Number(x.sort_order||0))) + 1 : 0);
-      r = await window.api.ops_add({ name, sort_order: next });
+      r = await window.api.ops_add({ name, name_en, sort_order: next });
     }
     
     if(!r.ok){ 

@@ -7,6 +7,7 @@ async function ensureTables(conn){
   await conn.query(`CREATE TABLE IF NOT EXISTS operations (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(128) NOT NULL UNIQUE,
+    name_en VARCHAR(128) DEFAULT NULL,
     sort_order INT NOT NULL DEFAULT 0,
     is_active TINYINT NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -14,6 +15,10 @@ async function ensureTables(conn){
   const [colSort] = await conn.query("SHOW COLUMNS FROM operations LIKE 'sort_order'");
   if(!colSort.length){
     await conn.query("ALTER TABLE operations ADD COLUMN sort_order INT NOT NULL DEFAULT 0 AFTER name");
+  }
+  const [colNameEn] = await conn.query("SHOW COLUMNS FROM operations LIKE 'name_en'");
+  if(!colNameEn.length){
+    await conn.query("ALTER TABLE operations ADD COLUMN name_en VARCHAR(128) DEFAULT NULL AFTER name");
   }
 
   await conn.query(`CREATE TABLE IF NOT EXISTS product_operations (
@@ -56,7 +61,7 @@ async function fetchProductOperationsFromDB(productId){
     await conn.query(`USE \`${DB_NAME}\``);
     await ensureTables(conn);
     const [rows] = await conn.query(`
-      SELECT po.operation_id, po.price, o.name, o.is_active, o.sort_order
+      SELECT po.operation_id, po.price, o.name, o.name_en, o.is_active, o.sort_order
       FROM product_operations po
       JOIN operations o ON o.id = po.operation_id
       WHERE po.product_id = ?
@@ -104,6 +109,7 @@ function registerOperationsIPC(){
 
   ipcMain.handle('ops:add', async (_e, payload) => {
     const name = (payload && payload.name ? String(payload.name) : '').trim();
+    const name_en = (payload && payload.name_en ? String(payload.name_en) : '').trim() || null;
     let sort_order = Number(payload && payload.sort_order);
     if(!Number.isFinite(sort_order) || sort_order <= 0) sort_order = null;
     if(!name) return { ok:false, error:'اسم العملية مطلوب' };
@@ -117,7 +123,7 @@ function registerOperationsIPC(){
           const [rows] = await conn.query('SELECT COALESCE(MAX(sort_order),0)+1 AS next FROM operations');
           sort_order = (rows && rows[0] && Number(rows[0].next)) || 1;
         }
-        const [res] = await conn.query('INSERT INTO operations (name, sort_order, is_active) VALUES (?,?,1)', [name, sort_order]);
+        const [res] = await conn.query('INSERT INTO operations (name, name_en, sort_order, is_active) VALUES (?,?,?,1)', [name, name_en, sort_order]);
         invalidateProductOperationsCache();
         notifyProductOperationsCacheInvalidated();
         return { ok:true, id: res.insertId, sort_order };
@@ -132,13 +138,14 @@ function registerOperationsIPC(){
     const oid = (id && id.id) ? id.id : id;
     if(!oid) return { ok:false, error:'معرّف مفقود' };
     const { name, is_active } = payload || {};
+    const name_en = (payload && payload.name_en ? String(payload.name_en) : '').trim() || null;
     const sort_order = Number(payload && payload.sort_order || 0);
     try{
       const pool = await getPool(); const conn = await pool.getConnection();
       try{
         await conn.query(`USE \`${DB_NAME}\``);
         await ensureTables(conn);
-        await conn.query('UPDATE operations SET name=?, sort_order=?, is_active=? WHERE id=?', [name, sort_order, (is_active?1:0), oid]);
+        await conn.query('UPDATE operations SET name=?, name_en=?, sort_order=?, is_active=? WHERE id=?', [name, name_en, sort_order, (is_active?1:0), oid]);
         invalidateProductOperationsCache();
         notifyProductOperationsCacheInvalidated();
         return { ok:true };

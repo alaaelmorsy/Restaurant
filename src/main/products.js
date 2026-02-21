@@ -441,7 +441,7 @@ function registerProductsIPC(){
         const placeholders = list.map(()=>'?').join(',');
         // Join product_operations with operations to get names and active status
         const sql = `
-          SELECT po.product_id, po.operation_id, po.price, o.name, o.is_active, o.id as op_real_id
+          SELECT po.product_id, po.operation_id, po.price, o.name, o.name_en, o.is_active, o.id as op_real_id
           FROM product_operations po
           JOIN operations o ON po.operation_id = o.id
           WHERE po.product_id IN (${placeholders})
@@ -458,6 +458,7 @@ function registerProductsIPC(){
             operation_id: row.operation_id,
             id: row.op_real_id,
             name: row.name,
+            name_en: row.name_en || null,
             price: row.price,
             is_active: row.is_active
           });

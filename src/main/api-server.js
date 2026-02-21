@@ -516,7 +516,7 @@ async function fetchProductOperations(product_id) {
 
 async function fetchTypes() {
   return withConnection(async (conn) => {
-    const [rows] = await conn.query('SELECT id,name,sort_order,is_active,created_at FROM main_types WHERE is_active=1 ORDER BY sort_order ASC, name ASC');
+    const [rows] = await conn.query('SELECT id,name,name_en,sort_order,is_active,created_at FROM main_types WHERE is_active=1 ORDER BY sort_order ASC, name ASC');
     return { ok: true, items: rows };
   });
 }
@@ -925,7 +925,7 @@ function createApiRouter() {
       const result = await withConnection(async (conn) => {
         const placeholders = ids.map(() => '?').join(',');
         const sql = `
-          SELECT po.product_id, po.operation_id, po.price, o.name, o.is_active, o.id as op_real_id
+          SELECT po.product_id, po.operation_id, po.price, o.name, o.name_en, o.is_active, o.id as op_real_id
           FROM product_operations po
           JOIN operations o ON po.operation_id = o.id
           WHERE po.product_id IN (${placeholders})
@@ -941,6 +941,7 @@ function createApiRouter() {
             operation_id: row.operation_id,
             id: row.op_real_id,
             name: row.name,
+            name_en: row.name_en || null,
             price: row.price,
             is_active: row.is_active
           });

@@ -1343,7 +1343,7 @@ function renderCart(){
                         const totalVal = tr.querySelector('.total-val');
                         const priceVal = tr.querySelector('.price-val');
                         
-                        if(select){ select.value = String(opId); select.title = first.name; }
+                        if(select){ select.value = String(opId); select.title = first.name_en ? first.name + ' - ' + first.name_en : first.name; }
                         if(priceInp){ priceInp.value = String(Number(it.price).toFixed(2)); }
                         if(priceVal){ priceVal.textContent = Number(it.price).toFixed(2); }
                         if(totalVal){ totalVal.textContent = (Number(it.price)*Number(it.qty)).toFixed(2); }
@@ -1388,14 +1388,14 @@ function renderOpsForRow(tr, it){
     // املأ قائمة العمليات
     if(select){
       select.innerHTML = '';
-      it.__ops.forEach(o => { const opt = document.createElement('option'); opt.value=String(o.operation_id||o.id); opt.textContent=o.name; opt.title=o.name; select.appendChild(opt); });
+      it.__ops.forEach(o => { const opt = document.createElement('option'); opt.value=String(o.operation_id||o.id); const label = o.name_en ? o.name + ' - ' + o.name_en : o.name; opt.textContent=label; opt.title=label; select.appendChild(opt); });
       if(__isProcessingOld){ try{ select.disabled = true; }catch(_){ } }
       
       // Set selected value
       if(it.operation_id){
           select.value = String(it.operation_id);
           const selectedOp = it.__ops.find(o => (o.operation_id||o.id) === Number(it.operation_id));
-          if(selectedOp){ select.title = selectedOp.name; }
+          if(selectedOp){ select.title = selectedOp.name_en ? selectedOp.name + ' - ' + selectedOp.name_en : selectedOp.name; }
       }
     }
 }
@@ -3055,7 +3055,7 @@ async function populateCategories(preFetchedRes = null){
       else if (t.name.length > 15) fontSize = '10px';
       else if (t.name.length > 10) fontSize = '11px';
       
-      tab.innerHTML = `<span style="font-size:${fontSize}">${t.name}</span>`;
+      tab.innerHTML = `<span style="font-size:${fontSize};display:block;line-height:1.2">${t.name}</span>${t.name_en ? `<span style="font-size:9px;opacity:0.85;font-weight:700;direction:ltr;unicode-bidi:isolate;display:block;line-height:1.2;margin-top:1px">${t.name_en}</span>` : ''}`;
       tab.addEventListener('click', () => {
         // toggle active
         typeTabs.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));

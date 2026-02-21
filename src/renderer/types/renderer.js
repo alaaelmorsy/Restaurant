@@ -8,6 +8,7 @@ const overlay = document.getElementById('overlay');
 const modal = document.getElementById('modal');
 const modalTitle = document.getElementById('modalTitle');
 const mName = document.getElementById('m_name');
+const mNameEn = document.getElementById('m_name_en');
 const mSave = document.getElementById('m_save');
 const mCancel = document.getElementById('m_cancel');
 const openAdd = document.getElementById('openAdd');
@@ -49,6 +50,7 @@ function showModal(mode, opts = {}){
   editId = opts.id ?? null;
   modalTitle.textContent = mode === 'add' ? 'إضافة نوع رئيسي' : 'تعديل نوع رئيسي';
   mName.value = (opts.name || '').trim();
+  mNameEn.value = (opts.name_en || '').trim();
   overlay.classList.remove('hidden');
   modal.classList.remove('hidden');
   modal.classList.add('flex');
@@ -60,6 +62,7 @@ function hideModal(){
   modal.classList.remove('flex');
   overlay.classList.add('hidden');
   mName.value = '';
+  mNameEn.value = '';
   editId = null;
 }
 
@@ -98,13 +101,16 @@ function renderCards(items){
     const active = !!t.is_active;
     const actionsHtml = `
       <div class="flex items-center gap-1.5 pt-3 border-t border-slate-100">
-        ${canType('types.edit') ? `<button class="flex-1 px-2.5 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1.5" data-act="edit" data-id="${t.id}" data-name="${attrEscape(t.name)}"><span>✏️</span><span>تعديل</span></button>` : ''}
+        ${canType('types.edit') ? `<button class="flex-1 px-2.5 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1.5" data-act="edit" data-id="${t.id}" data-name="${attrEscape(t.name)}" data-name-en="${attrEscape(t.name_en||'')}"><span>✏️</span><span>تعديل</span></button>` : ''}
         ${canType('types.toggle') ? `<button class="flex-1 px-2.5 py-2 ${active ? 'bg-amber-500 hover:bg-amber-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1.5" data-act="toggle" data-id="${t.id}"><span>${active ? '⏸️' : '▶️'}</span><span>${active ? 'إيقاف' : 'تفعيل'}</span></button>` : ''}
         ${canType('types.delete') ? `<button class="flex-1 px-2.5 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-bold shadow-sm flex items-center justify-center gap-1.5" data-act="delete" data-id="${t.id}"><span>🗑️</span><span>حذف</span></button>` : ''}
       </div>`;
     card.innerHTML = `
       <div class="flex items-start justify-between mb-2">
-        <div class="text-base font-black text-slate-800">${escapeHtml(t.name)}</div>
+        <div>
+          <div class="text-base font-black text-slate-800">${escapeHtml(t.name)}</div>
+          ${t.name_en ? `<div class="text-xs text-slate-500 font-medium mt-0.5" dir="ltr">${escapeHtml(t.name_en)}</div>` : ''}
+        </div>
         <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold ${active ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'}">${active ? 'نشط' : 'موقوف'}</span>
       </div>
       <div class="text-xs text-slate-500 font-medium mb-1">#${t.id} · ترتيب: ${Number(t.sort_order||0)}</div>
@@ -165,12 +171,13 @@ overlay.addEventListener('click', hideModal);
 mSave.addEventListener('click', async () => {
   const name = (mName.value || '').trim();
   if(!name){ setError('يرجى إدخال اسم النوع'); mName.focus(); return; }
+  const name_en = (mNameEn.value || '').trim() || null;
   setError('');
   if(modalMode === 'add'){
-    const res = await window.api.types_add({ name });
+    const res = await window.api.types_add({ name, name_en });
     if(!res.ok){ setError(res.error || 'فشل الحفظ'); return; }
   } else if(modalMode === 'edit' && editId){
-    const res = await window.api.types_update(editId, { name });
+    const res = await window.api.types_update(editId, { name, name_en });
     if(!res.ok){ setError(res.error || 'فشل التعديل'); return; }
   }
   hideModal();
@@ -196,7 +203,8 @@ grid.addEventListener('click', async (e) => {
   if(act === 'edit'){
     if(!canType('types.edit')) return;
     const name = btn.dataset.name || '';
-    showModal('edit', { id, name });
+    const name_en = btn.dataset.nameEn || '';
+    showModal('edit', { id, name, name_en });
     return;
   }
 
