@@ -409,11 +409,22 @@
       font-weight: 900;
       color: #0f172a;
       line-height: 1.2;
-      min-height: 36px;
       display: -webkit-box;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
+    }
+    .p-card .meta .pname-en {
+      font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+      font-size: 10px;
+      font-weight: 800;
+      color: #334155;
+      line-height: 1.2;
+      direction: ltr;
+      text-align: right;
+      word-break: break-word;
+      white-space: normal;
+      margin-top: 0;
     }
 
     .p-card .meta .price-row {
@@ -1419,7 +1430,7 @@
             <div id="catalogLoader"
               style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:100; background:rgba(255,255,255,0.95); padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.15); text-align:center;">
               <div style="font-size:32px; animation:spin 1s linear infinite;">⏳</div>
-              <div style="margin-top:8px; font-weight:700; color:#1e40af;">جاري التحميل...</div>
+              <div id="catalogLoaderText" style="margin-top:8px; font-weight:700; color:#1e40af;">جاري التحميل...</div>
             </div>
             <div id="catalog" class="grid"></div>
           </div>

@@ -319,7 +319,7 @@ async function fetchInvoiceDetails(id) {
     // استرجاع جميع حقول الفاتورة (مثل الجهاز الرئيسي) لضمان عرض كامل البيانات
     const [[invoice]] = await conn.query('SELECT * FROM sales WHERE id=? LIMIT 1', [id]);
     if (!invoice) return { ok: false, error: 'not found' };
-    const [items] = await conn.query('SELECT id,product_id,name,description,price,qty,line_total FROM sales_items WHERE sale_id=? ORDER BY id ASC', [id]);
+    const [items] = await conn.query('SELECT si.id, si.product_id, si.name, si.description, si.operation_id, si.operation_name, si.price, si.qty, si.line_total, o.name_en AS operation_name_en FROM sales_items si LEFT JOIN operations o ON o.id = si.operation_id WHERE si.sale_id=? ORDER BY si.id ASC', [id]);
     invoice.items = items;
     return { ok: true, invoice };
   });
@@ -1012,7 +1012,7 @@ function createApiRouter() {
             LIMIT 1
           `, [roomId || null, saleId]),
           conn.query(
-            'SELECT si.*, p.is_tobacco, p.category FROM sales_items si LEFT JOIN products p ON p.id = si.product_id WHERE si.sale_id=?',
+            'SELECT si.*, p.is_tobacco, p.category, p.name_en, COALESCE(si.operation_name_en, o.name_en) AS operation_name_en FROM sales_items si LEFT JOIN products p ON p.id = si.product_id LEFT JOIN operations o ON o.id = si.operation_id WHERE si.sale_id=?',
             [saleId]
           ),
           conn.query('SELECT * FROM app_settings WHERE id=1 LIMIT 1')

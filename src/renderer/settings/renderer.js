@@ -105,6 +105,138 @@ function __applyLang(lang){
     resetProducts: isAr ? '🔄 إعادة تعيين المنتجات' : '🔄 Reset Products',
     resetCustomers: isAr ? '🔄 إعادة تعيين العملاء' : '🔄 Reset Customers',
     resetPurchases: isAr ? '🔄 إعادة تعيين المشتريات' : '🔄 Reset Purchases',
+    // Header subtitle
+    headerSubtitle: isAr ? 'تحكم كامل في هوية المتجر، الضرائب، الطباعة والمدفوعات' : 'Full control over store settings, taxes, printing and payments',
+    // Card section titles
+    secGeneral: isAr ? 'البيانات العامة' : 'General Data',
+    secGeneralDesc: isAr ? 'معلومات المتجر للتعاملات والفواتير' : 'Store info for transactions and invoices',
+    secTax: isAr ? 'الضرائب' : 'Taxes',
+    secTaxDesc: isAr ? 'نسبة الضريبة وطريقة احتسابها' : 'Tax rate and calculation method',
+    secCurrencyDesc: isAr ? 'رمز العملة وموقعه في المبالغ' : 'Currency symbol and position in amounts',
+    secPayment: isAr ? 'طرق الدفع' : 'Payment Methods',
+    secPaymentDesc: isAr ? 'تفعيل طرق الدفع والطريقة الافتراضية' : 'Enable payment methods and set default',
+    secPrint: isAr ? 'إعدادات الطباعة' : 'Print Settings',
+    secPrintDesc: isAr ? 'إعدادات الطباعة والمخرجات' : 'Printing and output settings',
+    secOps: isAr ? 'عمليات النظام' : 'System Operations',
+    secOpsDesc: isAr ? 'سلوك الأسعار والمخزون' : 'Price and inventory behavior',
+    secBrand: isAr ? 'الهوية والشعار' : 'Brand & Logo',
+    secBrandDesc: isAr ? 'ارفع شعار المتجر ليظهر في الفواتير والتقارير' : 'Upload store logo to appear on invoices and reports',
+    secUpdate: isAr ? 'تحديثات البرنامج' : 'Software Updates',
+    secUpdateDesc: isAr ? 'تحقق من التحديثات المتاحة للبرنامج' : 'Check for available software updates',
+    secUpdateModal: isAr ? 'تحديث البرنامج' : 'Software Update',
+    secUpdateModalDesc: isAr ? 'البحث عن آخر إصدار متاح' : 'Search for latest available version',
+    secDailyEmail: isAr ? 'إعداد إرسال التقرير اليومي' : 'Daily Report Setup',
+    secDailyEmailDesc: isAr ? 'تكوين البريد الإلكتروني للحصول على تقارير مبيعات يومية تلقائية' : 'Configure email for automatic daily sales reports',
+    secBackupDb: isAr ? 'إرسال نسخة قاعدة البيانات' : 'Send Database Backup',
+    secBackupDbDesc: isAr ? 'سيتم إنشاء نسخة SQL مضغوطة (.gz) وإرسالها بالبريد' : 'A compressed SQL backup (.gz) will be sent via email',
+    // h3 subsection headings
+    vatH3: isAr ? 'إعدادات ضريبة القيمة المضافة' : 'VAT Settings',
+    tobaccoH3: isAr ? 'رسوم التبغ' : 'Tobacco Fees',
+    currencySetupH3: isAr ? 'تكوين العملة' : 'Currency Setup',
+    enabledPaymentsH3: isAr ? 'طرق الدفع المفعّلة' : 'Enabled Payment Methods',
+    defaultPaymentH3: isAr ? 'طريقة الدفع الافتراضية' : 'Default Payment Method',
+    defaultOrderTypeH3: isAr ? 'نوع الطلب الافتراضي' : 'Default Order Type',
+    marginsH3: isAr ? 'الهوامش' : 'Margins',
+    inventoryMgmtH3: isAr ? 'إدارة المخزون' : 'Inventory Management',
+    displayOptsH3: isAr ? 'خيارات العرض' : 'Display Options',
+    salesMgmtH3: isAr ? 'إدارة البيع والأسعار' : 'Sales & Pricing',
+    closingHourH3: isAr ? 'ساعة الإقفال اليومية' : 'Daily Closing Hour',
+    connSettingsH3: isAr ? 'إعدادات الاتصال' : 'Connection Settings',
+    logoStoreH3: isAr ? 'شعار المتجر' : 'Store Logo',
+    logoDimsH3: isAr ? 'أبعاد الشعار' : 'Logo Dimensions',
+    // h4 headings
+    dailyTimeH4: isAr ? 'وقت الإرسال اليومي' : 'Daily Send Time',
+    emailSettingsH4: isAr ? 'إعدادات البريد الإلكتروني' : 'Email Settings',
+    // Extra buttons
+    checkUpdateText: isAr ? '🔄 التحقق من التحديثات' : '🔄 Check for Updates',
+    saveSimple: isAr ? 'حفظ' : 'Save',
+    updateClose: isAr ? 'إغلاق' : 'Close',
+    downloadUpdate: isAr ? 'تحميل التحديث' : 'Download Update',
+    installNow: isAr ? 'تثبيت الآن' : 'Install Now',
+    cancelStr: isAr ? 'إلغاء' : 'Cancel',
+    confirmStr: isAr ? 'تأكيد' : 'Confirm',
+    // Success/error messages
+    savedOk: isAr ? 'تم الحفظ بنجاح' : 'Saved successfully',
+    portsLoading: isAr ? '-- جاري التحميل... --' : '-- Loading... --',
+    errLoadSettings: isAr ? 'تعذر تحميل الإعدادات' : 'Failed to load settings',
+    errSaveSettings: isAr ? 'فشل حفظ الإعدادات' : 'Failed to save settings',
+    errImageRead: isAr ? 'فشل قراءة الصورة' : 'Failed to read image',
+    errImageTooLarge: isAr ? 'حجم الصورة أكبر من 1 ميجابايت. يرجى اختيار صورة أصغر.' : 'Image size exceeds 1 MB. Please choose a smaller image.',
+    errSendBackup: isAr ? 'فشل إرسال النسخة الاحتياطية' : 'Failed to send backup',
+    okSentBackup: isAr ? 'تم إرسال نسخة قاعدة البيانات بنجاح' : 'Database backup sent successfully',
+    errSaveBackup: isAr ? 'فشل حفظ النسخة الاحتياطية' : 'Failed to save backup',
+    okSavedBackup: isAr ? 'تم حفظ النسخة الاحتياطية بنجاح' : 'Backup saved successfully',
+    sendingReport: isAr ? '⏳ جاري إنشاء وإرسال التقرير...' : '⏳ Generating and sending report...',
+    errSendReport: isAr ? 'فشل إرسال التقرير اليومي' : 'Failed to send daily report',
+    okSentReport: isAr ? '✅ تم إرسال التقرير اليومي بنجاح' : '✅ Daily report sent successfully',
+    trialLockTitle: isAr ? 'هذا الحقل مقفل في النسخة التجريبية' : 'This field is locked in trial version',
+    searchingUpdates: isAr ? 'جاري البحث عن التحديثات...' : 'Searching for updates...',
+    downloadProgress: isAr ? 'تقدم التحميل' : 'Download Progress',
+    // Currency position options
+    curPosAfter: isAr ? 'الرمز بعد المبلغ (مثال: 100 ﷼)' : 'Symbol after amount (e.g. 100 ﷼)',
+    curPosBefore: isAr ? 'الرمز قبل المبلغ (مثال: ﷼ 100)' : 'Symbol before amount (e.g. ﷼ 100)',
+    // Backup dialog
+    backupRecipient: isAr ? 'البريد المستلم' : 'Recipient Email',
+    // Restore operations
+    restoreSelectOne: isAr ? 'يرجى اختيار عنصر واحد على الأقل للحذف' : 'Please select at least one item to delete',
+    restoreOpSales: isAr ? 'حذف جميع الفواتير وإعادة الترقيم' : 'Delete all invoices and reset numbering',
+    restoreOpProducts: isAr ? 'حذف جميع المنتجات والأنواع الرئيسية' : 'Delete all products and main types',
+    restoreOpCustomers: isAr ? 'حذف جميع العملاء' : 'Delete all customers',
+    restoreOpPurchases: isAr ? 'حذف جميع المشتريات' : 'Delete all purchases',
+    restoreOkSales: isAr ? '✓ تم حذف الفواتير وإعادة الترقيم' : '✓ Invoices deleted and numbering reset',
+    restoreOkProducts: isAr ? '✓ تم حذف المنتجات والأنواع الرئيسية' : '✓ Products and main types deleted',
+    restoreOkCustomers: isAr ? '✓ تم حذف جميع العملاء' : '✓ All customers deleted',
+    restoreOkPurchases: isAr ? '✓ تم حذف جميع المشتريات' : '✓ All purchases deleted',
+    restoreErrSales: isAr ? 'فشل حذف الفواتير: ' : 'Failed to delete invoices: ',
+    restoreErrProducts: isAr ? 'فشل حذف المنتجات: ' : 'Failed to delete products: ',
+    restoreErrCustomers: isAr ? 'فشل حذف العملاء: ' : 'Failed to delete customers: ',
+    restoreErrPurchases: isAr ? 'فشل حذف المشتريات: ' : 'Failed to delete purchases: ',
+    unknownError: isAr ? 'خطأ غير معروف' : 'Unknown error',
+    // QR Code
+    qrEnterUrl: isAr ? 'الرجاء إدخال رابط المنيو' : 'Please enter the menu URL',
+    qrInvalidUrl: isAr ? 'الرجاء إدخال رابط صحيح يبدأ بـ http:// أو https://' : 'Please enter a valid URL starting with http:// or https://',
+    qrGenError: isAr ? 'فشل توليد QR' : 'Failed to generate QR',
+    qrPrintTitle: isAr ? 'QR المنيو' : 'Menu QR',
+    qrPrintH2: isAr ? 'QR Code المنيو' : 'Menu QR Code',
+    qrPrintError: isAr ? 'فشل طباعة QR Code: ' : 'Failed to print QR Code: ',
+    qrSaveOk: isAr ? '✓ تم حفظ QR Code بنجاح' : '✓ QR Code saved successfully',
+    qrSaveError: isAr ? '✗ فشل حفظ QR Code: ' : '✗ Failed to save QR Code: ',
+    // Update modal
+    updateSearchingTitle: isAr ? 'جاري البحث عن التحديثات...' : 'Searching for updates...',
+    updateProgressLabel: isAr ? 'تقدم التحميل' : 'Download Progress',
+    updateCurrentVer: isAr ? 'الإصدار الحالي: ' : 'Current version: ',
+    updateErrTitle: isAr ? 'حدث خطأ' : 'An error occurred',
+    updateCheckFail: isAr ? 'فشل التحقق من التحديثات' : 'Failed to check for updates',
+    updateDownloadingTitle: isAr ? 'جاري التحميل...' : 'Downloading...',
+    updateDownloadingMsg: isAr ? 'يتم تحميل التحديث الآن، يرجى الانتظار...' : 'Downloading the update, please wait...',
+    updateDownloadFail: isAr ? 'فشل التحميل' : 'Download Failed',
+    updateDownloadErr: isAr ? 'حدث خطأ أثناء التحميل' : 'An error occurred during download',
+    updateInstallingTitle: isAr ? 'جاري التثبيت...' : 'Installing...',
+    updateInstallingMsg: isAr ? 'سيتم إغلاق البرنامج وتثبيت التحديث' : 'The application will close and install the update',
+    updateInstallFail: isAr ? 'فشل التثبيت' : 'Installation Failed',
+    updateInstallErr: isAr ? 'حدث خطأ أثناء التثبيت' : 'An error occurred during installation',
+    updateCheckingTitle: isAr ? 'جاري البحث...' : 'Searching...',
+    updateCheckingMsg: isAr ? 'البحث عن التحديثات المتاحة' : 'Searching for available updates',
+    updateAvailableTitle: isAr ? 'يتوفر تحديث جديد!' : 'New Update Available!',
+    updateAvailableMsg: isAr ? 'اضغط "تحميل التحديث" للبدء في تحميل الإصدار الجديد' : 'Click "Download Update" to start downloading the new version',
+    updateNewLabel: isAr ? 'جديد' : 'New',
+    updateUnknownVer: isAr ? 'غير معروف' : 'Unknown',
+    updateNotAvailTitle: isAr ? 'البرنامج محدث' : 'Up to Date',
+    updateVersionLabel: isAr ? 'الإصدار ' : 'Version ',
+    updateMB: isAr ? 'ميجابايت' : 'MB',
+    updateDownloadedTitle: isAr ? 'تم التحميل بنجاح!' : 'Download Complete!',
+    updateDownloadedMsg: isAr ? 'التحديث جاهز للتثبيت. اضغط "تثبيت الآن" لتثبيت التحديث' : 'Update is ready to install. Click "Install Now" to install the update',
+    updateCloseBtn: isAr ? 'إغلاق' : 'Close',
+    // Support expired
+    supportExpiredTitle: isAr ? 'انتهت فترة الدعم الفني' : 'Support Period Expired',
+    supportExpiredToday: isAr ? 'انتهى اليوم' : 'Expired today',
+    supportExpiredOneDay: isAr ? 'منذ يوم واحد' : '1 day ago',
+    supportExpiredTwoDays: isAr ? 'منذ يومين' : '2 days ago',
+    supportExpiredDays: isAr ? 'منذ {n} أيام' : '{n} days ago',
+    supportExpiredDaysSingle: isAr ? 'منذ {n} يوماً' : '{n} days ago',
+    supportExpiredDateLabel: isAr ? 'تاريخ انتهاء الدعم: ' : 'Support end date: ',
+    supportExpiredGetUpdates: isAr ? 'للحصول على التحديثات:' : 'To get updates:',
+    supportExpiredContact: isAr ? 'يرجى التواصل مع الدعم الفني لتجديد الاشتراك' : 'Please contact technical support to renew your subscription',
   };
   
   __currentLang = t;
@@ -241,7 +373,120 @@ function __applyLang(lang){
   
   const btnResetPurchases = document.getElementById('btnResetPurchases');
   if(btnResetPurchases) btnResetPurchases.textContent = t.resetPurchases;
-  
+
+  // Header brand subtitle
+  const brandSubtitleEl = document.querySelector('.brand > div > .section-desc');
+  if(brandSubtitleEl) brandSubtitleEl.textContent = t.headerSubtitle;
+
+  // Card section titles (.section-title divs)
+  document.querySelectorAll('.section-title').forEach(el => {
+    const txt = el.textContent.trim();
+    if(txt === 'البيانات العامة' || txt === 'General Data') el.textContent = t.secGeneral;
+    else if(txt === 'الضرائب' || txt === 'Taxes') el.textContent = t.secTax;
+    else if(txt === 'إعدادات العملة' || txt === 'Currency Settings') el.textContent = t.currencySettings;
+    else if((txt === 'طرق الدفع' || txt === 'Payment Methods')) el.textContent = t.secPayment;
+    else if(txt === 'إعدادات الطباعة' || txt === 'Print Settings') el.textContent = t.printSettings;
+    else if(txt === 'عمليات النظام' || txt === 'System Operations') el.textContent = t.secOps;
+    else if(txt === 'الهوية والشعار' || txt === 'Brand & Logo') el.textContent = t.secBrand;
+    else if(txt === 'تحديثات البرنامج' || txt === 'Software Updates') el.textContent = t.secUpdate;
+    else if(txt === 'تحديث البرنامج' || txt === 'Software Update') el.textContent = t.secUpdateModal;
+    else if(txt === 'إعداد إرسال التقرير اليومي' || txt === 'Daily Report Setup') el.textContent = t.secDailyEmail;
+    else if(txt === 'إرسال نسخة قاعدة البيانات' || txt === 'Send Database Backup') el.textContent = t.secBackupDb;
+  });
+
+  // Card section descriptions (inside .section-header but not brand)
+  document.querySelectorAll('.section-header .section-desc').forEach(el => {
+    const txt = el.textContent.trim();
+    if(txt.includes('معلومات المتجر للتعاملات') || txt === 'Store info for transactions and invoices') el.textContent = t.secGeneralDesc;
+    else if(txt.includes('نسبة الضريبة') || txt === 'Tax rate and calculation method') el.textContent = t.secTaxDesc;
+    else if(txt.includes('رمز العملة وموقعه') || txt === 'Currency symbol and position in amounts') el.textContent = t.secCurrencyDesc;
+    else if(txt.includes('تفعيل طرق الدفع') || txt === 'Enable payment methods and set default') el.textContent = t.secPaymentDesc;
+    else if(txt.includes('إعدادات الطباعة والمخرجات') || txt === 'Printing and output settings') el.textContent = t.secPrintDesc;
+    else if(txt.includes('سلوك الأسعار') || txt === 'Price and inventory behavior') el.textContent = t.secOpsDesc;
+    else if(txt.includes('ارفع شعار المتجر') || txt === 'Upload store logo to appear on invoices and reports') el.textContent = t.secBrandDesc;
+    else if(txt.includes('تحقق من التحديثات المتاحة') || txt === 'Check for available software updates') el.textContent = t.secUpdateDesc;
+    else if(txt.includes('البحث عن آخر إصدار') || txt === 'Search for latest available version') el.textContent = t.secUpdateModalDesc;
+    else if(txt.includes('تكوين البريد الإلكتروني') || txt === 'Configure email for automatic daily sales reports') el.textContent = t.secDailyEmailDesc;
+    else if(txt.includes('سيتم إنشاء نسخة SQL') || txt === 'A compressed SQL backup (.gz) will be sent via email') el.textContent = t.secBackupDbDesc;
+  });
+
+  // h3 subsection headings (expanded matching)
+  document.querySelectorAll('h3').forEach(h3 => {
+    const txt = h3.textContent.trim();
+    if(txt === 'إعدادات ضريبة القيمة المضافة' || txt === t.vatH3) h3.textContent = t.vatH3;
+    else if(txt === 'رسوم التبغ' || txt === t.tobaccoH3) h3.textContent = t.tobaccoH3;
+    else if(txt === 'تكوين العملة' || txt === t.currencySetupH3) h3.textContent = t.currencySetupH3;
+    else if(txt === 'طرق الدفع المفعّلة' || txt === t.enabledPaymentsH3) h3.textContent = t.enabledPaymentsH3;
+    else if(txt === 'طريقة الدفع الافتراضية' || txt === t.defaultPaymentH3) h3.textContent = t.defaultPaymentH3;
+    else if(txt === 'نوع الطلب الافتراضي' || txt === t.defaultOrderTypeH3) h3.textContent = t.defaultOrderTypeH3;
+    else if(txt === 'الهوامش' || txt === t.marginsH3) h3.textContent = t.marginsH3;
+    else if(txt === 'إدارة المخزون' || txt === t.inventoryMgmtH3) h3.textContent = t.inventoryMgmtH3;
+    else if(txt === 'خيارات العرض' || txt === t.displayOptsH3) h3.textContent = t.displayOptsH3;
+    else if(txt === 'إدارة البيع والأسعار' || txt === t.salesMgmtH3) h3.textContent = t.salesMgmtH3;
+    else if(txt === 'ساعة الإقفال اليومية' || txt === t.closingHourH3) h3.textContent = t.closingHourH3;
+    else if(txt === 'إعدادات الاتصال' || txt === t.connSettingsH3) h3.textContent = t.connSettingsH3;
+    else if(txt === 'شعار المتجر' || txt === t.logoStoreH3) h3.textContent = t.logoStoreH3;
+    else if(txt === 'أبعاد الشعار' || txt === t.logoDimsH3) h3.textContent = t.logoDimsH3;
+    else if(txt.includes('معلومات المتجر الأساسية')) h3.textContent = t.storeInfo;
+    else if(txt.includes('معلومات الاتصال')) h3.textContent = t.contactInfo;
+    else if(txt.includes('الأرقام الرسمية')) h3.textContent = t.officialNumbers;
+    else if(txt.includes('ملاحظات الفاتورة')) h3.textContent = t.invoiceNotes;
+    else if(txt.includes('إعدادات المخزون')) h3.textContent = t.inventorySettings;
+    else if(txt.includes('إعدادات العرض')) h3.textContent = t.displaySettings;
+    else if(txt.includes('شاشة العميل')) h3.textContent = t.customerDisplay;
+    else if(txt.includes('إعدادات WhatsApp') || txt.includes('إدارة WhatsApp')) h3.textContent = t.whatsappSettings;
+    else if(txt.includes('إعدادات الشعار')) h3.textContent = t.logoSettings;
+    else if(txt.includes('الصورة الافتراضية للمنتجات')) h3.textContent = t.defaultProductImage;
+    else if(txt.includes('استعادة النظام')) h3.textContent = t.systemRecovery;
+  });
+
+  // h4 headings
+  document.querySelectorAll('h4').forEach(h4 => {
+    const txt = h4.textContent.trim();
+    if(txt === 'وقت الإرسال اليومي' || txt === t.dailyTimeH4) h4.textContent = t.dailyTimeH4;
+    else if(txt === 'إعدادات البريد الإلكتروني' || txt === t.emailSettingsH4) h4.textContent = t.emailSettingsH4;
+  });
+
+  // Extra buttons
+  const checkUpdateBtn = document.getElementById('checkUpdateBtn');
+  if(checkUpdateBtn) checkUpdateBtn.textContent = t.checkUpdateText;
+  const updateCancelBtn = document.getElementById('updateCancelBtn');
+  if(updateCancelBtn) updateCancelBtn.textContent = t.updateClose;
+  const updateDownloadBtn = document.getElementById('updateDownloadBtn');
+  if(updateDownloadBtn) updateDownloadBtn.textContent = t.downloadUpdate;
+  const updateInstallBtn = document.getElementById('updateInstallBtn');
+  if(updateInstallBtn) updateInstallBtn.textContent = t.installNow;
+  const confirmCancelBtnEl = document.getElementById('confirmCancelBtn');
+  if(confirmCancelBtnEl) confirmCancelBtnEl.textContent = t.cancelStr;
+  const confirmOkBtnEl = document.getElementById('confirmOkBtn');
+  if(confirmOkBtnEl) confirmOkBtnEl.textContent = t.confirmStr;
+  const bkCancelBtn = document.getElementById('bk_cancel');
+  if(bkCancelBtn) bkCancelBtn.textContent = t.cancelStr;
+
+  // Currency position select options
+  const curPosSelect = document.getElementById('f_currency_pos');
+  if(curPosSelect && curPosSelect.options.length >= 2) {
+    curPosSelect.options[0].textContent = t.curPosAfter;
+    curPosSelect.options[1].textContent = t.curPosBefore;
+  }
+
+  // Customer display port initial loading option
+  const portSelectEl = document.getElementById('f_customer_display_port');
+  if(portSelectEl && portSelectEl.options.length === 1) {
+    const opt = portSelectEl.options[0];
+    if(opt.value === '' && (opt.textContent.includes('جاري') || opt.textContent.includes('Loading'))) {
+      opt.textContent = t.portsLoading;
+    }
+  }
+
+  // Success message text in #ok div
+  const okDivEl = document.getElementById('ok');
+  if(okDivEl) okDivEl.textContent = t.savedOk;
+
+  // Backup dialog recipient label
+  const bkToLabel = document.querySelector('label[for="bk_to"]');
+  if(bkToLabel) bkToLabel.textContent = t.backupRecipient;
+
   try{ localStorage.setItem(__langKey, base); }catch(_){ }
 }
 
@@ -428,9 +673,9 @@ async function loadAvailablePorts(){
       fCustomerDisplayPort.innerHTML = '';
       
       if(result.ports.length === 0){
-        fCustomerDisplayPort.innerHTML = '<option value="">-- لا توجد منافذ متاحة --</option>';
+        fCustomerDisplayPort.innerHTML = `<option value="">${__currentLang.noPortsAvailable || '-- لا توجد منافذ متاحة --'}</option>`;
       }else{
-        fCustomerDisplayPort.innerHTML = '<option value="">-- اختر منفذ COM --</option>';
+        fCustomerDisplayPort.innerHTML = `<option value="">${__currentLang.selectPort || '-- اختر منفذ COM --'}</option>`;
         result.ports.forEach(port => {
           const option = document.createElement('option');
           option.value = port.path;
@@ -445,14 +690,14 @@ async function loadAvailablePorts(){
     }
   }catch(err){
     console.error('Failed to load ports:', err);
-    fCustomerDisplayPort.innerHTML = '<option value="">-- خطأ في التحميل --</option>';
+    fCustomerDisplayPort.innerHTML = `<option value="">${__currentLang.loadError || '-- خطأ في التحميل --'}</option>`;
   }
 }
 
 async function loadSettings(){
   setError(''); setOk(false);
   const r = await window.api.settings_get();
-  if(!r.ok){ setError(r.error || 'تعذر تحميل الإعدادات'); return; }
+  if(!r.ok){ setError(r.error || __currentLang.errLoadSettings || 'تعذر تحميل الإعدادات'); return; }
   const s = r.item || {};
   // fCompanyName removed: show legal name at the top instead
   fCompanySite.value = s.company_site || '';
@@ -558,6 +803,32 @@ async function loadSettings(){
   updateLogoPreview();
   // Refresh default product image preview as well
   try{ await updateDefProdPreview(); }catch(_){ }
+
+  applyTrialFieldLock(!!s.show_trial_warning);
+}
+
+function applyTrialFieldLock(isTrialActive) {
+  const trialFields = [
+    document.getElementById('f_seller_legal'),
+    document.getElementById('f_seller_vat'),
+    document.getElementById('f_company_location'),
+  ];
+  trialFields.forEach(el => {
+    if (!el) return;
+    if (isTrialActive) {
+      el.disabled = true;
+      el.style.backgroundColor = '#f3f4f6';
+      el.style.cursor = 'not-allowed';
+      el.style.opacity = '0.6';
+      el.title = __currentLang.trialLockTitle || 'هذا الحقل مقفل في النسخة التجريبية';
+    } else {
+      el.disabled = false;
+      el.style.backgroundColor = '';
+      el.style.cursor = '';
+      el.style.opacity = '';
+      el.title = '';
+    }
+  });
 }
 
 async function updateLogoPreview(){
@@ -566,6 +837,10 @@ async function updateLogoPreview(){
     logoPreview.src = `data:${logoMime};base64,${logoBlobBase64}`;
     logoPreview.style.visibility='visible';
     return;
+  }
+  // If user explicitly removed logo, hide preview immediately without fetching from DB
+  if(logoRemoved){
+    logoPreview.src = ''; logoPreview.style.visibility='hidden'; return;
   }
   // Fallback: try fetching from DB (stored logo)
   if(!logoPath){
@@ -590,12 +865,12 @@ pickLogo.addEventListener('click', async () => {
   if(!r.ok || r.canceled) return;
   const read = await window.api.read_file_base64(r.path);
   if(!read.ok){
-    setError(read.error || 'فشل قراءة الصورة');
+    setError(read.error || __currentLang.errImageRead || 'فشل قراءة الصورة');
     return;
   }
   // Enforce 1MB limit via central validator
   if(read.tooLarge){
-    setError('حجم الصورة أكبر من 1 ميجابايت. يرجى اختيار صورة أصغر.');
+    setError(__currentLang.errImageTooLarge || 'حجم الصورة أكبر من 1 ميجابايت. يرجى اختيار صورة أصغر.');
     return;
   }
   logoBlobBase64 = read.base64;
@@ -639,8 +914,8 @@ pickDefProdImg?.addEventListener('click', async () => {
   const r = await window.api.pick_image();
   if(!r.ok || r.canceled) return;
   const read = await window.api.read_file_base64(r.path);
-  if(!read.ok){ setError(read.error || 'فشل قراءة الصورة'); return; }
-  if(read.tooLarge){ setError('حجم الصورة أكبر من 1 ميجابايت. يرجى اختيار صورة أصغر.'); return; }
+  if(!read.ok){ setError(read.error || __currentLang.errImageRead || 'فشل قراءة الصورة'); return; }
+  if(read.tooLarge){ setError(__currentLang.errImageTooLarge || 'حجم الصورة أكبر من 1 ميجابايت. يرجى اختيار صورة أصغر.'); return; }
   defProdImgBase64 = read.base64;
   defProdImgMime = read.mime || 'image/png';
   defProdImgRemoved = false;
@@ -670,7 +945,7 @@ emSendBackup?.addEventListener('click', async ()=>{
     setError('');
     // transient success message (show inside dialog if open, else global toast)
     const showOk = (msg)=>{
-      const text = msg || 'تم الإرسال بنجاح';
+      const text = msg || __currentLang.savedOk || 'تم الإرسال بنجاح';
       if (dailyEmailDlg && dailyEmailDlg.open) {
         const toast = document.createElement('div');
         toast.className = 'success';
@@ -686,8 +961,8 @@ emSendBackup?.addEventListener('click', async ()=>{
     // Use the email field as target; if empty, main will fall back to settings
     const to = (fEmail?.value||'').trim();
     const r = await window.api.backup_email_db(to||undefined);
-    if(!r || !r.ok){ setError((r && r.error) || 'فشل إرسال النسخة الاحتياطية'); }
-    else { showOk('تم إرسال نسخة قاعدة البيانات بنجاح'); }
+    if(!r || !r.ok){ setError((r && r.error) || __currentLang.errSendBackup || 'فشل إرسال النسخة الاحتياطية'); }
+    else { showOk(__currentLang.okSentBackup || 'تم إرسال نسخة قاعدة البيانات بنجاح'); }
   }catch(e){ setError(String(e&&e.message||e)); }
 });
 
@@ -697,7 +972,7 @@ saveBackupFile?.addEventListener('click', async ()=>{
   try{
     setError('');
     const showOk = (msg)=>{
-      const text = msg || 'تم الحفظ بنجاح';
+      const text = msg || __currentLang.savedOk || 'تم الحفظ بنجاح';
       okDiv.textContent = text;
       okDiv.style.display = 'block';
       setTimeout(()=>{ okDiv.style.display = 'none'; okDiv.textContent=''; }, 2000);
@@ -711,9 +986,9 @@ saveBackupFile?.addEventListener('click', async ()=>{
     const savePath = dialogResult.path;
     const r = await window.api.backup_save_db_to_file(savePath);
     if(!r || !r.ok){ 
-      setError((r && r.error) || 'فشل حفظ النسخة الاحتياطية'); 
+      setError((r && r.error) || __currentLang.errSaveBackup || 'فشل حفظ النسخة الاحتياطية'); 
     } else { 
-      showOk('تم حفظ النسخة الاحتياطية بنجاح'); 
+      showOk(__currentLang.okSavedBackup || 'تم حفظ النسخة الاحتياطية بنجاح'); 
     }
   }catch(e){ setError(String(e&&e.message||e)); }
 });
@@ -725,9 +1000,9 @@ emSendDaily?.addEventListener('click', async ()=>{
     setError('');
     emSendDaily.disabled = true;
     const originalText = emSendDaily.textContent;
-    emSendDaily.textContent = '⏳ جاري إنشاء وإرسال التقرير...';
+    emSendDaily.textContent = __currentLang.sendingReport || '⏳ جاري إنشاء وإرسال التقرير...';
     const showOk = (msg)=>{
-      const text = msg || 'تم الإرسال بنجاح';
+      const text = msg || __currentLang.savedOk || 'تم الإرسال بنجاح';
       if (dailyEmailDlg && dailyEmailDlg.open) {
         const toast = document.createElement('div');
         toast.className = 'success';
@@ -742,17 +1017,17 @@ emSendDaily?.addEventListener('click', async ()=>{
     };
     const r = await window.api.scheduler_send_daily_now();
     if(!r || !r.ok){ 
-      setError((r && r.error) || 'فشل إرسال التقرير اليومي'); 
+      setError((r && r.error) || __currentLang.errSendReport || 'فشل إرسال التقرير اليومي'); 
     }
     else { 
-      showOk('✅ تم إرسال التقرير اليومي بنجاح'); 
+      showOk(__currentLang.okSentReport || '✅ تم إرسال التقرير اليومي بنجاح'); 
     }
     emSendDaily.disabled = false;
     emSendDaily.textContent = originalText;
   }catch(e){ 
     setError(String(e&&e.message||e)); 
     emSendDaily.disabled = false;
-    emSendDaily.textContent = '📧 إرسال الآن';
+    emSendDaily.textContent = __currentLang.sendNow || '📧 إرسال الآن';
   }
 });
 
@@ -768,7 +1043,7 @@ bkSend?.addEventListener('click', async ()=>{
   try{
     const to = (bkTo?.value||'').trim();
     const r = await window.api.backup_email_db(to||undefined);
-    if(!r || !r.ok){ setError((r && r.error) || 'فشل إرسال النسخة الاحتياطية'); }
+    if(!r || !r.ok){ setError((r && r.error) || __currentLang.errSendBackup || 'فشل إرسال النسخة الاحتياطية'); }
     else { setOk(true); }
   }catch(e){ setError(String(e&&e.message||e)); }
   try{ backupEmailDlg?.close(); }catch(_){ }
@@ -874,7 +1149,9 @@ saveBtn.addEventListener('click', async () => {
   // Clear default product image ONLY if user explicitly removed it
   if(defProdImgRemoved){ payload.default_product_img_clear = true; }
   const r = await window.api.settings_save(payload);
-  if(!r.ok){ setError(r.error || 'فشل حفظ الإعدادات'); return; }
+  if(!r.ok){ setError(r.error || __currentLang.errSaveSettings || 'فشل حفظ الإعدادات'); return; }
+  // Invalidate logo cache so print/preview won't show deleted logo
+  if(logoRemoved){ try{ localStorage.removeItem('pos_logo_cache'); }catch(_){ } }
   try{
     // rearm schedulers to pick latest settings immediately
     await window.api.scheduler_trigger_daily_email();
@@ -1031,16 +1308,16 @@ if(modalConfirmBtn){
 
     // Check if at least one option is selected
     if(!salesChecked && !productsChecked && !customersChecked && !purchasesChecked){
-      alert('يرجى اختيار عنصر واحد على الأقل للحذف');
+      alert(__currentLang.restoreSelectOne || 'يرجى اختيار عنصر واحد على الأقل للحذف');
       return;
     }
 
     // Build operations list for confirmation
     const operations = [];
-    if(salesChecked) operations.push('حذف جميع الفواتير وإعادة الترقيم');
-    if(productsChecked) operations.push('حذف جميع المنتجات والأنواع الرئيسية');
-    if(customersChecked) operations.push('حذف جميع العملاء');
-    if(purchasesChecked) operations.push('حذف جميع المشتريات');
+    if(salesChecked) operations.push(__currentLang.restoreOpSales || 'حذف جميع الفواتير وإعادة الترقيم');
+    if(productsChecked) operations.push(__currentLang.restoreOpProducts || 'حذف جميع المنتجات والأنواع الرئيسية');
+    if(customersChecked) operations.push(__currentLang.restoreOpCustomers || 'حذف جميع العملاء');
+    if(purchasesChecked) operations.push(__currentLang.restoreOpPurchases || 'حذف جميع المشتريات');
 
     // Show custom confirmation modal
     const confirmed = await showConfirmation(operations);
@@ -1062,13 +1339,13 @@ if(modalConfirmBtn){
         try{
           const r = await window.api.sales_reset_all();
           if(!r.ok){
-            setError('فشل حذف الفواتير: ' + (r.error || 'خطأ غير معروف'));
+            setError((__currentLang.restoreErrSales || 'فشل حذف الفواتير: ') + (r.error || __currentLang.unknownError || 'خطأ غير معروف'));
             hasError = true;
           }else{
-            successMsg.push('✓ تم حذف الفواتير وإعادة الترقيم');
+            successMsg.push(__currentLang.restoreOkSales || '✓ تم حذف الفواتير وإعادة الترقيم');
           }
         }catch(e){
-          setError('فشل حذف الفواتير: ' + e.message);
+          setError((__currentLang.restoreErrSales || 'فشل حذف الفواتير: ') + e.message);
           hasError = true;
         }
       }
@@ -1077,10 +1354,10 @@ if(modalConfirmBtn){
         try{
           const r = await window.api.products_reset_all();
           if(!r.ok){
-            setError('فشل حذف المنتجات: ' + (r.error || 'خطأ غير معروف'));
+            setError((__currentLang.restoreErrProducts || 'فشل حذف المنتجات: ') + (r.error || __currentLang.unknownError || 'خطأ غير معروف'));
             hasError = true;
           }else{
-            successMsg.push('✓ تم حذف المنتجات والأنواع الرئيسية');
+            successMsg.push(__currentLang.restoreOkProducts || '✓ تم حذف المنتجات والأنواع الرئيسية');
             // Notify other screens
             try{
               const payload = JSON.stringify({ at: Date.now() });
@@ -1090,7 +1367,7 @@ if(modalConfirmBtn){
             }catch(_){}
           }
         }catch(e){
-          setError('فشل حذف المنتجات: ' + e.message);
+          setError((__currentLang.restoreErrProducts || 'فشل حذف المنتجات: ') + e.message);
           hasError = true;
         }
       }
@@ -1099,13 +1376,13 @@ if(modalConfirmBtn){
         try{
           const r = await window.api.customers_reset_all();
           if(!r.ok){
-            setError('فشل حذف العملاء: ' + (r.error || 'خطأ غير معروف'));
+            setError((__currentLang.restoreErrCustomers || 'فشل حذف العملاء: ') + (r.error || __currentLang.unknownError || 'خطأ غير معروف'));
             hasError = true;
           }else{
-            successMsg.push('✓ تم حذف جميع العملاء');
+            successMsg.push(__currentLang.restoreOkCustomers || '✓ تم حذف جميع العملاء');
           }
         }catch(e){
-          setError('فشل حذف العملاء: ' + e.message);
+          setError((__currentLang.restoreErrCustomers || 'فشل حذف العملاء: ') + e.message);
           hasError = true;
         }
       }
@@ -1116,16 +1393,16 @@ if(modalConfirmBtn){
           if(window.api.purchases_reset_all){
             const r = await window.api.purchases_reset_all();
             if(!r.ok){
-              setError('فشل حذف المشتريات: ' + (r.error || 'خطأ غير معروف'));
+              setError((__currentLang.restoreErrPurchases || 'فشل حذف المشتريات: ') + (r.error || __currentLang.unknownError || 'خطأ غير معروف'));
               hasError = true;
             }else{
-              successMsg.push('✓ تم حذف جميع المشتريات');
+              successMsg.push(__currentLang.restoreOkPurchases || '✓ تم حذف جميع المشتريات');
             }
           }else{
-            alert('وظيفة حذف المشتريات غير متوفرة في هذا الإصدار');
+            alert(__currentLang.restoreErrPurchases ? __currentLang.restoreErrPurchases + 'N/A' : 'وظيفة حذف المشتريات غير متوفرة في هذا الإصدار');
           }
         }catch(e){
-          setError('فشل حذف المشتريات: ' + e.message);
+          setError((__currentLang.restoreErrPurchases || 'فشل حذف المشتريات: ') + e.message);
           hasError = true;
         }
       }
@@ -1159,11 +1436,11 @@ async function generateMenuQR(){
   try{
     const url = (fMenuUrl?.value || '').trim();
     if(!url){
-      alert('الرجاء إدخال رابط المنيو');
+      alert(__currentLang.qrEnterUrl || 'الرجاء إدخال رابط المنيو');
       return;
     }
     if(!url.startsWith('http://') && !url.startsWith('https://')){
-      alert('الرجاء إدخال رابط صحيح يبدأ بـ http:// أو https://');
+      alert(__currentLang.qrInvalidUrl || 'الرجاء إدخال رابط صحيح يبدأ بـ http:// أو https://');
       return;
     }
     const result = await window.api.invoke('qr:to_data_url', { 
@@ -1171,7 +1448,7 @@ async function generateMenuQR(){
       opts: { width: 180, margin: 2, errorCorrectionLevel: 'M' } 
     });
     if(!result.ok){
-      throw new Error(result.error || 'فشل توليد QR');
+      throw new Error(result.error || __currentLang.qrGenError || 'فشل توليد QR');
     }
     const img = new Image();
     img.onload = () => {
@@ -1186,7 +1463,7 @@ async function generateMenuQR(){
     img.src = result.dataUrl;
   }catch(e){
     console.error(e);
-    alert('فشل توليد QR Code: ' + e.message);
+    alert((__currentLang.qrGenError || 'فشل توليد QR Code') + ': ' + e.message);
   }
 }
 
@@ -1195,9 +1472,9 @@ function printQRCode(){
     const dataUrl = qrCanvas.toDataURL('image/png');
     const printWindow = window.open('', '_blank', 'width=400,height=500');
     printWindow.document.write(`
-      <html dir="rtl">
+      <html dir="${__currentLang.updateVersionLabel === 'Version ' ? 'ltr' : 'rtl'}">
         <head>
-          <title>QR المنيو</title>
+          <title>${__currentLang.qrPrintTitle || 'QR المنيو'}</title>
           <style>
             body {
               font-family: 'Cairo', sans-serif;
@@ -1217,7 +1494,7 @@ function printQRCode(){
           </style>
         </head>
         <body>
-          <h2>QR Code المنيو</h2>
+          <h2>${__currentLang.qrPrintH2 || 'QR Code المنيو'}</h2>
           <img src="${dataUrl}" alt="QR Code"/>
           <script>
             window.onload = function(){
@@ -1233,7 +1510,7 @@ function printQRCode(){
     printWindow.document.close();
   }catch(e){
     console.error(e);
-    alert('فشل طباعة QR Code: ' + e.message);
+    alert((__currentLang.qrPrintError || 'فشل طباعة QR Code: ') + e.message);
   }
 }
 
@@ -1297,13 +1574,13 @@ async function saveQRCode(){
     const base64Data = dataUrl.replace(/^data:image\/png;base64,/, '');
     const result = await window.api.invoke('app:save-qr-image', { base64Data });
     if(result.ok){
-      showQRNotification('✓ تم حفظ QR Code بنجاح', 'success');
+      showQRNotification(__currentLang.qrSaveOk || '✓ تم حفظ QR Code بنجاح', 'success');
     }else{
-      showQRNotification('✗ فشل حفظ QR Code: ' + (result.error || 'خطأ غير معروف'), 'error');
+      showQRNotification((__currentLang.qrSaveError || '✗ فشل حفظ QR Code: ') + (result.error || __currentLang.unknownError || 'خطأ غير معروف'), 'error');
     }
   }catch(e){
     console.error(e);
-    showQRNotification('✗ فشل حفظ QR Code: ' + e.message, 'error');
+    showQRNotification((__currentLang.qrSaveError || '✗ فشل حفظ QR Code: ') + e.message, 'error');
   }
 }
 
@@ -1340,34 +1617,34 @@ function showSupportExpiredMessage(statusData) {
   let dateText = '';
   if (endDate) {
     const date = new Date(endDate);
-    dateText = `تاريخ انتهاء الدعم: ${date.toLocaleDateString('en-GB')}`;
+    dateText = `${__currentLang.supportExpiredDateLabel || 'تاريخ انتهاء الدعم: '}${date.toLocaleDateString('en-GB')}`;
   }
   
   const daysSinceExpiry = Math.abs(daysLeft);
   let expiryText = '';
   if (daysSinceExpiry === 0) {
-    expiryText = 'انتهى اليوم';
+    expiryText = __currentLang.supportExpiredToday || 'انتهى اليوم';
   } else if (daysSinceExpiry === 1) {
-    expiryText = 'منذ يوم واحد';
+    expiryText = __currentLang.supportExpiredOneDay || 'منذ يوم واحد';
   } else if (daysSinceExpiry === 2) {
-    expiryText = 'منذ يومين';
+    expiryText = __currentLang.supportExpiredTwoDays || 'منذ يومين';
   } else if (daysSinceExpiry <= 10) {
-    expiryText = `منذ ${daysSinceExpiry} أيام`;
+    expiryText = (__currentLang.supportExpiredDays || 'منذ {n} أيام').replace('{n}', daysSinceExpiry);
   } else {
-    expiryText = `منذ ${daysSinceExpiry} يوماً`;
+    expiryText = (__currentLang.supportExpiredDaysSingle || 'منذ {n} يوماً').replace('{n}', daysSinceExpiry);
   }
   
   updateStatus.innerHTML = `
     <div style="font-size: 64px; margin-bottom: var(--space-4); filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.3));">⚠️</div>
-    <div style="font-size: 20px; color: #dc2626; font-weight: 700; margin-bottom: var(--space-3);">انتهت فترة الدعم الفني</div>
+    <div style="font-size: 20px; color: #dc2626; font-weight: 700; margin-bottom: var(--space-3);">${__currentLang.supportExpiredTitle || 'انتهت فترة الدعم الفني'}</div>
     <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); padding: var(--space-4); border-radius: var(--radius-lg); border: 2px solid #fbbf24; margin: var(--space-4) 0;">
       <div style="font-size: 14px; color: #92400e; line-height: 1.6; text-align: center;">
         <div style="font-weight: 600; margin-bottom: var(--space-2);">⏰ ${expiryText}</div>
         ${dateText ? `<div style="font-size: 13px; color: #b45309; margin-bottom: var(--space-3);">${dateText}</div>` : ''}
         <div style="border-top: 1px solid #fbbf24; padding-top: var(--space-3); margin-top: var(--space-3);">
-          <div style="font-size: 15px; font-weight: 600; color: #78350f; margin-bottom: var(--space-2);">للحصول على التحديثات:</div>
+          <div style="font-size: 15px; font-weight: 600; color: #78350f; margin-bottom: var(--space-2);">${__currentLang.supportExpiredGetUpdates || 'للحصول على التحديثات:'}</div>
           <div style="font-size: 14px; color: #92400e;">
-            📞 يرجى التواصل مع الدعم الفني لتجديد الاشتراك
+            📞 ${__currentLang.supportExpiredContact || 'يرجى التواصل مع الدعم الفني لتجديد الاشتراك'}
           </div>
         </div>
       </div>
@@ -1380,7 +1657,7 @@ function showSupportExpiredMessage(statusData) {
   updateDownloadBtn.style.display = 'none';
   updateInstallBtn.style.display = 'none';
   
-  updateCancelBtn.textContent = 'إغلاق';
+  updateCancelBtn.textContent = __currentLang.updateCloseBtn || 'إغلاق';
   updateCancelBtn.className = 'btn';
   updateCancelBtn.style.cssText = 'min-width: 140px; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none; font-weight: 600; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3); transition: all 0.3s;';
   updateCancelBtn.onmouseover = function() {
@@ -1411,7 +1688,7 @@ function closeUpdateModal() {
 }
 
 function resetCancelButton() {
-  updateCancelBtn.textContent = 'إغلاق';
+  updateCancelBtn.textContent = __currentLang.updateCloseBtn || 'إغلاق';
   updateCancelBtn.className = 'btn';
   updateCancelBtn.style.cssText = 'min-width: 120px;';
   updateCancelBtn.onmouseover = null;
@@ -1421,10 +1698,10 @@ function resetCancelButton() {
 function resetUpdateModal() {
   updateStatus.innerHTML = `
     <div style="font-size: 48px; margin-bottom: var(--space-4);">🔍</div>
-    <div style="font-size: 16px; color: var(--gray-700); font-weight: 600; margin-bottom: var(--space-2);">جاري البحث عن التحديثات...</div>
+    <div style="font-size: 16px; color: var(--gray-700); font-weight: 600; margin-bottom: var(--space-2);">${__currentLang.updateSearchingTitle || 'جاري البحث عن التحديثات...'}</div>
     <div id="updateProgress" style="margin-top: var(--space-6); display: none;">
       <div style="margin-bottom: var(--space-2);">
-        <div style="font-size: 13px; color: var(--gray-700); font-weight: 600; margin-bottom: var(--space-2);">تقدم التحميل</div>
+        <div style="font-size: 13px; color: var(--gray-700); font-weight: 600; margin-bottom: var(--space-2);">${__currentLang.updateProgressLabel || 'تقدم التحميل'}</div>
         <div style="background: var(--gray-200); height: 12px; border-radius: 6px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
           <div id="updateProgressBar" style="background: linear-gradient(90deg, #10b981, #34d399); height: 100%; width: 0%; transition: width 0.3s; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);"></div>
         </div>
@@ -1452,7 +1729,7 @@ function updateModalStatus(icon, title, message, showDownload = false, showInsta
     ${versionHTML}
     <div id="updateProgress" style="margin-top: var(--space-6); display: none;">
       <div style="margin-bottom: var(--space-2);">
-        <div style="font-size: 13px; color: var(--gray-700); font-weight: 600; margin-bottom: var(--space-2);">تقدم التحميل</div>
+        <div style="font-size: 13px; color: var(--gray-700); font-weight: 600; margin-bottom: var(--space-2);">${__currentLang.updateProgressLabel || 'تقدم التحميل'}</div>
         <div style="background: var(--gray-200); height: 12px; border-radius: 6px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
           <div id="updateProgressBar" style="background: linear-gradient(90deg, #10b981, #34d399); height: 100%; width: 0%; transition: width 0.3s; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);"></div>
         </div>
@@ -1481,21 +1758,21 @@ async function handleCheckUpdate() {
   try {
     showUpdateModal();
     const appVersion = await window.api.invoke('get-app-version');
-    updateMessage.textContent = `الإصدار الحالي: ${appVersion}`;
+    updateMessage.textContent = (__currentLang.updateCurrentVer || 'الإصدار الحالي: ') + appVersion;
     
     const result = await window.api.invoke('check-for-updates');
     console.log('Update check result:', result);
   } catch (error) {
     console.error('Error checking for updates:', error);
-    updateModalStatus('❌', 'حدث خطأ', error.message || 'فشل التحقق من التحديثات');
+    updateModalStatus('❌', __currentLang.updateErrTitle || 'حدث خطأ', error.message || __currentLang.updateCheckFail || 'فشل التحقق من التحديثات');
   }
 }
 
 async function handleDownloadUpdate() {
   try {
     updateDownloadBtn.disabled = true;
-    const versionBadge = currentUpdateInfo?.version ? `الإصدار ${currentUpdateInfo.version}` : '';
-    updateModalStatus('⬇️', 'جاري التحميل...', 'يتم تحميل التحديث الآن، يرجى الانتظار...', false, false, versionBadge);
+    const versionBadge = currentUpdateInfo?.version ? `${__currentLang.updateVersionLabel || 'الإصدار '}${currentUpdateInfo.version}` : '';
+    updateModalStatus('⬇️', __currentLang.updateDownloadingTitle || 'جاري التحميل...', __currentLang.updateDownloadingMsg || 'يتم تحميل التحديث الآن، يرجى الانتظار...', false, false, versionBadge);
     
     if (updateProgress) updateProgress.style.display = 'block';
     
@@ -1507,14 +1784,14 @@ async function handleDownloadUpdate() {
         showSupportExpiredMessage(result);
         if (updateProgress) updateProgress.style.display = 'none';
       } else {
-        updateModalStatus('❌', 'فشل التحميل', result.error || 'حدث خطأ أثناء التحميل');
+        updateModalStatus('❌', __currentLang.updateDownloadFail || 'فشل التحميل', result.error || __currentLang.updateDownloadErr || 'حدث خطأ أثناء التحميل');
         if (updateProgress) updateProgress.style.display = 'none';
       }
     }
   } catch (error) {
     console.error('Error downloading update:', error);
     updateDownloadBtn.disabled = false;
-    updateModalStatus('❌', 'فشل التحميل', error.message || 'حدث خطأ أثناء التحميل');
+    updateModalStatus('❌', __currentLang.updateDownloadFail || 'فشل التحميل', error.message || __currentLang.updateDownloadErr || 'حدث خطأ أثناء التحميل');
     updateProgress.style.display = 'none';
   }
 }
@@ -1522,7 +1799,7 @@ async function handleDownloadUpdate() {
 async function handleInstallUpdate() {
   try {
     updateInstallBtn.disabled = true;
-    updateModalStatus('⚙️', 'جاري التثبيت...', 'سيتم إغلاق البرنامج وتثبيت التحديث');
+    updateModalStatus('⚙️', __currentLang.updateInstallingTitle || 'جاري التثبيت...', __currentLang.updateInstallingMsg || 'سيتم إغلاق البرنامج وتثبيت التحديث');
     
     const result = await window.api.invoke('install-update');
     
@@ -1531,13 +1808,13 @@ async function handleInstallUpdate() {
       if (result.supportExpired) {
         showSupportExpiredMessage(result);
       } else {
-        updateModalStatus('❌', 'فشل التثبيت', result.error || 'حدث خطأ أثناء التثبيت');
+        updateModalStatus('❌', __currentLang.updateInstallFail || 'فشل التثبيت', result.error || __currentLang.updateInstallErr || 'حدث خطأ أثناء التثبيت');
       }
     }
   } catch (error) {
     console.error('Error installing update:', error);
     updateInstallBtn.disabled = false;
-    updateModalStatus('❌', 'فشل التثبيت', error.message || 'حدث خطأ أثناء التثبيت');
+    updateModalStatus('❌', __currentLang.updateInstallFail || 'فشل التثبيت', error.message || __currentLang.updateInstallErr || 'حدث خطأ أثناء التثبيت');
   }
 }
 
@@ -1564,31 +1841,31 @@ window.api?.on?.('update-status', (data) => {
 
   switch (status) {
     case 'checking-for-update':
-      updateModalStatus('🔍', 'جاري البحث...', 'البحث عن التحديثات المتاحة');
+      updateModalStatus('🔍', __currentLang.updateCheckingTitle || 'جاري البحث...', __currentLang.updateCheckingMsg || 'البحث عن التحديثات المتاحة');
       break;
 
     case 'update-available':
       currentUpdateInfo = statusData;
-      const version = statusData?.version || 'جديد';
+      const version = statusData?.version || __currentLang.updateNewLabel || 'جديد';
       updateModalStatus(
         '✅', 
-        'يتوفر تحديث جديد!', 
-        'اضغط "تحميل التحديث" للبدء في تحميل الإصدار الجديد',
+        __currentLang.updateAvailableTitle || 'يتوفر تحديث جديد!', 
+        __currentLang.updateAvailableMsg || 'اضغط "تحميل التحديث" للبدء في تحميل الإصدار الجديد',
         true,
         false,
-        `الإصدار ${version}`
+        `${__currentLang.updateVersionLabel || 'الإصدار '}${version}`
       );
       break;
 
     case 'update-not-available':
-      const currentVer = statusData?.version || 'غير معروف';
+      const currentVer = statusData?.version || __currentLang.updateUnknownVer || 'غير معروف';
       updateModalStatus(
         '✓', 
-        'البرنامج محدث', 
-        `الإصدار الحالي ${currentVer} هو آخر إصدار متاح`,
+        __currentLang.updateNotAvailTitle || 'البرنامج محدث', 
+        `${__currentLang.updateVersionLabel || 'الإصدار '}${currentVer}`,
         false,
         false,
-        `الإصدار ${currentVer}`
+        `${__currentLang.updateVersionLabel || 'الإصدار '}${currentVer}`
       );
       break;
 
@@ -1604,19 +1881,19 @@ window.api?.on?.('update-status', (data) => {
       
       const transferredMB = (transferred / 1024 / 1024).toFixed(2);
       const totalMB = (total / 1024 / 1024).toFixed(2);
-      if (updateProgressText) updateProgressText.textContent = `${percent.toFixed(1)}% • ${transferredMB} ميجابايت / ${totalMB} ميجابايت`;
+      if (updateProgressText) updateProgressText.textContent = `${percent.toFixed(1)}% • ${transferredMB} ${__currentLang.updateMB || 'ميجابايت'} / ${totalMB} ${__currentLang.updateMB || 'ميجابايت'}`;
       break;
 
     case 'update-downloaded':
       updateDownloadBtn.disabled = false;
-      const downloadedVersion = currentUpdateInfo?.version || statusData?.version || 'جديد';
+      const downloadedVersion = currentUpdateInfo?.version || statusData?.version || __currentLang.updateNewLabel || 'جديد';
       updateModalStatus(
         '✅', 
-        'تم التحميل بنجاح!', 
-        'التحديث جاهز للتثبيت. اضغط "تثبيت الآن" لتثبيت التحديث',
+        __currentLang.updateDownloadedTitle || 'تم التحميل بنجاح!', 
+        __currentLang.updateDownloadedMsg || 'التحديث جاهز للتثبيت. اضغط "تثبيت الآن" لتثبيت التحديث',
         false,
         true,
-        `الإصدار ${downloadedVersion}`
+        `${__currentLang.updateVersionLabel || 'الإصدار '}${downloadedVersion}`
       );
       updateProgress.style.display = 'none';
       break;
@@ -1624,8 +1901,8 @@ window.api?.on?.('update-status', (data) => {
     case 'update-error':
       updateDownloadBtn.disabled = false;
       updateInstallBtn.disabled = false;
-      const errorMsg = statusData?.message || statusData?.toString() || 'خطأ غير معروف';
-      updateModalStatus('❌', 'حدث خطأ', errorMsg);
+      const errorMsg = statusData?.message || statusData?.toString() || __currentLang.unknownError || 'خطأ غير معروف';
+      updateModalStatus('❌', __currentLang.updateErrTitle || 'حدث خطأ', errorMsg);
       updateProgress.style.display = 'none';
       break;
 

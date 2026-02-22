@@ -214,12 +214,16 @@ function registerSalesIPC(){
         FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
-    // ترقية الجداول القديمة: إضافة عمود الوصف إن لم يكن موجودًا
+    // ترقية الجداول القديمة: إضافة الأعمدة إن لم تكن موجودة
     const [colDesc] = await conn.query("SHOW COLUMNS FROM sales_items LIKE 'description'");
-    if(!colDesc.length){
-      await conn.query("ALTER TABLE sales_items ADD COLUMN description VARCHAR(255) NULL AFTER name");
-    }
-    
+    if(!colDesc.length){ await conn.query("ALTER TABLE sales_items ADD COLUMN description VARCHAR(255) NULL AFTER name"); }
+    const [colOpIdE] = await conn.query("SHOW COLUMNS FROM sales_items LIKE 'operation_id'");
+    if(!colOpIdE.length){ await conn.query("ALTER TABLE sales_items ADD COLUMN operation_id INT NULL AFTER description"); }
+    const [colOpNameE] = await conn.query("SHOW COLUMNS FROM sales_items LIKE 'operation_name'");
+    if(!colOpNameE.length){ await conn.query("ALTER TABLE sales_items ADD COLUMN operation_name VARCHAR(128) NULL AFTER operation_id"); }
+    const [colOpNameEnE] = await conn.query("SHOW COLUMNS FROM sales_items LIKE 'operation_name_en'");
+    if(!colOpNameEnE.length){ await conn.query("ALTER TABLE sales_items ADD COLUMN operation_name_en VARCHAR(128) NULL AFTER operation_name"); }
+
     // Add performance index on sale_id for faster print queries
     try{
       const [idxSaleId] = await conn.query("SHOW INDEX FROM sales_items WHERE Key_name='idx_sales_items_sale_id'");
@@ -493,9 +497,11 @@ function registerSalesIPC(){
         if(!colOpId.length){ await conn.query("ALTER TABLE sales_items ADD COLUMN operation_id INT NULL AFTER description"); }
         const [colOpName] = await conn.query("SHOW COLUMNS FROM sales_items LIKE 'operation_name'");
         if(!colOpName.length){ await conn.query("ALTER TABLE sales_items ADD COLUMN operation_name VARCHAR(128) NULL AFTER operation_id"); }
-        const items = p.items.map(it => [ saleId, it.product_id, it.name, (it.description || null), (it.operation_id || null), (it.operation_name || null), Number(it.price||0), Number(it.qty||1), Number(it.line_total||0) ]);
+        const [colOpNameEn] = await conn.query("SHOW COLUMNS FROM sales_items LIKE 'operation_name_en'");
+        if(!colOpNameEn.length){ await conn.query("ALTER TABLE sales_items ADD COLUMN operation_name_en VARCHAR(128) NULL AFTER operation_name"); }
+        const items = p.items.map(it => [ saleId, it.product_id, it.name, (it.description || null), (it.operation_id || null), (it.operation_name || null), (it.operation_name_en || null), Number(it.price||0), Number(it.qty||1), Number(it.line_total||0) ]);
         if(items.length){
-          await conn.query(`INSERT INTO sales_items (sale_id, product_id, name, description, operation_id, operation_name, price, qty, line_total) VALUES ?`, [items]);
+          await conn.query(`INSERT INTO sales_items (sale_id, product_id, name, description, operation_id, operation_name, operation_name_en, price, qty, line_total) VALUES ?`, [items]);
         }
 
         // خصم المخزون (المواد الخام) حسب BOM لكل منتج مع منع البيع إذا المكونات غير كافية
@@ -1033,7 +1039,7 @@ function registerSalesIPC(){
           }
         }catch(_){ }
         if(!sale) return { ok:false, error:'الفاتورة غير موجودة' };
-        const [items] = await conn.query('SELECT si.*, p.is_tobacco, p.category FROM sales_items si LEFT JOIN products p ON p.id = si.product_id WHERE si.sale_id=?', [sid]);
+        const [items] = await conn.query('SELECT si.*, p.is_tobacco, p.category, p.name_en, COALESCE(si.operation_name_en, o.name_en) AS operation_name_en FROM sales_items si LEFT JOIN products p ON p.id = si.product_id LEFT JOIN operations o ON o.id = si.operation_id WHERE si.sale_id=?', [sid]);
         setSaleCache(cacheKey, sale, items);
         return { ok:true, sale, items };
       } finally { conn.release(); }
@@ -1298,13 +1304,15 @@ function registerSalesIPC(){
         ]);
         const newId = ins.insertId;
         if(items.length){
-          const rows = items.map(it => [ newId, it.product_id, it.name, (it.description||null), (it.operation_id||null), (it.operation_name||null), -Number(it.price||0), -Number(it.qty||0), -Number(it.line_total||0) ]);
+          const rows = items.map(it => [ newId, it.product_id, it.name, (it.description||null), (it.operation_id||null), (it.operation_name||null), (it.operation_name_en||null), -Number(it.price||0), -Number(it.qty||0), -Number(it.line_total||0) ]);
           // تأكد من أعمدة العملية
           const [colOpId] = await conn.query("SHOW COLUMNS FROM sales_items LIKE 'operation_id'");
           if(!colOpId.length){ await conn.query("ALTER TABLE sales_items ADD COLUMN operation_id INT NULL AFTER description"); }
           const [colOpName] = await conn.query("SHOW COLUMNS FROM sales_items LIKE 'operation_name'");
           if(!colOpName.length){ await conn.query("ALTER TABLE sales_items ADD COLUMN operation_name VARCHAR(128) NULL AFTER operation_id"); }
-          await conn.query('INSERT INTO sales_items (sale_id, product_id, name, description, operation_id, operation_name, price, qty, line_total) VALUES ?', [rows]);
+          const [colOpNameEn2] = await conn.query("SHOW COLUMNS FROM sales_items LIKE 'operation_name_en'");
+          if(!colOpNameEn2.length){ await conn.query("ALTER TABLE sales_items ADD COLUMN operation_name_en VARCHAR(128) NULL AFTER operation_name"); }
+          await conn.query('INSERT INTO sales_items (sale_id, product_id, name, description, operation_id, operation_name, operation_name_en, price, qty, line_total) VALUES ?', [rows]);
         }
 
         await conn.commit();
@@ -1437,7 +1445,7 @@ function registerSalesIPC(){
             LIMIT 1
           `, [payload.roomId || null, saleId]),
           conn.query(
-            'SELECT si.*, p.is_tobacco, p.category FROM sales_items si LEFT JOIN products p ON p.id = si.product_id WHERE si.sale_id=?',
+            'SELECT si.*, p.is_tobacco, p.category, p.name_en FROM sales_items si LEFT JOIN products p ON p.id = si.product_id WHERE si.sale_id=?',
             [saleId]
           ),
           conn.query('SELECT * FROM app_settings WHERE id=1 LIMIT 1')

@@ -528,7 +528,7 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
                   // Fallback: try cache or fetch separately
                   try {
                     const cachedLogo = JSON.parse(localStorage.getItem('pos_logo_cache')||'null');
-                    if(cachedLogo && (Date.now() - (cachedLogo.ts||0) < 1000*60*60*24)) {
+                    if(cachedLogo && cachedLogo.base64 && (Date.now() - (cachedLogo.ts||0) < 1000*60*60*24)) {
                       logoRes = cachedLogo;
                     } else {
                       logoRes = await api.settings_image_get();
@@ -560,7 +560,7 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
             const pLogo = (async ()=>{
                try {
                  const cachedLogo = JSON.parse(localStorage.getItem('pos_logo_cache')||'null');
-                 if(cachedLogo && (Date.now() - (cachedLogo.ts||0) < 1000*60*60*24)) return cachedLogo;
+                 if(cachedLogo && cachedLogo.base64 && (Date.now() - (cachedLogo.ts||0) < 1000*60*60*24)) return cachedLogo;
                } catch(_){}
                return await api.settings_image_get();
             })();
@@ -1277,14 +1277,14 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
             // الصف الأساسي للبند
             const tr = document.createElement('tr');
             tr.className = 'item-row';
-            const opCell = it.operation_name ? it.operation_name : '';
+            const opCell = it.operation_name ? (it.operation_name + (it.operation_name_en ? `<div style="font-size:9px; color:#64748b; direction:ltr; text-align:right; font-weight:500; margin:0; padding:0; line-height:1.2;">${it.operation_name_en}</div>` : '')) : '';
             // في تفاصيل البنود: السعر والإجمالي بدون رمز العملة — اعرض موجبة لإشعار الدائن
             const priceVal = Number(it.price||0);
             const lineVal = Number(it.line_total||0);
             const dispPrice = isCredit ? Math.abs(priceVal) : priceVal;
             const dispLine = isCredit ? Math.abs(lineVal) : lineVal;
             const dispQty = isCredit ? Math.abs(Number(it.qty||0)) : it.qty;
-            tr.innerHTML = `<td>${it.name}</td><td>${opCell}</td><td class="num">${dispPrice.toFixed(2)}</td><td class="num">${dispQty}</td><td class="num">${dispLine.toFixed(2)}</td>`;
+            tr.innerHTML = `<td>${it.name}${it.name_en ? `<div style="font-size:10px; color:#64748b; direction:ltr; text-align:right; font-weight:500;">${it.name_en}</div>` : ''}</td><td>${opCell}</td><td class="num">${dispPrice.toFixed(2)}</td><td class="num">${dispQty}</td><td class="num">${dispLine.toFixed(2)}</td>`;
             tbody.appendChild(tr);
 
             // بعد إدراج الصف، قم بتصغير الأرقام إذا لزم

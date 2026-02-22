@@ -148,7 +148,7 @@ const nameMap = {
   // التقارير
   'reports.view_daily':'تقرير يومي',
   'reports.view_period':'تقرير فترة',
-  'reports.view_all_invoices':'كل الفواتير',
+  'reports.view_all_invoices':'جميع الفواتير',
   'reports.view_purchases':'تقرير المشتريات',
   'reports.view_customer_invoices':'فواتير عميل',
   'reports.view_credit_invoices':'الفواتير الدائنة',

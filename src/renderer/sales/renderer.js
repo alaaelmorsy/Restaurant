@@ -102,6 +102,78 @@ function __applyLang(lang){
     sendSuccess: isAr ? 'تم الإرسال بنجاح' : 'Sent successfully',
     sendFailed: isAr ? 'فشل الإرسال' : 'Send failed',
     sendError: isAr ? 'تعذر الإرسال' : 'Cannot send',
+    // Payment method names
+    payMethodCash: isAr ? 'كاش' : 'Cash',
+    payMethodCard: isAr ? 'شبكة' : 'Card',
+    payMethodCredit: isAr ? 'آجل' : 'Credit',
+    payMethodMixed: isAr ? 'مختلط' : 'Mixed',
+    payMethodTamara: isAr ? 'تمارا' : 'Tamara',
+    payMethodTabby: isAr ? 'تابي' : 'Tabby',
+    // Loading
+    loading: isAr ? 'جاري التحميل...' : 'Loading...',
+    customerListLoading: isAr ? '⏳ جاري التحميل...' : '⏳ Loading...',
+    // Invoice processing toasts
+    creditUnpaid: isAr ? 'هذه فاتورة آجل غير مسددة ولا يمكن عمل معالجة لها قبل السداد' : 'This is an unpaid credit invoice and cannot be processed before settlement',
+    alreadyProcessed: isAr ? 'تم عمل معالجة لهذه الفاتورة من قبل' : 'This invoice has already been processed',
+    noProcessedInvoice: isAr ? 'لا توجد فاتورة مُعالجة' : 'No processed invoice',
+    cannotProcessFull: isAr ? 'تعذر معالجة كامل الفاتورة' : 'Failed to process full invoice',
+    creditNoteCreated: isAr ? 'تم إنشاء إشعار دائن وإرجاع المخزون بنجاح' : 'Credit note created and stock returned successfully',
+    // Cash received placeholders
+    cashReceivedDefault: isAr ? 'المبلغ المدفوع' : 'Amount paid',
+    cashReceivedMixed: isAr ? 'المبلغ النقدي (مختلط)' : 'Cash amount (mixed)',
+    cashReceivedCredit: isAr ? 'المبلغ المدفوع (آجل)' : 'Amount paid (credit)',
+    cashReceivedLocked: isAr ? 'غير قابل للإدخال لهذه الطريقة' : 'Not applicable for this method',
+    // Driver
+    noDriverName: isAr ? 'بدون اسم' : 'No name',
+    driverNotSelected: isAr ? 'لم يتم تحديد سائق بعد' : 'No driver selected',
+    driverPhone: isAr ? 'جوال: ' : 'Phone: ',
+    // Coupon
+    couponInvalid: isAr ? 'كوبون غير صالح' : 'Invalid coupon',
+    // Subtotal labels when no VAT
+    subtotalNoVat: isAr ? 'المجموع' : 'Total',
+    grandTotalNoVat: isAr ? 'الإجمالي' : 'Grand Total',
+    // Discount dynamic labels
+    discountGeneral: isAr ? 'خصم' : 'Discount',
+    couponDiscountLabel: isAr ? 'كوبون' : 'Coupon',
+    offerDiscount: isAr ? 'خصم عرض' : 'Offer Discount',
+    amountDiscountLabel: isAr ? 'خصم نقدي' : 'Cash Discount',
+    // Cart item actions
+    pricePlaceholder: isAr ? 'السعر' : 'Price',
+    deleteItem: isAr ? 'حذف' : 'Delete',
+    itemDescPlaceholder: isAr ? 'وصف الصنف (اختياري)' : 'Item description (optional)',
+    // Invoice loading errors
+    enterInvoiceNo: isAr ? 'أدخل رقم فاتورة صحيح' : 'Enter a valid invoice number',
+    invoiceNotFound: isAr ? 'لم يتم العثور على الفاتورة' : 'Invoice not found',
+    failedFetchInvoice: isAr ? 'تعذر جلب تفاصيل الفاتورة' : 'Failed to fetch invoice details',
+    errorDuringProcess: isAr ? 'حدث خطأ أثناء المعالجة' : 'An error occurred during processing',
+    // Low stock
+    outOfStock: isAr ? 'تم نفاد المخزون' : 'Out of Stock',
+    remaining: isAr ? 'المتبقي: ' : 'Remaining: ',
+    // General
+    addProductsFirst: isAr ? 'أضف منتجات أولاً' : 'Add products first',
+    printing: isAr ? 'جاري الطباعة...' : 'Printing...',
+    printingShort: isAr ? 'جاري...' : 'Wait...',
+    // Payment validation errors
+    enterCashMixed: isAr ? 'أدخل مبلغ الكاش لطريقة الدفع المختلط' : 'Enter cash amount for mixed payment',
+    invalidCashAmount: isAr ? 'قيمة غير صحيحة للمبلغ النقدي' : 'Invalid cash amount',
+    cashExceedsTotal: isAr ? 'المبلغ النقدي لا يجب أن يتجاوز الإجمالي' : 'Cash amount cannot exceed total',
+    saveInvoiceFailed: isAr ? 'فشل حفظ الفاتورة' : 'Failed to save invoice',
+    // Customer modal validation
+    enterPhoneNumber: isAr ? 'يرجى إدخال رقم الجوال' : 'Please enter phone number',
+    vatMustBe15: isAr ? 'الرقم الضريبي يجب أن يكون 15 رقماً' : 'VAT number must be 15 digits',
+    customerAddedSuccess: isAr ? 'تم إضافة العميل بنجاح' : 'Customer added successfully',
+    customerAddFailed: isAr ? 'تعذر إضافة العميل' : 'Failed to add customer',
+    // Discount field placeholders
+    discountPercentPlaceholder: isAr ? 'نسبة الخصم %' : 'Discount %',
+    discountAmountPlaceholder: isAr ? 'قيمة الخصم' : 'Discount amount',
+    // ZATCA
+    zatcaEnterInvoice: isAr ? 'أدخل رقم الفاتورة لإرسالها للهيئة:' : 'Enter invoice number to send to ZATCA:',
+    zatcaInvoiceRequired: isAr ? 'رقم الفاتورة مطلوب' : 'Invoice number is required',
+    zatcaSearchFailed: isAr ? 'تعذر البحث عن الفاتورة' : 'Failed to search for invoice',
+    zatcaInvoiceNotFound: isAr ? 'لم يتم العثور على فاتورة بهذا الرقم' : 'No invoice found with this number',
+    // Shortcuts / UI
+    shortcutF1: isAr ? 'اختصار: F1' : 'Shortcut: F1',
+    roomPrefix: isAr ? 'غرفة #' : 'Room #',
   };
   
   // Store current translations globally
@@ -324,7 +396,42 @@ function __applyLang(lang){
   // Low stock banner
   const lowStockText = document.querySelector('#lowStockTitle .text');
   if(lowStockText) lowStockText.textContent = t.lowStockWarning;
-  
+
+  // Catalog loading text
+  const catalogLoaderText = document.getElementById('catalogLoaderText');
+  if(catalogLoaderText) catalogLoaderText.textContent = t.loading;
+
+  // Page title
+  document.title = isAr ? 'فاتورة جديدة - POS SA' : 'New Invoice - POS SA';
+
+  // Payment method options (update labels if already rendered)
+  try{
+    const pmSelect = document.getElementById('paymentMethod');
+    if(pmSelect){
+      const payLabels = { cash: t.payMethodCash, card: t.payMethodCard, credit: t.payMethodCredit, mixed: t.payMethodMixed, tamara: t.payMethodTamara, tabby: t.payMethodTabby };
+      Array.from(pmSelect.options).forEach(opt => {
+        if(payLabels[opt.value]) opt.textContent = payLabels[opt.value];
+      });
+    }
+  }catch(_){ }
+
+  // Update cashReceived placeholder based on current payment method
+  try{
+    const pmEl = document.getElementById('paymentMethod');
+    const crEl = document.getElementById('cashReceived');
+    if(pmEl && crEl){
+      if(pmEl.value === 'mixed'){
+        crEl.placeholder = t.cashReceivedMixed;
+      } else if(pmEl.value === 'credit'){
+        crEl.placeholder = t.cashReceivedCredit;
+      } else if(pmEl.value === 'card' || pmEl.value === 'tamara' || pmEl.value === 'tabby'){
+        crEl.placeholder = t.cashReceivedLocked;
+      } else {
+        crEl.placeholder = t.cashReceivedDefault;
+      }
+    }
+  }catch(_){ }
+
   // Persist language
   try{ localStorage.setItem(__langKey, base); }catch(_){ }
 }
@@ -490,11 +597,11 @@ const btnAddCustomer = document.getElementById('btnAddCustomer');
 const btnPayTop = document.getElementById('btnPayTop');
 const btnKitchenTop = document.getElementById('btnKitchenTop');
 const btnClearTop = document.getElementById('btnClearTop');
-if(btnPayTop){ if(!__perms.includes('sales.print')) btnPayTop.style.display='none'; btnPayTop.addEventListener('click', ()=>{ document.getElementById('btnPay')?.click(); }); btnPayTop.title = 'اختصار: F1'; }
+if(btnPayTop){ if(!__perms.includes('sales.print')) btnPayTop.style.display='none'; btnPayTop.addEventListener('click', ()=>{ document.getElementById('btnPay')?.click(); }); btnPayTop.title = (__currentLang.shortcutF1 || 'اختصار: F1'); }
 const btnZatcaSendTop = document.getElementById('btnZatcaSendTop');
 if(btnZatcaSendTop){ if(!__perms.includes('sales.print')) btnZatcaSendTop.style.display='none'; btnZatcaSendTop.addEventListener('click', async ()=>{
   try{
-    const v = prompt('أدخل رقم الفاتورة لإرسالها للهيئة:');
+    const v = prompt(__currentLang.zatcaEnterInvoice || 'أدخل رقم الفاتورة لإرسالها للهيئة:');
     if(!v) return;
     const r = await window.zatcaSendByInvoiceNo(v);
     alert(r.ok ? ((__currentLang.sendSuccess || 'تم الإرسال بنجاح') + '\n' + (r.message||'')) : ((__currentLang.sendFailed || 'فشل الإرسال') + '\n' + (r.error||'')));
@@ -504,15 +611,15 @@ if(btnZatcaSendTop){ if(!__perms.includes('sales.print')) btnZatcaSendTop.style.
 // Helper: resolve invoice_no -> sale_id then submit via local bridge
 window.zatcaSendByInvoiceNo = async function(invoiceNo){
   const inv = String(invoiceNo||'').trim();
-  if(!inv) return { ok:false, error:'رقم الفاتورة مطلوب' };
+  if(!inv) return { ok:false, error:(__currentLang.zatcaInvoiceRequired || 'رقم الفاتورة مطلوب') };
   try{
     // Try to fetch by search; backend prioritizes invoice matching on q
     const r = await window.api.sales_list({ q: inv });
-    if(!r || !r.ok) return { ok:false, error: r?.error || 'تعذر البحث عن الفاتورة' };
+    if(!r || !r.ok) return { ok:false, error: r?.error || (__currentLang.zatcaSearchFailed || 'تعذر البحث عن الفاتورة') };
     const items = Array.isArray(r.items) ? r.items : [];
     // Prefer exact match on invoice_no; fallback to first
     const row = items.find(x => String(x.invoice_no) === inv) || items[0];
-    if(!row) return { ok:false, error:'لم يتم العثور على فاتورة بهذا الرقم' };
+    if(!row) return { ok:false, error:(__currentLang.zatcaInvoiceNotFound || 'لم يتم العثور على فاتورة بهذا الرقم') };
     const resp = await window.electronAPI.localZatca.submitBySaleId(Number(row.id));
     if(resp && resp.success){
       const msg = (typeof resp.data === 'string') ? resp.data : JSON.stringify(resp.data);
@@ -612,11 +719,11 @@ async function __clearRoomSession(id){ try{ await window.api.rooms_clear(id); }c
         const chk = await window.api.sales_has_credit_for_invoice({ invoice_no: v });
         if(chk && chk.ok){
           if(chk.credit_unpaid){
-            showToast('⚠️ هذه فاتورة آجل غير مسددة ولا يمكن عمل معالجة لها قبل السداد', 'warning', 5000);
+            showToast('⚠️ ' + (__currentLang.creditUnpaid || 'هذه فاتورة آجل غير مسددة ولا يمكن عمل معالجة لها قبل السداد'), 'warning', 5000);
             return;
           }
           if(chk.processed){
-            showToast('⚠️ تم عمل معالجة لهذه الفاتورة من قبل', 'warning', 4000);
+            showToast('⚠️ ' + (__currentLang.alreadyProcessed || 'تم عمل معالجة لهذه الفاتورة من قبل'), 'warning', 4000);
             return;
           }
         }
@@ -629,11 +736,11 @@ async function __clearRoomSession(id){ try{ await window.api.rooms_clear(id); }c
   }
   if(btnProcessFull){
     btnProcessFull.addEventListener('click', async () => {
-      if(!__processedSaleId){ showToast('⚠️ لا توجد فاتورة مُعالجة', 'warning', 3000); return; }
+      if(!__processedSaleId){ showToast('⚠️ ' + (__currentLang.noProcessedInvoice || 'لا توجد فاتورة مُعالجة'), 'warning', 3000); return; }
       try{
         const r = await window.api.sales_refund_full({ sale_id: __processedSaleId });
-        if(!r || !r.ok){ showToast(`❌ ${r?.error||'تعذر معالجة كامل الفاتورة'}`, 'error', 5000); return; }
-        showToast('✅ تم إنشاء إشعار دائن وإرجاع المخزون بنجاح', 'success', 4000);
+        if(!r || !r.ok){ showToast(`❌ ${r?.error||(__currentLang.cannotProcessFull || 'تعذر معالجة كامل الفاتورة')}`, 'error', 5000); return; }
+        showToast('✅ ' + (__currentLang.creditNoteCreated || 'تم إنشاء إشعار دائن وإرجاع المخزون بنجاح'), 'success', 4000);
         // افتح نافذة الطباعة مباشرة لإشعار الدائن الجديد
         try{
           const page = 'print.html'; // A4 removed
@@ -662,7 +769,7 @@ async function __clearRoomSession(id){ try{ await window.api.rooms_clear(id); }c
             } else { paymentMethod.value = methods[0]; }
           }catch(_){ }
           // تفريغ الحقول الأخرى
-          if(cashReceived){ cashReceived.value=''; cashReceived.placeholder='المبلغ المدفوع'; cashReceived.disabled=false; }
+          if(cashReceived){ cashReceived.value=''; cashReceived.placeholder=(__currentLang.cashReceivedDefault||'المبلغ المدفوع'); cashReceived.disabled=false; }
           if(discountTypeEl){ discountTypeEl.value='none'; }
           if(discountValueEl){ discountValueEl.value=''; }
           if(extraValueEl){ extraValueEl.value=''; }
@@ -672,13 +779,13 @@ async function __clearRoomSession(id){ try{ await window.api.rooms_clear(id); }c
           try{ customerSearch.value=''; customerList.style.display='none'; if(driverSelect){ driverSelect.value=''; } }catch(_){ }
           if(__currentRoomId){ await __saveRoomCart(__currentRoomId, cart); try{ await window.api.rooms_set_status(__currentRoomId, 'vacant'); }catch(_){ } }
         }catch(_){ }
-      }catch(e){ console.error(e); showToast('❌ تعذر معالجة كامل الفاتورة', 'error', 5000); }
+      }catch(e){ console.error(e); showToast('❌ ' + (__currentLang.cannotProcessFull || 'تعذر معالجة كامل الفاتورة'), 'error', 5000); }
     });
   }
 
   if(__currentRoomId){
     const meta = await __fetchRoomMeta(__currentRoomId);
-    __currentRoomName = meta ? meta.name : (`غرفة #${__currentRoomId}`);
+    __currentRoomName = meta ? meta.name : ((__currentLang.roomPrefix || 'غرفة #') + __currentRoomId);
     // تم إزالة تحديث عنوان الزر لإبقاء نص "طباعة الفاتورة" فقط
     if(nav){
       const btnRooms = document.getElementById('btnBackRooms');
@@ -705,7 +812,7 @@ async function __clearRoomSession(id){ try{ await window.api.rooms_clear(id); }c
   // تحديث خانة بيانات السائق لتكون جاهزة للعرض
   try{
     if(driverMeta){
-      driverMeta.textContent = 'لم يتم تحديد سائق بعد';
+      driverMeta.textContent = (__currentLang.driverNotSelected || 'لم يتم تحديد سائق بعد');
       driverMeta.style.display = 'flex';
       driverMeta.style.justifyContent = 'flex-start';
     }
@@ -762,7 +869,7 @@ async function __clearRoomSession(id){ try{ await window.api.rooms_clear(id); }c
         paymentMethod.innerHTML='';
         const methods = settings.payment_methods;
         methods.forEach(m => {
-          const opt = document.createElement('option'); opt.value=m; opt.textContent=({cash:'كاش', card:'شبكة', credit:'آجل', mixed:'مختلط', tamara:'تمارا', tabby:'تابي'})[m] || m; paymentMethod.appendChild(opt);
+          const opt = document.createElement('option'); opt.value=m; opt.textContent=({cash:(__currentLang.payMethodCash||'كاش'), card:(__currentLang.payMethodCard||'شبكة'), credit:(__currentLang.payMethodCredit||'آجل'), mixed:(__currentLang.payMethodMixed||'مختلط'), tamara:(__currentLang.payMethodTamara||'تمارا'), tabby:(__currentLang.payMethodTabby||'تابي')})[m] || m; paymentMethod.appendChild(opt);
         });
         // اضبط الافتراضي إن وجد
         if(it.default_payment_method && methods.includes(it.default_payment_method)) paymentMethod.value = it.default_payment_method;
@@ -909,15 +1016,15 @@ function setProcessingMode(on){
 async function loadInvoiceIntoCartByNumber(invNo){
   setError(''); __processedSaleId = null;
   try{
-    const q = String(invNo||'').trim(); if(!q){ showToast('⚠️ أدخل رقم فاتورة صحيح', 'warning', 3000); return; }
+    const q = String(invNo||'').trim(); if(!q){ showToast('⚠️ ' + (__currentLang.enterInvoiceNo || 'أدخل رقم فاتورة صحيح'), 'warning', 3000); return; }
     // ابحث عن الفاتورة برقمها بدقة
     const res = await window.api.sales_list({ invoice_no: q });
-    if(!res || !res.ok || !Array.isArray(res.items) || !res.items.length){ showToast('❌ لم يتم العثور على الفاتورة', 'error', 4000); return; }
+    if(!res || !res.ok || !Array.isArray(res.items) || !res.items.length){ showToast('❌ ' + (__currentLang.invoiceNotFound || 'لم يتم العثور على الفاتورة'), 'error', 4000); return; }
     // اختر أول نتيجة مطابقة تمامًا إن وجدت
     const exact = res.items.find(x => String(x.invoice_no) === q) || res.items[0];
     const gid = exact.id;
     const det = await window.api.sales_get(gid);
-    if(!det || !det.ok){ showToast('❌ تعذر جلب تفاصيل الفاتورة', 'error', 4000); return; }
+    if(!det || !det.ok){ showToast('❌ ' + (__currentLang.failedFetchInvoice || 'تعذر جلب تفاصيل الفاتورة'), 'error', 4000); return; }
     const items = det.items||[];
     // املأ السلة من عناصر الفاتورة
     cart = items.map(it => ({
@@ -953,7 +1060,7 @@ async function loadInvoiceIntoCartByNumber(invNo){
     renderCart();
     // اقفل الشاشة
     setProcessingMode(true);
-  }catch(e){ console.error(e); showToast('❌ حدث خطأ أثناء المعالجة', 'error', 5000); }
+  }catch(e){ console.error(e); showToast('❌ ' + (__currentLang.errorDuringProcess || 'حدث خطأ أثناء المعالجة'), 'error', 5000); }
 }
 
 function fmt(amount){
@@ -1124,16 +1231,16 @@ function computeTotals(){
   if(discountSummaryRowEl && discountAmountEl){
     if(totalDiscount > 0){
       // أولوية التسمية: كوبون ثم عرض عام ثم نوع الخصم اليدوي
-      let label = 'خصم';
-      if(couponAmount > 0){ label = couponLabel || 'كوبون'; }
-      else if(offerAmount > 0){ label = (String(__globalOffer?.mode)==='percent') ? `${Math.round(Number(__globalOffer?.value||0))}%` : 'خصم عرض'; }
-      else if(dtype === 'percent'){ label = `خصم ${Math.round(Number(dval))}%`; }
-      else if(dtype === 'amount'){ label = 'خصم نقدي'; }
+      let label = (__currentLang.discountGeneral || 'خصم');
+      if(couponAmount > 0){ label = couponLabel || (__currentLang.couponDiscountLabel || 'كوبون'); }
+      else if(offerAmount > 0){ label = (String(__globalOffer?.mode)==='percent') ? `${Math.round(Number(__globalOffer?.value||0))}%` : (__currentLang.offerDiscount || 'خصم عرض'); }
+      else if(dtype === 'percent'){ label = (__currentLang.discountGeneral || 'خصم') + ' ' + `${Math.round(Number(dval))}%`; }
+      else if(dtype === 'amount'){ label = (__currentLang.amountDiscountLabel || 'خصم نقدي'); }
       if(discountLabelEl) discountLabelEl.textContent = label;
       discountAmountEl.textContent = '-' + fmt(totalDiscount);
       discountSummaryRowEl.style.display = '';
     } else {
-      if(discountLabelEl) discountLabelEl.textContent = 'خصم';
+      if(discountLabelEl) discountLabelEl.textContent = (__currentLang.discountGeneral || 'خصم');
       discountAmountEl.textContent = '';
       discountSummaryRowEl.style.display = 'none';
     }
@@ -1173,10 +1280,10 @@ function computeTotals(){
     if(vatRowEl){ vatRowEl.style.display = noVat ? 'none' : ''; }
     // تعديل تسمية "الإجمالي قبل الضريبة" إلى "المجموع" عند عدم وجود ضريبة
     const subLabelEl = document.getElementById('subTotal')?.previousElementSibling;
-    if(subLabelEl){ subLabelEl.textContent = noVat ? 'المجموع' : 'الإجمالي قبل الضريبة'; }
+    if(subLabelEl){ subLabelEl.textContent = noVat ? (__currentLang.subtotalNoVat || 'المجموع') : (__currentLang.subTotal || 'الإجمالي قبل الضريبة'); }
     // تعديل تسمية "الإجمالي شامل الضريبة" إلى "الإجمالي" عند عدم وجود ضريبة
     const grandLabelEl = document.getElementById('grandTotal')?.previousElementSibling;
-    if(grandLabelEl){ grandLabelEl.textContent = noVat ? 'الإجمالي' : 'الإجمالي شامل الضريبة'; }
+    if(grandLabelEl){ grandLabelEl.textContent = noVat ? (__currentLang.grandTotalNoVat || 'الإجمالي') : (__currentLang.grandTotal || 'الإجمالي شامل الضريبة'); }
   }catch(_){ /* ignore */ }
   // save cart state per-room on every totals recompute (safe point)
   if(__currentRoomId){ __saveRoomCart(__currentRoomId, cart); }
@@ -1264,26 +1371,26 @@ function renderCart(){
     })();
     tr.innerHTML = `
       <td>
-        <span class="p-name" title="${escapeHtml(it.name)}" style="display:block; white-space:normal; word-break:keep-all; overflow-wrap:normal; color:#0b3daa; font-weight:700; font-size:12px; line-height:1.25;">${nameHtml}${it.name_en ? `<div style='font-size:11px; color:#64748b; font-weight:500; line-height:1.2;'>${escapeHtml(it.name_en)}</div>`:''}</span>
+        <span class="p-name" title="${escapeHtml(it.name)}" style="display:block; white-space:normal; word-break:keep-all; overflow-wrap:normal; color:#0b3daa; font-weight:700; font-size:12px; line-height:1.25;">${nameHtml}${it.name_en ? `<div style='font-size:12px; color:#0f172a; font-weight:700; line-height:1.25; direction:ltr;'>${escapeHtml(it.name_en)}</div>`:''}</span>
       </td>
       <td>
         <select data-idx="${idx}" class="op-select"></select>
       </td>
       <td class="td-price">
         ${settings.op_price_manual
-          ? `<input data-idx=\"${idx}\" class=\"op-price\" type=\"text\" inputmode=\"decimal\" placeholder=\"السعر\" value=\"${Number(it.price).toFixed(2)}\" ${__isProcessingOld?'disabled':''}/>`
+          ? `<input data-idx=\"${idx}\" class=\"op-price\" type=\"text\" inputmode=\"decimal\" placeholder=\"${__currentLang.pricePlaceholder||'السعر'}\" value=\"${Number(it.price).toFixed(2)}\" ${__isProcessingOld?'disabled':''}/>`
           : `<span class=\"price-val\">${Number(it.price||0).toFixed(2)}</span>`}
       </td>
       <td class="td-qty">
         <div class="qty-wrap">
-          <button class="btn qty-btn" data-act="dec" data-idx="${idx}" aria-label="نقصان" ${__isProcessingOld?'disabled':''}>-</button>
+          <button class="btn qty-btn" data-act="dec" data-idx="${idx}" aria-label="decrease" ${__isProcessingOld?'disabled':''}>-</button>
           <input data-idx="${idx}" class="qty" type="number" min="1" step="1" value="${it.qty}" ${__isProcessingOld?'disabled':''}/>
-          <button class="btn qty-btn" data-act="inc" data-idx="${idx}" aria-label="زيادة" ${__isProcessingOld?'disabled':''}>+</button>
+          <button class="btn qty-btn" data-act="inc" data-idx="${idx}" aria-label="increase" ${__isProcessingOld?'disabled':''}>+</button>
         </div>
       </td>
       <td class="td-total"><span class="total-val">${(Number(it.price||0) * Number(it.qty||0)).toFixed(2)}</span></td>
       <td style="text-align:center">
-        ${__perms.includes('sales.remove_item') ? `<button class="btn danger" data-act="remove" data-idx="${idx}" style="padding:4px 8px; font-size:11px; font-weight:700; white-space:nowrap;" ${__isProcessingOld?'disabled':''}>حذف</button>` : ''}
+        ${__perms.includes('sales.remove_item') ? `<button class="btn danger" data-act="remove" data-idx="${idx}" style="padding:4px 8px; font-size:11px; font-weight:700; white-space:nowrap;" ${__isProcessingOld?'disabled':''}>${__currentLang.deleteItem||'حذف'}</button>` : ''}
       </td>
     `;
     fragment.appendChild(tr);
@@ -1300,7 +1407,7 @@ function renderCart(){
       td.colSpan = 6; // امتداد بعد إضافة عمود العملية
       const descVal = escapeHtml(it.description||'');
       td.innerHTML = `
-        <textarea data-idx="${idx}" class="desc" placeholder="وصف الصنف (اختياري)" rows="1"
+        <textarea data-idx="${idx}" class="desc" placeholder="${__currentLang.itemDescPlaceholder||'وصف الصنف (اختياري)'}" rows="1"
           style="width:100%; font-size:12px; line-height:1.3; padding:4px 6px; min-height:32px; resize:vertical; white-space:pre-wrap; overflow-wrap:anywhere;" ${__isProcessingOld?'disabled':''}>${descVal}</textarea>
       `;
       trDesc.appendChild(td);
@@ -1336,6 +1443,7 @@ function renderCart(){
                         const opId = (first.operation_id||first.id);
                         it.operation_id = opId;
                         it.operation_name = first.name;
+                        it.operation_name_en = first.name_en || null;
                         it.price = Number(first.price||it.price||0);
                         // Update UI
                         const select = tr.querySelector('select.op-select');
@@ -1423,7 +1531,7 @@ async function loadSettings(){
   if(paymentMethod){
     paymentMethod.innerHTML = '';
     const methods = Array.isArray(settings.payment_methods) && settings.payment_methods.length ? settings.payment_methods : ['cash'];
-    const labels = { cash:'كاش', card:'شبكة', credit:'آجل', mixed:'مختلط', tamara:'تمارا', tabby:'تابي' };
+    const labels = { cash:(__currentLang.payMethodCash||'كاش'), card:(__currentLang.payMethodCard||'شبكة'), credit:(__currentLang.payMethodCredit||'آجل'), mixed:(__currentLang.payMethodMixed||'مختلط'), tamara:(__currentLang.payMethodTamara||'تمارا'), tabby:(__currentLang.payMethodTabby||'تابي') };
     methods.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m; opt.textContent = labels[m] || m;
@@ -1451,14 +1559,14 @@ async function loadSettings(){
         // Initialize paid input based on default/current payment method
         if(paymentMethod.value === 'mixed'){
           cashReceived.disabled = false;
-          cashReceived.placeholder = 'المبلغ النقدي (مختلط)';
+          cashReceived.placeholder = (__currentLang.cashReceivedMixed || 'المبلغ النقدي (مختلط)');
         } else if(paymentMethod.value === 'credit' || paymentMethod.value === 'card' || paymentMethod.value === 'tamara' || paymentMethod.value === 'tabby'){
           cashReceived.value = '';
           cashReceived.disabled = true;
-          cashReceived.placeholder = (paymentMethod.value === 'credit') ? 'المبلغ المدفوع (آجل)' : 'غير قابل للإدخال لهذه الطريقة';
+          cashReceived.placeholder = (paymentMethod.value === 'credit') ? (__currentLang.cashReceivedCredit || 'المبلغ المدفوع (آجل)') : (__currentLang.cashReceivedLocked || 'غير قابل للإدخال لهذه الطريقة');
         } else {
           cashReceived.disabled = false;
-          cashReceived.placeholder = 'المبلغ المدفوع';
+          cashReceived.placeholder = (__currentLang.cashReceivedDefault || 'المبلغ المدفوع');
         }
       }
     }catch(_){ }
@@ -1497,7 +1605,7 @@ async function loadSettings(){
       const r = await window.api.coupons_validate({ code, sub_total: sub });
       if(!r || !r.ok){
         __coupon = null;
-        if(couponInfoEl){ couponInfoEl.textContent = (r?.error||'كوبون غير صالح'); couponInfoEl.style.color = '#dc2626'; }
+        if(couponInfoEl){ couponInfoEl.textContent = (r?.error||(__currentLang.couponInvalid||'كوبون غير صالح')); couponInfoEl.style.color = '#dc2626'; }
         computeTotals();
         return;
       }
@@ -1552,18 +1660,18 @@ async function loadDrivers(){
     __allDrivers = ld.ok ? (ld.items||[]) : [];
     __driversLoaded = true;
     if(driverSelect){
-      driverSelect.innerHTML = '<option value="">بدون سائق</option>' + (__allDrivers.map(d => `<option value="${d.id}">${(d.name||'')}${d.phone?(' - '+d.phone):''}</option>`).join(''));
+      driverSelect.innerHTML = `<option value="">${__currentLang.noDriver||'بدون سائق'}</option>` + (__allDrivers.map(d => `<option value="${d.id}">${(d.name||'')}${d.phone?(' - '+d.phone):''}</option>`).join(''));
       if(__selectedDriverId){ driverSelect.value = String(__selectedDriverId); }
       
       const updateDriverMeta = () => {
         if(driverMeta){
           const selected = __allDrivers.find(d => String(d.id) === driverSelect.value);
           if(selected){
-            const details = [selected.name || 'بدون اسم'];
-            if(selected.phone){ details.push(`جوال: ${selected.phone}`); }
+            const details = [selected.name || (__currentLang.noDriverName || 'بدون اسم')];
+            if(selected.phone){ details.push((__currentLang.driverPhone || 'جوال: ') + selected.phone); }
             driverMeta.textContent = details.join(' | ');
           } else {
-            driverMeta.textContent = 'لم يتم تحديد سائق بعد';
+            driverMeta.textContent = (__currentLang.driverNotSelected || 'لم يتم تحديد سائق بعد');
           }
           driverMeta.style.display = 'flex';
         }
@@ -1650,7 +1758,7 @@ if(customerSearch){
     
     // إظهار رسالة تحميل فورية
     if(q.trim().length && !__customersLoaded){
-      customerList.innerHTML = '<div style="padding:10px;text-align:center;color:#6b7280;">⏳ جاري التحميل...</div>';
+      customerList.innerHTML = `<div style="padding:10px;text-align:center;color:#6b7280;">${__currentLang.customerListLoading||'⏳ جاري التحميل...'}</div>`;
       customerList.style.display = 'block';
     }
     
@@ -1798,7 +1906,7 @@ function renderCatalogCards(items, options = {}){
     card.innerHTML = `
       ${imgTag}
       <div class="meta">
-        <div class="pname" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}${p.name_en? `<div style='font-size:10px; color:#64748b; font-weight:500; margin-top:2px;'>${escapeHtml(p.name_en)}</div>`:''}</div>
+        <div class="pname" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</div>${p.name_en? `<div class="pname-en">${escapeHtml(p.name_en)}</div>`:''}
         <div class="price-row">
           <div class="price-under">${Number(p.price||0).toFixed(2)}</div>
         </div>
@@ -2249,6 +2357,7 @@ async function addToCart(p){
              const first = cartItem.__ops[0];
              cartItem.operation_id = (first.operation_id||first.id);
              cartItem.operation_name = first.name;
+             cartItem.operation_name_en = first.name_en || null;
              cartItem.price = Number(first.price||0);
            }
         }catch(_){ cartItem.__ops = []; }
@@ -2358,12 +2467,12 @@ function showLowStockBanner(items){
     // Title + color based on zero-stock
     if(lowStockTitle){
       const textSpan = lowStockTitle.querySelector('.text');
-      if(textSpan){ textSpan.textContent = hasZero ? 'تم نفاد المخزون' : 'تحذير: أصناف قرب نفاد المخزون'; }
+      if(textSpan){ textSpan.textContent = hasZero ? (__currentLang.outOfStock || 'تم نفاد المخزون') : (__currentLang.lowStockWarning || 'تحذير: أصناف قرب نفاد المخزون'); }
     }
     lowStockBanner.classList.toggle('danger', !!hasZero);
     items.forEach(it => {
       const li = document.createElement('li');
-      li.textContent = `${it.name} — المتبقي: ${it.stock}`;
+      li.textContent = `${it.name} — ${__currentLang.remaining||'المتبقي: '}${it.stock}`;
       lowStockList.appendChild(li);
     });
     lowStockBanner.style.display='block';
@@ -2414,7 +2523,7 @@ try{
   const btnKitchen = document.getElementById('btnKitchen');
   if(btnKitchen){
     btnKitchen.addEventListener('click', async () => {
-      if(cart.length === 0){ __showSalesToast('أضف منتجات أولاً', { icon:'⚠️', danger:true, ms:5000 }); return; }
+      if(cart.length === 0){ __showSalesToast(__currentLang.addProductsFirst||'أضف منتجات أولاً', { icon:'⚠️', danger:true, ms:5000 }); return; }
       setError('');
       const roomMeta = __currentRoomId ? await (async()=>{ try{ const rmeta = await window.api.rooms_list(); if(rmeta.ok){ return (rmeta.items||[]).find(x => String(x.id)===String(__currentRoomId)) || null; } }catch(_){ } return null; })() : null;
       let waiter = null; try{ waiter = JSON.parse(localStorage.getItem('pos_user')||'{}'); }catch(_){ waiter = null; }
@@ -2472,16 +2581,16 @@ function updateDiscountFieldUI(){
   if(!discountValueEl || !discountTypeEl) return;
   const dtype = discountTypeEl.value;
   if(dtype === 'percent'){
-    discountValueEl.placeholder = 'نسبة الخصم %';
+    discountValueEl.placeholder = (__currentLang.discountPercentPlaceholder || 'نسبة الخصم %');
     discountValueEl.min = '0';
     discountValueEl.max = '100';
   } else if(dtype === 'amount'){
-    discountValueEl.placeholder = 'قيمة الخصم';
+    discountValueEl.placeholder = (__currentLang.discountAmountPlaceholder || 'قيمة الخصم');
     discountValueEl.min = '0';
     const sub = calcSubBeforeVAT();
     try{ discountValueEl.max = String(Number(sub.toFixed(2))); }catch(_){ discountValueEl.max = String(sub); }
   } else {
-    discountValueEl.placeholder = 'قيمة الخصم';
+    discountValueEl.placeholder = (__currentLang.discountAmountPlaceholder || 'قيمة الخصم');
     discountValueEl.min = '0';
     discountValueEl.removeAttribute('max');
   }
@@ -2565,6 +2674,7 @@ tbody.addEventListener('change', async (e) => {
       if(op){
         it.operation_id = (op.operation_id||op.id);
         it.operation_name = op.name;
+        it.operation_name_en = op.name_en || null;
         // تحديث title للقائمة لإظهار الاسم الكامل عند التحويم
         opSelect.title = op.name;
         // Changing operation resets manual override so new op pricing can apply
@@ -2692,14 +2802,14 @@ acmSave.addEventListener('click', async () => {
   
   // التحقق من المدخلات
   if(!phone){ 
-    showToast('⚠️ يرجى إدخال رقم الجوال', 'warning', 4000); 
+    showToast('⚠️ ' + (__currentLang.enterPhoneNumber || 'يرجى إدخال رقم الجوال'), 'warning', 4000); 
     acmPhone.focus(); 
     return; 
   }
   
   // التحقق من الرقم الضريبي إذا تم إدخاله
   if(vat && vat.length !== 15){
-    showToast('⚠️ الرقم الضريبي يجب أن يكون 15 رقماً', 'warning', 4000);
+    showToast('⚠️ ' + (__currentLang.vatMustBe15 || 'الرقم الضريبي يجب أن يكون 15 رقماً'), 'warning', 4000);
     acmVat.focus();
     return;
   }
@@ -2717,7 +2827,7 @@ acmSave.addEventListener('click', async () => {
   
   const res = await window.api.customers_add(payload);
   if(res && res.ok){
-    showToast('✅ تم إضافة العميل بنجاح', 'success', 3000);
+    showToast('✅ ' + (__currentLang.customerAddedSuccess || 'تم إضافة العميل بنجاح'), 'success', 3000);
     __customersLoaded = false;
     await loadCustomers();
     if(res.id){ 
@@ -2727,7 +2837,7 @@ acmSave.addEventListener('click', async () => {
     }
     closeAddCustomer();
   }else{
-    showToast(res && res.error ? res.error : 'تعذر إضافة العميل', 'error', 5000);
+    showToast(res && res.error ? res.error : (__currentLang.customerAddFailed || 'تعذر إضافة العميل'), 'error', 5000);
   }
 });
 
@@ -2735,7 +2845,7 @@ btnPay.addEventListener('click', async () => {
   // منع الضغط المتكرر إذا كان الزر معطلاً بالفعل
   if(btnPay.disabled) return;
   
-  if(cart.length === 0){ __showSalesToast('أضف منتجات أولاً', { icon:'⚠️', danger:true, ms:5000 }); return; }
+  if(cart.length === 0){ __showSalesToast(__currentLang.addProductsFirst||'أضف منتجات أولاً', { icon:'⚠️', danger:true, ms:5000 }); return; }
   
   // تعطيل أزرار الطباعة ومنع الضغط المتكرر
   btnPay.disabled = true;
@@ -2747,12 +2857,12 @@ btnPay.addEventListener('click', async () => {
   const originalBtnPayTopText = btnPayTopElem ? btnPayTopElem.innerHTML : '';
   
   // تغيير النص إلى "جاري الطباعة..."
-  btnPay.innerHTML = 'جاري الطباعة...';
+  btnPay.innerHTML = (__currentLang.printing || 'جاري الطباعة...');
   if(btnPayTopElem) {
     const longText = btnPayTopElem.querySelector('.hidden.sm\\:inline');
     const shortText = btnPayTopElem.querySelector('.sm\\:hidden');
-    if(longText) longText.textContent = 'جاري الطباعة...';
-    if(shortText) shortText.textContent = 'جاري...';
+    if(longText) longText.textContent = (__currentLang.printing || 'جاري الطباعة...');
+    if(shortText) shortText.textContent = (__currentLang.printingShort || 'جاري...');
   }
   
   // دالة لإعادة تمكين الأزرار
@@ -2779,25 +2889,25 @@ btnPay.addEventListener('click', async () => {
   const cashStr = (cashReceived.value||'').trim();
   let cash = cashStr === '' ? 0 : Number(cashStr);
   if(paymentMethod.value === 'cash'){
-    if(cashStr !== '' && (isNaN(cash) || cash < 0)){ setError('قيمة غير صحيحة للمبلغ المدفوع'); enableButtons(); return; }
+    if(cashStr !== '' && (isNaN(cash) || cash < 0)){ setError(__currentLang.invalidAmount || 'قيمة غير صحيحة للمبلغ المدفوع'); enableButtons(); return; }
     const minNeeded = Number((window.__sale_calcs?.grand_total ?? grand).toFixed(2));
     // اسمح بالطباعة إذا كان الحقل فارغاً، امنع فقط إذا تم إدخال قيمة أقل من الإجمالي
-    if(cashStr !== '' && cash < minNeeded){ setError('المبلغ المدفوع أقل من الإجمالي شامل الضريبة'); cashReceived.focus(); enableButtons(); return; }
+    if(cashStr !== '' && cash < minNeeded){ setError(__currentLang.lessThanTotal || 'المبلغ المدفوع أقل من الإجمالي شامل الضريبة'); cashReceived.focus(); enableButtons(); return; }
     // إذا كان cash > 0 سيظهر في الطباعة، وإن كان 0 لن يظهر صف "المبلغ المدفوع"
   } else if(paymentMethod.value === 'mixed'){
     // مختلط: يجب إدخال مبلغ نقدي، والباقي شبكة تلقائيًا
-    if(cashStr === ''){ setError('أدخل مبلغ الكاش لطريقة الدفع المختلط'); cashReceived.focus(); enableButtons(); return; }
-    if(isNaN(cash) || cash < 0){ setError('قيمة غير صحيحة للمبلغ النقدي'); enableButtons(); return; }
+    if(cashStr === ''){ setError(__currentLang.enterCashMixed || 'أدخل مبلغ الكاش لطريقة الدفع المختلط'); cashReceived.focus(); enableButtons(); return; }
+    if(isNaN(cash) || cash < 0){ setError(__currentLang.invalidCashAmount || 'قيمة غير صحيحة للمبلغ النقدي'); enableButtons(); return; }
     const total = Number((window.__sale_calcs?.grand_total ?? grand).toFixed(2));
-    if(cash > total){ setError('المبلغ النقدي لا يجب أن يتجاوز الإجمالي'); cashReceived.focus(); enableButtons(); return; }
+    if(cash > total){ setError(__currentLang.cashExceedsTotal || 'المبلغ النقدي لا يجب أن يتجاوز الإجمالي'); cashReceived.focus(); enableButtons(); return; }
     // الباقي شبكة = الإجمالي - نقدي
     const restCard = Number((total - cash).toFixed(2));
     window.__mixed_payment = { cash, card: restCard };
   } else if(paymentMethod.value === 'card' || paymentMethod.value === 'tamara' || paymentMethod.value === 'tabby'){
     // للشبكة/تمارا/تابي: إن تم إدخال مبلغ، يجب ألا يقل عن الإجمالي
-    if(cashStr !== '' && (isNaN(cash) || cash < 0)){ setError('قيمة غير صحيحة للمبلغ المدفوع'); enableButtons(); return; }
+    if(cashStr !== '' && (isNaN(cash) || cash < 0)){ setError(__currentLang.invalidAmount || 'قيمة غير صحيحة للمبلغ المدفوع'); enableButtons(); return; }
     const total = Number((window.__sale_calcs?.grand_total ?? grand).toFixed(2));
-    if(cashStr !== '' && cash < total){ setError('المبلغ المدفوع أقل من الإجمالي شامل الضريبة'); cashReceived.focus(); enableButtons(); return; }
+    if(cashStr !== '' && cash < total){ setError(__currentLang.lessThanTotal || 'المبلغ المدفوع أقل من الإجمالي شامل الضريبة'); cashReceived.focus(); enableButtons(); return; }
     window.__mixed_payment = null;
   } else {
     // لطرق الدفع الأخرى، لا حاجة لاختبارات خاصة
@@ -2816,6 +2926,7 @@ btnPay.addEventListener('click', async () => {
     line_total: Number(it.price||0) * Number(it.qty||1),
     operation_id: (it.operation_id || null),
     operation_name: (it.operation_name || null),
+    operation_name_en: (it.operation_name_en || null),
     category: (it.category || null)
   }));
 
@@ -2848,7 +2959,7 @@ btnPay.addEventListener('click', async () => {
   const r = await window.api.sales_create(payload);
   if(!r.ok){
     // إظهار رسالة تحذيرية واضحة في حال نفاد المخزون
-    setError(r.error || 'فشل حفظ الفاتورة');
+    setError(r.error || (__currentLang.saveInvoiceFailed || 'فشل حفظ الفاتورة'));
     enableButtons();
     return;
   }
@@ -2948,7 +3059,7 @@ btnPay.addEventListener('click', async () => {
     }
   }catch(_){ }
   // إعادة خانة المبلغ إلى وضعها الطبيعي
-  if(cashReceived){ cashReceived.value=''; cashReceived.placeholder='المبلغ المدفوع'; cashReceived.disabled=false; }
+  if(cashReceived){ cashReceived.value=''; cashReceived.placeholder=(__currentLang.cashReceivedDefault||'المبلغ المدفوع'); cashReceived.disabled=false; }
   if(notes){ notes.value=''; }
   // تفريغ الخصم ليكون الافتراضي بدون خصم
   if(discountTypeEl){ discountTypeEl.value = 'none'; }
@@ -2988,14 +3099,14 @@ btnPay.addEventListener('click', async () => {
     if(cashReceived){
       if(paymentMethod.value === 'mixed'){
         cashReceived.disabled = false;
-        cashReceived.placeholder = 'المبلغ النقدي (مختلط)';
+        cashReceived.placeholder = (__currentLang.cashReceivedMixed || 'المبلغ النقدي (مختلط)');
       } else if(paymentMethod.value === 'credit' || paymentMethod.value === 'card' || paymentMethod.value === 'tamara' || paymentMethod.value === 'tabby'){
         cashReceived.value = '';
         cashReceived.disabled = true;
-        cashReceived.placeholder = (paymentMethod.value === 'credit') ? 'المبلغ المدفوع (آجل)' : 'غير قابل للإدخال لهذه الطريقة';
+        cashReceived.placeholder = (paymentMethod.value === 'credit') ? (__currentLang.cashReceivedCredit || 'المبلغ المدفوع (آجل)') : (__currentLang.cashReceivedLocked || 'غير قابل للإدخال لهذه الطريقة');
       } else {
         cashReceived.disabled = false;
-        cashReceived.placeholder = 'المبلغ المدفوع';
+        cashReceived.placeholder = (__currentLang.cashReceivedDefault || 'المبلغ المدفوع');
       }
     }
   }catch(_){ /* ignore */ }
@@ -3148,15 +3259,15 @@ async function populateCategories(preFetchedRes = null){
           // Toggle input behavior based on payment method
           if(paymentMethod.value === 'mixed'){
             cashReceived.disabled = false;
-            cashReceived.placeholder = 'المبلغ النقدي (مختلط)';
+            cashReceived.placeholder = (__currentLang.cashReceivedMixed || 'المبلغ النقدي (مختلط)');
           } else if(paymentMethod.value === 'credit' || paymentMethod.value === 'card' || paymentMethod.value === 'tamara' || paymentMethod.value === 'tabby'){
             // For credit/network/Tamara/Tabby: lock the field
             cashReceived.value = '';
             cashReceived.disabled = true;
-            cashReceived.placeholder = (paymentMethod.value === 'credit') ? 'المبلغ المدفوع (آجل)' : 'غير قابل للإدخال لهذه الطريقة';
+            cashReceived.placeholder = (paymentMethod.value === 'credit') ? (__currentLang.cashReceivedCredit || 'المبلغ المدفوع (آجل)') : (__currentLang.cashReceivedLocked || 'غير قابل للإدخال لهذه الطريقة');
           } else {
             cashReceived.disabled = false;
-            cashReceived.placeholder = 'المبلغ المدفوع';
+            cashReceived.placeholder = (__currentLang.cashReceivedDefault || 'المبلغ المدفوع');
           }
         }
         if(paymentMethod.value !== 'mixed'){

@@ -31,10 +31,10 @@
       }
 
       .card-featured::before {
-        content: 'إضافة منتج جديد';
+        content: attr(data-featured-label);
         position: absolute;
         top: -12px;
-        right: 20px;
+        inset-inline-start: 20px;
         background: linear-gradient(135deg, #f59e0b, #f97316);
         color: white;
         padding: 4px 16px;
@@ -82,7 +82,7 @@
             </div>
             <div>
               <h1 class="text-2xl font-black text-gray-800 brand-title">الشاشة الرئيسية</h1>
-              <p class="text-sm text-gray-500 font-semibold">نظام إدارة المطاعم</p>
+              <p class="text-sm text-gray-500 font-semibold brand-subtitle">نظام إدارة المطاعم</p>
             </div>
           </div>
 
@@ -175,7 +175,7 @@
           </div>
         </div>
 
-        <div id="cardProducts" class="card-hover-effect card-featured bg-white rounded-2xl shadow-2xl p-8 cursor-pointer hover:shadow-3xl">
+        <div id="cardProducts" class="card-hover-effect card-featured bg-white rounded-2xl shadow-2xl p-8 cursor-pointer hover:shadow-3xl" data-featured-label="إضافة منتج جديد">
           <div class="flex flex-col items-center text-center justify-center">
             <div class="card-icon w-24 h-24 rounded-3xl flex items-center justify-center shadow-2xl mb-5" style="background: linear-gradient(135deg, #f59e0b, #f97316);">
               <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

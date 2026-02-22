@@ -341,7 +341,7 @@ async function getPool() {
           -- reports
           ('reports.view_daily','تقرير يومي'),
           ('reports.view_period','تقرير فترة'),
-          ('reports.view_all_invoices','كل الفواتير'),
+          ('reports.view_all_invoices','جميع الفواتير'),
           ('reports.view_purchases','تقرير المشتريات'),
           ('reports.view_customer_invoices','فواتير عميل'),
           ('reports.view_credit_invoices','الفواتير الدائنة'),
@@ -385,7 +385,7 @@ async function getPool() {
           ['customer_pricing.add','إضافة'],['customer_pricing.edit','تعديل'],['customer_pricing.delete','حذف'],
           ['offers.add_offer','إضافة عرض'],['offers.add_global_offer','إضافة عرض عام'],['offers.edit_offer','تعديل عرض'],['offers.toggle_offer','تفعيل/إيقاف عرض'],['offers.delete_offer','حذف عرض'],['offers.add_coupon','إضافة كوبون'],['offers.edit_coupon','تعديل كوبون'],['offers.toggle_coupon','تفعيل/إيقاف كوبون'],['offers.delete_coupon','حذف كوبون'],
           ['drivers.add','إضافة'],['drivers.edit','حفظ'],['drivers.toggle','تنشيط/إيقاف'],['drivers.delete','حذف'],
-          ['reports.view_daily','تقرير يومي'],['reports.view_period','تقرير فترة'],['reports.view_all_invoices','كل الفواتير'],['reports.view_purchases','تقرير المشتريات'],['reports.view_customer_invoices','فواتير عميل'],['reports.view_credit_invoices','الفواتير الدائنة'],['reports.view_unpaid_invoices','فواتير غير مدفوعة'],
+          ['reports.view_daily','تقرير يومي'],['reports.view_period','تقرير فترة'],['reports.view_all_invoices','جميع الفواتير'],['reports.view_purchases','تقرير المشتريات'],['reports.view_customer_invoices','فواتير عميل'],['reports.view_credit_invoices','الفواتير الدائنة'],['reports.view_unpaid_invoices','فواتير غير مدفوعة'],
           ['payments.settle_full','سداد كامل'],['payments.view_invoice','عرض الفاتورة'],
           ['credit_notes.view','عرض الإشعار'],['credit_notes.view_base','عرض الفاتورة'],
           ['permissions.manage','إدارة الصلاحيات']

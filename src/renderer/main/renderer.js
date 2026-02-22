@@ -3,14 +3,41 @@
 // Language state
 const langSelect = document.getElementById('langSelect') || document.getElementById('appLangSelect');
 const __langKey = 'app_lang';
+
+const map = [
+  ['cardCreditNotes', 'credit_h', 'credit_p'],
+  ['cardInvoices', 'invoices_h', 'invoices_p'],
+  ['cardCustomers', 'customers_h', 'customers_p'],
+  ['cardNewInvoice', 'newinv_h', 'newinv_p'],
+  ['cardRooms', 'rooms_h', 'rooms_p'],
+  ['cardProducts', 'products_h', 'products_p'],
+  ['cardPayments', 'pay_h', 'pay_p'],
+  ['cardUsers', 'users_h', 'users_p'],
+  ['cardPermissions', 'perms_h', 'perms_p'],
+  ['cardTypes', 'types_h', 'types_p'],
+  ['cardSettings', 'settings_h', 'settings_p'],
+  ['cardOperations', 'ops_h', 'ops_p'],
+  ['cardKitchen', 'kitchen_h', 'kitchen_p'],
+  ['cardPurchases', 'purchases_h', 'purchases_p'],
+  ['cardInventory', 'inventory_h', 'inventory_p'],
+  ['cardCustomerPricing', 'cp_h', 'cp_p'],
+  ['cardOffers', 'offers_h', 'offers_p'],
+  ['cardDrivers', 'drivers_h', 'drivers_p'],
+  ['cardReports', 'reports_h', 'reports_p'],
+  ['cardZatca', 'zatca_h', 'zatca_p'],
+  ['cardWhatsApp', 'whatsapp_h', 'whatsapp_p'],
+];
+
 function __applyLang(lang, skipNotify = false){
   // Normalize locale variants like ar-SA/en-US to base codes
   const base = (typeof lang==='string' ? lang.split('-')[0].toLowerCase() : 'ar');
   const isAr = (base==='ar');
   const t = {
-    brand: isAr ? 'الرئيسية' : 'Home',
-    logout: isAr ? 'تسجيل الخروج' : 'Logout',
+    brand: isAr ? 'الشاشة الرئيسية' : 'Home',
+    subtitle: isAr ? 'نظام إدارة المطاعم' : 'Restaurant Management System',
+    logout: isAr ? 'تسجيل الخروج' : 'Log out',
     pos_btn: isAr ? 'نقطة البيع' : 'POS',
+    featured_label: isAr ? 'إضافة منتج جديد' : 'Add New Product',
     // cards
     users_h: isAr ? 'المستخدمون' : 'Users', users_p: isAr ? 'إدارة مستخدمي النظام والأدوار والحالة' : 'Manage users, roles and status',
     perms_h: isAr ? 'الصلاحيات' : 'Permissions', perms_p: isAr ? 'تحديد صلاحيات المستخدمين' : 'Manage user permissions',
@@ -31,21 +58,27 @@ function __applyLang(lang, skipNotify = false){
     offers_h: isAr ? 'العروض والكوبونات' : 'Offers & Coupons', offers_p: isAr ? 'عروض على الأصناف وكوبونات خصم' : 'Items offers and coupons',
     drivers_h: isAr ? 'السائقون' : 'Drivers', drivers_p: isAr ? 'تسجيل وإدارة السائقين' : 'Register and manage drivers',
     reports_h: isAr ? 'التقارير' : 'Reports', reports_p: isAr ? 'عرض تقارير المبيعات لاحقًا' : 'View sales reports',
-    zatca_h: isAr ? 'الربط - المرحلة الثانية' : 'Integration - Phase 2', zatca_p: isAr ? 'إعداد وإرسال الفواتير إلكترونيًا (ZATCA)' : 'Configure and submit e-invoices (ZATCA)',
+    zatca_h: isAr ? 'الفاتورة الإلكترونية' : 'E-Invoice (ZATCA)', zatca_p: isAr ? 'إعداد وإرسال الفواتير إلكترونيًا (ZATCA)' : 'Configure and submit e-invoices (ZATCA)',
     whatsapp_h: isAr ? 'إدارة WhatsApp' : 'WhatsApp Management', whatsapp_p: isAr ? 'ربط وإرسال الفواتير عبر واتساب' : 'Connect and send invoices via WhatsApp',
-    footer: isAr ? 'نظام الرابط' : 'Al-Rabit System',
+    footer: isAr ? 'نظام الرابط - إدارة المطاعم' : 'Al-Rabit System - Restaurant Management',
   };
   // html attrs
   document.documentElement.lang = isAr ? 'ar' : 'en';
   document.documentElement.dir = isAr ? 'rtl' : 'ltr';
-  // header
-  const brandSpan = document.querySelector('.brand span'); if(brandSpan) brandSpan.textContent = t.brand;
-  const logoutBtn = document.getElementById('logoutBtn'); if(logoutBtn) logoutBtn.textContent = (isAr ? 'تسجيل الخروج' : 'Log out');
+  // page title
+  document.title = isAr ? 'الرئيسية - POS SA' : 'Home - POS SA';
+  // header brand title
+  const brandTitle = document.querySelector('.brand-title'); if(brandTitle) brandTitle.textContent = t.brand;
+  const brandSubtitle = document.querySelector('.brand-subtitle'); if(brandSubtitle) brandSubtitle.textContent = t.subtitle;
+  const logoutBtn = document.getElementById('logoutBtn'); if(logoutBtn) logoutBtn.textContent = t.logout;
   const posBtn = document.getElementById('posBtn');
   if(posBtn){
     const posSpan = posBtn.querySelector('span:first-of-type');
     if(posSpan) posSpan.textContent = t.pos_btn;
   }
+  // featured card badge label
+  const featuredCard = document.getElementById('cardProducts');
+  if(featuredCard) featuredCard.setAttribute('data-featured-label', t.featured_label);
   // cards text
   map.forEach(([id, hKey, pKey]) => {
     const el = document.getElementById(id); if(!el) return;

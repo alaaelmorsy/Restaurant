@@ -535,7 +535,7 @@
             // الصف الأساسي للبند
             const tr = document.createElement('tr');
             tr.className = 'item-row';
-            const opCell = it.operation_name ? it.operation_name : '';
+            const opCell = it.operation_name ? (it.operation_name + (it.operation_name_en ? `<div style="font-size:12px; color:#64748b; direction:ltr; text-align:right; font-weight:500; margin:0; padding:0; line-height:1.2;">${it.operation_name_en}</div>` : '')) : '';
             // في إشعار الدائن: اعرض الأسعار، الكميات، والإجماليات كقيم موجبة
             const priceVal = Number(it.price||0);
             const lineVal = Number(it.line_total||0);
@@ -543,7 +543,7 @@
             const dispPrice = isCredit ? Math.abs(priceVal) : priceVal;
             const dispLine = isCredit ? Math.abs(lineVal) : lineVal;
             const dispQty = isCredit ? Math.abs(qtyVal) : qtyVal;
-            tr.innerHTML = `<td>${it.name}</td><td>${opCell}</td><td>${fmt(dispPrice)}</td><td>${dispQty}</td><td>${fmt(dispLine)}</td>`;
+            tr.innerHTML = `<td>${it.name}${it.name_en ? `<div style="font-size:10px; color:#64748b; direction:ltr; text-align:right; font-weight:500;">${it.name_en}</div>` : ''}</td><td>${opCell}</td><td>${fmt(dispPrice)}</td><td>${dispQty}</td><td>${fmt(dispLine)}</td>`;
             tbody.appendChild(tr);
 
             // صف للوصف في السطر التالي يغطي كامل عرض الجدول
