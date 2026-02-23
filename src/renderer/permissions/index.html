@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>إدارة الصلاحيات - نظام الرابط</title>
+    <title id="pageTitle">إدارة الصلاحيات - نظام الرابط</title>
     <style>
       @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-ExtraLight.ttf') format('truetype'); font-weight: 200; font-display: swap; }
       @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Light.ttf') format('truetype'); font-weight: 300; font-display: swap; }
@@ -496,12 +496,12 @@
         <div class="header-brand">
           <div class="header-logo">🔐</div>
           <div>
-            <div class="header-title">إدارة الصلاحيات</div>
-            <div class="header-subtitle">تحكم في صلاحيات المستخدمين</div>
+            <div id="headerTitle" class="header-title">إدارة الصلاحيات</div>
+            <div id="headerSubtitle" class="header-subtitle">تحكم في صلاحيات المستخدمين</div>
           </div>
         </div>
         <nav class="header-nav">
-          <button id="backBtn" class="btn">⬅ عودة</button>
+          <button id="backBtn" class="btn"><span id="backBtnTxt">⬅ عودة</span></button>
         </nav>
       </div>
     </div>
@@ -510,7 +510,7 @@
       <div class="card">
         <div class="card-body">
           <div class="user-selector">
-            <label>👤 اختر المستخدم:</label>
+            <label id="userSelectLabel">👤 اختر المستخدم:</label>
             <select id="userSelect"></select>
             <span id="status"></span>
           </div>
@@ -518,9 +518,9 @@
           <div id="permsWrap">
             <div id="permsGrid"></div>
             <div class="actions">
-              <button id="selectAllBtn" class="btn">✅ تحديد الكل</button>
-              <button id="clearAllBtn" class="btn">❌ إلغاء الكل</button>
-              <button id="saveBtn" class="btn">💾 حفظ الصلاحيات</button>
+              <button id="selectAllBtn" class="btn"><span id="selectAllTxt">✅ تحديد الكل</span></button>
+              <button id="clearAllBtn" class="btn"><span id="clearAllTxt">❌ إلغاء الكل</span></button>
+              <button id="saveBtn" class="btn"><span id="saveBtnTxt">💾 حفظ الصلاحيات</span></button>
             </div>
           </div>
         </div>
