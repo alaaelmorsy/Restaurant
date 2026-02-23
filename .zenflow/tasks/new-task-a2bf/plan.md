@@ -20,7 +20,7 @@ If you are blocked and need user clarification, mark the current step with `[!]`
 
 ## Workflow Steps
 
-### [ ] Step: Technical Specification
+### [x] Step: Technical Specification
 <!-- chat-id: f5d1c839-960d-4cd8-b8bf-8a2f2562caa0 -->
 
 Assess the task's difficulty, as underestimating it leads to poor outcomes.
