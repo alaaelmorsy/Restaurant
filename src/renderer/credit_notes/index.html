@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>الفواتير الدائنة - الرابط</title>
+    <title id="pageTitle">الفواتير الدائنة - الرابط</title>
     <link rel="stylesheet" href="../../../assets/css/tailwind.min.css">
     <style>
       @font-face{
@@ -41,8 +41,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
           </div>
-          <h1 class="text-xl font-extrabold text-slate-800">الفواتير الدائنة</h1>
-          <span class="hidden lg:inline text-sm text-slate-500 font-medium">عرض الإشعارات الدائنة منفصلة</span>
+          <h1 id="headerTitle" class="text-xl font-extrabold text-slate-800">الفواتير الدائنة</h1>
+          <span id="headerSubtitle" class="hidden lg:inline text-sm text-slate-500 font-medium">عرض الإشعارات الدائنة منفصلة</span>
         </div>
         <nav></nav>
       </div>
@@ -52,28 +52,28 @@
       <!-- Search Filters -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-4">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
-          <input id="q" placeholder="🔍 بحث برقم الإشعار/الفاتورة أو العميل" 
+          <input id="q" placeholder="🔍 بحث برقم الإشعار/الفاتورة أو العميل"
                  class="px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm font-semibold text-slate-700 placeholder-slate-400" />
-          
-          <input id="q2" placeholder="👤 بحث بالهاتف/الضريبي/اسم العميل" 
+
+          <input id="q2" placeholder="👤 بحث بالهاتف/الضريبي/اسم العميل"
                  class="px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm font-semibold text-slate-700 placeholder-slate-400" />
-          
+
           <div class="flex items-center gap-2">
-            <label class="text-sm font-bold text-slate-600 whitespace-nowrap">من:</label>
-            <input id="dateFrom" type="datetime-local" 
+            <label id="labelDateFrom" class="text-sm font-bold text-slate-600 whitespace-nowrap">من:</label>
+            <input id="dateFrom" type="datetime-local"
                    class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm font-semibold" />
           </div>
-          
+
           <div class="flex items-center gap-2">
-            <label class="text-sm font-bold text-slate-600 whitespace-nowrap">إلى:</label>
-            <input id="dateTo" type="datetime-local" 
+            <label id="labelDateTo" class="text-sm font-bold text-slate-600 whitespace-nowrap">إلى:</label>
+            <input id="dateTo" type="datetime-local"
                    class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm font-semibold" />
           </div>
-          
+
           <button id="applyBtn" title="تطبيق الفلترة بالتاريخ"
                   class="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-lg font-bold text-sm shadow-md flex items-center justify-center gap-2">
             <span>🔄</span>
-            <span>عرض</span>
+            <span id="applyBtnTxt">عرض</span>
           </button>
         </div>
       </div>
@@ -84,13 +84,13 @@
       <!-- Controls Bar -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
         <div class="flex items-center gap-3 bg-white px-4 py-2.5 rounded-lg border border-slate-200 shadow-sm">
-          <span class="text-slate-700 font-bold text-sm">📊 عدد الصفوف:</span>
-          <select id="pageSize" 
+          <span id="labelPageSize" class="text-slate-700 font-bold text-sm">📊 عدد الصفوف:</span>
+          <select id="pageSize"
                   class="px-3 py-1.5 border border-slate-300 rounded-lg bg-white text-sm font-bold focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
             <option value="20" selected>20</option>
             <option value="50">50</option>
             <option value="100">100</option>
-            <option value="0">الكل</option>
+            <option id="optAll" value="0">الكل</option>
           </select>
         </div>
         <div id="pagerTop" class="flex items-center gap-2"></div>
@@ -103,14 +103,14 @@
             <thead class="bg-gradient-to-r from-orange-50 to-red-50 border-b border-slate-200">
               <tr>
                 <th class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">#</th>
-                <th class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">رقم الإشعار</th>
-                <th class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">الفاتورة الأساسية</th>
-                <th class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">العميل</th>
-                <th class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">الهاتف</th>
-                <th class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">الإجمالي</th>
-                <th class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">التاريخ</th>
+                <th id="thNoteNo" class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">رقم الإشعار</th>
+                <th id="thBaseInv" class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">الفاتورة الأساسية</th>
+                <th id="thCustomer" class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">العميل</th>
+                <th id="thPhone" class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">الهاتف</th>
+                <th id="thTotal" class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">الإجمالي</th>
+                <th id="thDate" class="px-4 py-3.5 text-right text-xs font-extrabold text-orange-700 uppercase tracking-wide">التاريخ</th>
                 <th id="thZatcaStatus" class="px-4 py-3.5 text-center text-xs font-extrabold text-orange-700 uppercase tracking-wide">حالة الهيئة</th>
-                <th class="px-4 py-3.5 text-center text-xs font-extrabold text-orange-700 uppercase tracking-wide">إجراءات</th>
+                <th id="thActions" class="px-4 py-3.5 text-center text-xs font-extrabold text-orange-700 uppercase tracking-wide">إجراءات</th>
               </tr>
             </thead>
             <tbody id="tbody" class="divide-y divide-slate-100"></tbody>
@@ -128,9 +128,9 @@
         <div class="px-5 py-4 bg-gradient-to-r from-orange-500 to-red-600 text-white flex justify-between items-center">
           <div class="text-base font-black flex items-center gap-2">
             <span>📋</span>
-            <span>تفاصيل رد هيئة الزكاة</span>
+            <span id="zatcaModalTitle">تفاصيل رد هيئة الزكاة</span>
           </div>
-          <button id="zatcaClose" class="px-4 py-2 bg-white text-orange-600 rounded-lg font-bold hover:bg-slate-50 text-sm shadow-md">إغلاق</button>
+          <button id="zatcaClose" class="px-4 py-2 bg-white text-orange-600 rounded-lg font-bold hover:bg-slate-50 text-sm shadow-md"><span id="zatcaCloseTxt">إغلاق</span></button>
         </div>
         <pre id="zatcaContent" class="m-0 p-5 overflow-auto max-h-[70vh] text-xs font-mono bg-slate-50" style="direction:ltr; text-align:left; white-space:pre-wrap;"></pre>
       </div>
