@@ -34,7 +34,7 @@ function __applyLang(lang){
     tobaccoSettings: isAr ? 'إعدادات رسوم التبغ' : 'Tobacco Fee Settings',
     tobaccoPercent: isAr ? 'نسبة رسوم التبغ (%)' : 'Tobacco Fee (%)',
     tobaccoMinFee: isAr ? 'الحد الأدنى لرسوم التبغ' : 'Min. Tobacco Fee',
-    currencySettings: isAr ? 'إعدادات العملة' : 'Currency Settings',
+    currencySettings: isAr ? 'شاشة العرض والعملة' : 'Display and Currency',
     currencyCode: isAr ? 'رمز العملة' : 'Currency Code',
     currencySymbol: isAr ? 'رمز العملة' : 'Currency Symbol',
     symbolPosition: isAr ? 'موقع رمز العملة' : 'Symbol Position',
@@ -383,7 +383,7 @@ function __applyLang(lang){
     const txt = el.textContent.trim();
     if(txt === 'البيانات العامة' || txt === 'General Data') el.textContent = t.secGeneral;
     else if(txt === 'الضرائب' || txt === 'Taxes') el.textContent = t.secTax;
-    else if(txt === 'إعدادات العملة' || txt === 'Currency Settings') el.textContent = t.currencySettings;
+    else if(txt === 'شاشة العرض والعملة' || txt === 'Display and Currency' || txt === 'إعدادات العملة' || txt === 'Currency Settings') el.textContent = t.currencySettings;
     else if((txt === 'طرق الدفع' || txt === 'Payment Methods')) el.textContent = t.secPayment;
     else if(txt === 'إعدادات الطباعة' || txt === 'Print Settings') el.textContent = t.printSettings;
     else if(txt === 'عمليات النظام' || txt === 'System Operations') el.textContent = t.secOps;
@@ -546,6 +546,7 @@ const fHideProductImages = document.getElementById('f_hide_product_images');
 const fCartSeparateDup = document.getElementById('f_cart_separate_duplicate_lines');
 const fHideItemDescription = document.getElementById('f_hide_item_description');
 const fClosingHour = document.getElementById('f_closing_hour');
+if(fClosingHour) fClosingHour.addEventListener('click', () => fClosingHour.showPicker?.());
 // WhatsApp auto-send checkbox
 const fWhatsAuto = document.getElementById('f_whatsapp_auto');
 const fZatcaEnabled = document.getElementById('f_zatca_enabled');
@@ -734,7 +735,7 @@ async function loadSettings(){
   fAllowNegativeInventory.checked = !!s.allow_negative_inventory;
   if (fHideProductImages) fHideProductImages.checked = !!s.hide_product_images;
   if (fHideItemDescription) fHideItemDescription.checked = !!s.hide_item_description;
-  if (fClosingHour) fClosingHour.value = s.closing_hour || '';
+  if (fClosingHour) fClosingHour.value = s.closing_hour || '00:00';
   // Low stock threshold
   try{
     const fLow = document.getElementById('f_low_stock_threshold');
@@ -1436,11 +1437,11 @@ async function generateMenuQR(){
   try{
     const url = (fMenuUrl?.value || '').trim();
     if(!url){
-      alert(__currentLang.qrEnterUrl || 'الرجاء إدخال رابط المنيو');
+      showQRNotification(__currentLang.qrEnterUrl || 'الرجاء إدخال رابط المنيو', 'error');
       return;
     }
     if(!url.startsWith('http://') && !url.startsWith('https://')){
-      alert(__currentLang.qrInvalidUrl || 'الرجاء إدخال رابط صحيح يبدأ بـ http:// أو https://');
+      showQRNotification(__currentLang.qrInvalidUrl || 'الرجاء إدخال رابط صحيح يبدأ بـ http:// أو https://', 'error');
       return;
     }
     const result = await window.api.invoke('qr:to_data_url', { 
@@ -1463,7 +1464,7 @@ async function generateMenuQR(){
     img.src = result.dataUrl;
   }catch(e){
     console.error(e);
-    alert((__currentLang.qrGenError || 'فشل توليد QR Code') + ': ' + e.message);
+    showQRNotification((__currentLang.qrGenError || 'فشل توليد QR Code') + ': ' + e.message, 'error');
   }
 }
 

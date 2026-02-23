@@ -1891,11 +1891,11 @@ function renderCatalogCards(items, options = {}){
 
   chunk.forEach(p => {
     const card = document.createElement('div');
-    card.className = 'p-card';
-    card.dataset.pid = String(p.id);
-    let imgTag = '';
     const hasImage = !!p.image_path;
     const hideImages = !!settings.hide_product_images;
+    card.className = hideImages ? 'p-card no-img' : 'p-card';
+    card.dataset.pid = String(p.id);
+    let imgTag = '';
     
     // Always create img tag if not hidden, but with empty src or placeholder
     if(!hideImages){
