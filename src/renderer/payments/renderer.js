@@ -1,4 +1,219 @@
 // Payments screen: list credit invoices and settle fully
+
+// ── Language support ──────────────────────────────────────────────────────────
+const __langKey = 'app_lang';
+let __lang = 'ar';
+
+const __T = {
+  ar: {
+    pageTitle: 'دفع الفاتورة الآجلة',
+    headerTitleLg: 'دفع الفاتورة الآجلة',
+    headerTitleSm: 'دفع آجل',
+    btnBackLg: 'العودة للرئيسية',
+    btnBackSm: 'رئيسية',
+    searchTitle: 'البحث والتصفية',
+    btnSearch: 'بحث',
+    btnClear: 'مسح',
+    labelInvNo: 'رقم الفاتورة',
+    placeholderInvNo: 'رقم الفاتورة...',
+    labelCustomerSearch: 'بحث بالعميل',
+    placeholderCustomer: 'جوال، اسم، أو رقم ضريبي...',
+    labelDateFrom: 'من',
+    labelDateTo: 'إلى',
+    labelPageSize: 'عدد الصفوف:',
+    thInvNo: '🧾 رقم الفاتورة',
+    thCustomer: '👤 العميل',
+    thPhone: '📱 الجوال',
+    thTotal: '💰 الإجمالي',
+    thDate: '📅 التاريخ',
+    thStatus: '🏷️ الحالة',
+    thActions: '⚡ الإجراءات',
+    dlgTitle: 'سداد كامل للفاتورة',
+    dlgLabelInvNo: 'رقم الفاتورة',
+    dlgLabelPayMethod: 'طريقة السداد',
+    optCash: '💵 كاش',
+    optCard: '💳 شبكة',
+    optTamara: '🛍️ تمارا',
+    optTabby: '📱 تابي',
+    dlgLabelCashAmt: 'المبلغ المستلم',
+    placeholderCash: 'اتركه فارغ = إجمالي الفاتورة',
+    dlgCancel: 'إلغاء',
+    dlgOk: 'سداد وطباعة',
+    pagerFirst: 'الأولى',
+    pagerPrev: 'السابقة',
+    pagerNext: 'التالية',
+    pagerLast: 'الأخيرة',
+    pagerFirstTitle: 'الانتقال إلى الصفحة الأولى',
+    pagerPrevTitle: 'الانتقال إلى الصفحة السابقة',
+    pagerNextTitle: 'الانتقال إلى الصفحة التالية',
+    pagerLastTitle: 'الانتقال إلى الصفحة الأخيرة',
+    pagerLabel: (page, pages, total) => `صفحة ${page} من ${pages} (${total.toLocaleString('ar')} فاتورة)`,
+    notSpecified: 'غير محدد',
+    statusDeferred: 'آجل - غير مدفوعة',
+    btnSettle: '💳 سداد كامل',
+    btnView: '👁️ عرض',
+    emptyState: '<div class="text-5xl mb-3 opacity-50">💰</div><div class="font-bold text-lg">لا توجد فواتير آجلة حالياً</div><div class="text-sm mt-2 opacity-70">جميع الفواتير مدفوعة 🎉</div>',
+    errLoad: '<div class="text-5xl mb-3">❌</div><div class="font-bold text-lg">تعذر تحميل فواتير الآجل</div><div class="text-sm mt-2 opacity-70">تحقق من اتصال الإنترنت وحاول مرة أخرى</div>',
+    errUnexpected: '<div class="text-5xl mb-3">❌</div><div class="font-bold text-lg">حدث خطأ غير متوقع</div>',
+    toastWelcome: 'مرحباً بك في شاشة دفع الفواتير الآجلة',
+    toastCancelSettle: 'تم إلغاء عملية السداد',
+    toastNoPermSettle: 'ليس لديك صلاحية سداد الفواتير',
+    toastNoPermView: 'ليس لديك صلاحية عرض الفواتير',
+    toastInvoiceOpened: 'تم فتح الفاتورة في نافذة جديدة',
+    toastPreparingSettle: (no) => `جاري تحضير سداد الفاتورة #${no}`,
+    toastCashHint: 'يمكنك تحديد المبلغ المستلم أو تركه فارغاً للمبلغ الكامل',
+    toastMethodSelected: (name) => `تم اختيار طريقة الدفع: ${name}`,
+    methodNames: { card: 'شبكة', tamara: 'تمارا', tabby: 'تابي' },
+    toastInvalidAmount: 'قيمة غير صحيحة للمبلغ',
+    toastAmountLow: (total) => `لا يمكن سداد مبلغ أقل من قيمة الفاتورة (${total.toFixed(2)})`,
+    toastSettleFail: (err) => err || 'تعذر تسوية الفاتورة',
+    toastSettleSuccess: (no) => `تم سداد الفاتورة #${no} بنجاح وإرسالها للطباعة`,
+    toastSettleSuccessNoPrint: (no) => `تم سداد الفاتورة #${no} بنجاح`,
+    toastLoadFail: 'فشل في تحميل البيانات',
+    toastUnexpected: 'حدث خطأ غير متوقع',
+    toastFiltersCleared: 'تم مسح المرشحات',
+    dlgOkDone: '✅ تم السداد بنجاح!',
+  },
+  en: {
+    pageTitle: 'Pay Deferred Invoice',
+    headerTitleLg: 'Pay Deferred Invoice',
+    headerTitleSm: 'Deferred Pay',
+    btnBackLg: 'Back to Home',
+    btnBackSm: 'Home',
+    searchTitle: 'Search & Filter',
+    btnSearch: 'Search',
+    btnClear: 'Clear',
+    labelInvNo: 'Invoice No.',
+    placeholderInvNo: 'Invoice number...',
+    labelCustomerSearch: 'Search by Customer',
+    placeholderCustomer: 'Phone, name, or tax number...',
+    labelDateFrom: 'From',
+    labelDateTo: 'To',
+    labelPageSize: 'Rows per page:',
+    thInvNo: '🧾 Invoice No.',
+    thCustomer: '👤 Customer',
+    thPhone: '📱 Phone',
+    thTotal: '💰 Total',
+    thDate: '📅 Date',
+    thStatus: '🏷️ Status',
+    thActions: '⚡ Actions',
+    dlgTitle: 'Full Invoice Settlement',
+    dlgLabelInvNo: 'Invoice No.',
+    dlgLabelPayMethod: 'Payment Method',
+    optCash: '💵 Cash',
+    optCard: '💳 Card',
+    optTamara: '🛍️ Tamara',
+    optTabby: '📱 Tabby',
+    dlgLabelCashAmt: 'Amount Received',
+    placeholderCash: 'Leave empty = full invoice total',
+    dlgCancel: 'Cancel',
+    dlgOk: 'Settle & Print',
+    pagerFirst: 'First',
+    pagerPrev: 'Prev',
+    pagerNext: 'Next',
+    pagerLast: 'Last',
+    pagerFirstTitle: 'Go to first page',
+    pagerPrevTitle: 'Go to previous page',
+    pagerNextTitle: 'Go to next page',
+    pagerLastTitle: 'Go to last page',
+    pagerLabel: (page, pages, total) => `Page ${page} of ${pages} (${total.toLocaleString('en')} invoices)`,
+    notSpecified: 'N/A',
+    statusDeferred: 'Deferred - Unpaid',
+    btnSettle: '💳 Full Settle',
+    btnView: '👁️ View',
+    emptyState: '<div class="text-5xl mb-3 opacity-50">💰</div><div class="font-bold text-lg">No deferred invoices</div><div class="text-sm mt-2 opacity-70">All invoices are paid 🎉</div>',
+    errLoad: '<div class="text-5xl mb-3">❌</div><div class="font-bold text-lg">Failed to load deferred invoices</div><div class="text-sm mt-2 opacity-70">Check your connection and try again</div>',
+    errUnexpected: '<div class="text-5xl mb-3">❌</div><div class="font-bold text-lg">An unexpected error occurred</div>',
+    toastWelcome: 'Welcome to the Deferred Invoices screen',
+    toastCancelSettle: 'Settlement cancelled',
+    toastNoPermSettle: 'You do not have permission to settle invoices',
+    toastNoPermView: 'You do not have permission to view invoices',
+    toastInvoiceOpened: 'Invoice opened in a new window',
+    toastPreparingSettle: (no) => `Preparing settlement for invoice #${no}`,
+    toastCashHint: 'You can set the received amount or leave it empty for the full total',
+    toastMethodSelected: (name) => `Payment method selected: ${name}`,
+    methodNames: { card: 'Card', tamara: 'Tamara', tabby: 'Tabby' },
+    toastInvalidAmount: 'Invalid amount value',
+    toastAmountLow: (total) => `Cannot settle an amount less than the invoice total (${total.toFixed(2)})`,
+    toastSettleFail: (err) => err || 'Failed to settle invoice',
+    toastSettleSuccess: (no) => `Invoice #${no} settled successfully and sent to print`,
+    toastSettleSuccessNoPrint: (no) => `Invoice #${no} settled successfully`,
+    toastLoadFail: 'Failed to load data',
+    toastUnexpected: 'An unexpected error occurred',
+    toastFiltersCleared: 'Filters cleared',
+    dlgOkDone: '✅ Settled successfully!',
+  }
+};
+
+function t(){ return __T[__lang] || __T['ar']; }
+
+function __applyLang(lang){
+  const base = (typeof lang === 'string' ? lang.split('-')[0].toLowerCase() : 'ar');
+  __lang = (base === 'en') ? 'en' : 'ar';
+  const isAr = __lang === 'ar';
+  const T = t();
+
+  document.documentElement.lang = isAr ? 'ar' : 'en';
+  document.documentElement.dir = isAr ? 'rtl' : 'ltr';
+
+  const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  const setAttr = (id, attr, val) => { const el = document.getElementById(id); if(el) el.setAttribute(attr, val); };
+
+  document.title = T.pageTitle;
+  set('headerTitleLg', T.headerTitleLg);
+  set('headerTitleSm', T.headerTitleSm);
+  set('btnBackLg', T.btnBackLg);
+  set('btnBackSm', T.btnBackSm);
+  set('searchTitle', T.searchTitle);
+  set('btnSearchTxt', T.btnSearch);
+  set('btnClearTxt', T.btnClear);
+  set('labelInvNo', T.labelInvNo);
+  setAttr('q', 'placeholder', T.placeholderInvNo);
+  set('labelCustomerSearch', T.labelCustomerSearch);
+  setAttr('q2', 'placeholder', T.placeholderCustomer);
+  set('labelDateFrom', T.labelDateFrom);
+  set('labelDateTo', T.labelDateTo);
+  set('labelPageSize', T.labelPageSize);
+  set('thInvNo', T.thInvNo);
+  set('thCustomer', T.thCustomer);
+  set('thPhone', T.thPhone);
+  set('thTotal', T.thTotal);
+  set('thDate', T.thDate);
+  set('thStatus', T.thStatus);
+  set('thActions', T.thActions);
+  set('dlgTitle', T.dlgTitle);
+  set('dlgLabelInvNo', T.dlgLabelInvNo);
+  set('dlgLabelPayMethod', T.dlgLabelPayMethod);
+  set('optCash', T.optCash);
+  set('optCard', T.optCard);
+  set('optTamara', T.optTamara);
+  set('optTabby', T.optTabby);
+  set('dlgLabelCashAmt', T.dlgLabelCashAmt);
+  setAttr('cashVal', 'placeholder', T.placeholderCash);
+  set('dlgCancelTxt', T.dlgCancel);
+  set('dlgOkTxt', T.dlgOk);
+
+  try{ localStorage.setItem(__langKey, __lang); }catch(_){ }
+}
+
+(function initLang(){
+  try{
+    const stored = localStorage.getItem(__langKey);
+    if(stored){ __applyLang(stored); }
+  }catch(_){ }
+  (async ()=>{
+    try{
+      const r = await window.api.app_get_locale();
+      const L = (r && r.lang) || 'ar';
+      __applyLang(L);
+    }catch(_){ }
+  })();
+  try{
+    window.api.app_on_locale_changed((L)=>{ __applyLang(L); });
+  }catch(_){ }
+})();
+// ─────────────────────────────────────────────────────────────────────────────
+
 const rows = document.getElementById('rows');
 const qInput = document.getElementById('q');
 const q2Input = document.getElementById('q2');
@@ -19,12 +234,11 @@ const dlgOk = document.getElementById('dlgOk');
 let __settings = { default_print_format: 'thermal' };
 let __currentSale = null;
 let __list = [];
-// Pagination state
 let __payPage = 1;
 let __payPageSize = 50;
 let __payTotal = 0;
-// Permissions
 let __perms = new Set();
+
 async function loadPerms(){
   try{
     const u = JSON.parse(localStorage.getItem('pos_user')||'null');
@@ -37,61 +251,42 @@ function canPay(k){ return __perms.has('payments') && __perms.has(k); }
 function fmt(a){ return Number(a||0).toFixed(2); }
 
 function showDialog(show){
-  if (show) {
-    dlgBackdrop.style.animation = '';
-    dlgBackdrop.style.display = 'flex';
-  } else {
-    dlgBackdrop.style.animation = '';
-    dlgBackdrop.style.display = 'none';
-  }
+  dlgBackdrop.style.animation = '';
+  dlgBackdrop.style.display = show ? 'flex' : 'none';
 }
 
-// Helper function to force close dialog
 function forceCloseDialog() {
-  console.log('Force closing dialog'); // Debug log
   dlgBackdrop.style.animation = '';
   dlgBackdrop.style.display = 'none';
   __currentSale = null;
   cashVal.value = '';
   payMethod.value = 'cash';
-  
-  // Reset all button states
   dlgOk.disabled = false;
   dlgCancel.disabled = false;
-  dlgOk.innerHTML = '<span>✅</span><span>سداد وطباعة</span>';
-  
-  console.log('Dialog force closed'); // Debug log
+  const T = t();
+  dlgOk.innerHTML = `<span>✅</span><span id="dlgOkTxt">${T.dlgOk}</span>`;
 }
 
 async function loadSettings(){ try{ const r = await window.api.settings_get(); if(r && r.ok){ __settings = { ...__settings, ...(r.item||{}) }; } }catch(_){}}
 
-function getPageBtnTitle(action) {
-  switch(action) {
-    case 'first': return 'الانتقال إلى الصفحة الأولى';
-    case 'prev': return 'الانتقال إلى الصفحة السابقة';
-    case 'next': return 'الانتقال إلى الصفحة التالية';
-    case 'last': return 'الانتقال إلى الصفحة الأخيرة';
-    default: return '';
-  }
-}
-
 function renderPayPager(total){
+  const T = t();
   const top = document.getElementById('pagerTop');
   const bottom = document.getElementById('pagerBottom');
-  const pages = (__payPageSize && __payPageSize>0) ? Math.max(1, Math.ceil(total/ __payPageSize)) : 1;
-  const btn = (label, disabled, go)=>`<button class="px-4 py-2.5 bg-slate-700 text-white rounded-lg text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed shadow-md" ${disabled?'disabled':''} data-go="${go}" title="${getPageBtnTitle(go)}">${label}</button>`;
+  const pages = (__payPageSize && __payPageSize>0) ? Math.max(1, Math.ceil(total / __payPageSize)) : 1;
+  const btn = (label, disabled, go, title)=>`<button class="px-4 py-2.5 bg-slate-700 text-white rounded-lg text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed shadow-md" ${disabled?'disabled':''} data-go="${go}" title="${title}">${label}</button>`;
   const html = [
-    btn('الأولى', __payPage<=1, 'first'),
-    btn('السابقة', __payPage<=1, 'prev'),
-    `<span class="px-5 py-2.5 bg-white border-2 border-blue-500 rounded-lg text-slate-800 font-black text-sm shadow-md">صفحة ${__payPage} من ${pages} (${total.toLocaleString('ar')} فاتورة)</span>`,
-    btn('التالية', __payPage>=pages, 'next'),
-    btn('الأخيرة', __payPage>=pages, 'last')
+    btn(T.pagerFirst, __payPage<=1, 'first', T.pagerFirstTitle),
+    btn(T.pagerPrev, __payPage<=1, 'prev', T.pagerPrevTitle),
+    `<span class="px-5 py-2.5 bg-white border-2 border-blue-500 rounded-lg text-slate-800 font-black text-sm shadow-md">${T.pagerLabel(__payPage, pages, total)}</span>`,
+    btn(T.pagerNext, __payPage>=pages, 'next', T.pagerNextTitle),
+    btn(T.pagerLast, __payPage>=pages, 'last', T.pagerLastTitle)
   ].join(' ');
   if(top) top.innerHTML = html; if(bottom) bottom.innerHTML = html;
   const onClick = async (e)=>{
     const b = e.target.closest('button'); if(!b) return;
     const act = b.getAttribute('data-go');
-    const pages = (__payPageSize && __payPageSize>0) ? Math.max(1, Math.ceil(total/ __payPageSize)) : 1;
+    const pages = (__payPageSize && __payPageSize>0) ? Math.max(1, Math.ceil(total / __payPageSize)) : 1;
     if(act==='first') __payPage=1;
     if(act==='prev') __payPage=Math.max(1,__payPage-1);
     if(act==='next') __payPage=Math.min(pages,__payPage+1);
@@ -103,36 +298,37 @@ function renderPayPager(total){
 }
 
 function render(items){
+  const T = t();
   __list = items || [];
   rows.innerHTML = '';
   
   if(!items || !items.length){ 
-    rows.innerHTML = '<tr><td colspan="7" class="px-5 py-12 text-center text-slate-500"><div class="text-5xl mb-3 opacity-50">💰</div><div class="font-bold text-lg">لا توجد فواتير آجلة حالياً</div><div class="text-sm mt-2 opacity-70">جميع الفواتير مدفوعة 🎉</div></td></tr>'; 
+    rows.innerHTML = `<tr><td colspan="7" class="px-5 py-12 text-center text-slate-500">${T.emptyState}</td></tr>`; 
     renderPayPager(0);
     return; 
   }
   
-  items.forEach((s, index) => {
+  items.forEach((s) => {
     const tr = document.createElement('tr');
     tr.className = 'hover:bg-slate-50';
+    const notSpec = `<span class="text-slate-400 italic font-normal">${T.notSpecified}</span>`;
     tr.innerHTML = `
       <td class="px-5 py-4 text-sm text-blue-700 font-black">#${s.invoice_no}</td>
-      <td class="px-5 py-4 text-sm text-slate-800 font-bold">${s.customer_name ? s.customer_name : '<span class="text-slate-400 italic font-normal">غير محدد</span>'}</td>
-      <td class="px-5 py-4 text-sm text-slate-700 font-semibold">${s.customer_phone ? s.customer_phone : '<span class="text-slate-400 italic font-normal">غير محدد</span>'}</td>
+      <td class="px-5 py-4 text-sm text-slate-800 font-bold">${s.customer_name ? s.customer_name : notSpec}</td>
+      <td class="px-5 py-4 text-sm text-slate-700 font-semibold">${s.customer_phone ? s.customer_phone : notSpec}</td>
       <td class="px-5 py-4 text-sm text-green-700 font-black">${fmt(s.grand_total)}</td>
       <td class="px-5 py-4 text-sm text-slate-700 font-semibold">${new Date(s.created_at).toLocaleDateString('en-US')}</td>
-      <td class="px-5 py-4"><span class="inline-block px-3 py-1.5 bg-yellow-100 text-yellow-800 text-xs font-black rounded-full">⏳ آجل - غير مدفوعة</span></td>
+      <td class="px-5 py-4"><span class="inline-block px-3 py-1.5 bg-yellow-100 text-yellow-800 text-xs font-black rounded-full">⏳ ${T.statusDeferred}</span></td>
       <td class="px-5 py-4 text-center">
         <div class="flex items-center justify-center gap-2 flex-wrap">
-          <button data-act="settle" data-id="${s.id}" class="px-3 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg text-xs font-bold shadow-md border border-green-500" title="سداد كامل للفاتورة">💳 سداد كامل</button>
-          <button data-act="view" data-id="${s.id}" class="px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg text-xs font-bold shadow-md border border-blue-500" title="عرض تفاصيل الفاتورة">👁️ عرض</button>
+          <button data-act="settle" data-id="${s.id}" class="px-3 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg text-xs font-bold shadow-md border border-green-500" title="${T.btnSettle}">${T.btnSettle}</button>
+          <button data-act="view" data-id="${s.id}" class="px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg text-xs font-bold shadow-md border border-blue-500" title="${T.btnView}">${T.btnView}</button>
         </div>
       </td>
     `;
     rows.appendChild(tr);
   });
   
-  // Hide unauthorized action buttons per permissions
   try{
     if(!canPay('payments.settle_full')){ 
       rows.querySelectorAll('button[data-act="settle"]').forEach(b=>b.remove()); 
@@ -151,6 +347,7 @@ function render(items){
 }
 
 function onRowsClick(e){
+  const T = t();
   const b = e.target.closest('button'); 
   if(!b) return;
   
@@ -160,37 +357,31 @@ function onRowsClick(e){
   
   if(act==='settle'){
     if(!canPay('payments.settle_full')) {
-      window.__showPaymentToast && window.__showPaymentToast('ليس لديك صلاحية سداد الفواتير', 'warning');
+      window.__showPaymentToast && window.__showPaymentToast(T.toastNoPermSettle, 'warning');
       return;
     }
-    
     const sale = __list.find(x=>Number(x.id)===id);
-    if(sale) {
-      openSettleDialog(sale);
-    }
+    if(sale) openSettleDialog(sale);
   } else if(act==='view'){
     if(!canPay('payments.view_invoice')) {
-      window.__showPaymentToast && window.__showPaymentToast('ليس لديك صلاحية عرض الفواتير', 'warning');
+      window.__showPaymentToast && window.__showPaymentToast(T.toastNoPermView, 'warning');
       return;
     }
-    
-    const page = 'print.html'; // A4 removed
+    const page = 'print.html';
     const sale = __list.find(x=>Number(x.id)===id) || {};
     const method = String(sale.payment_method||'');
     const cash = (method==='cash' && sale.settled_cash != null) ? Number(sale.settled_cash) : 0;
     const params = new URLSearchParams({ id: String(id), preview: '1', ...(method?{pay:method}:{}) , ...(cash?{cash:String(cash)}:{}) });
     const url = `../sales/${page}?${params.toString()}`;
-    const w = 500; const h = 700;
-    
-    window.open(url, 'INVOICE_VIEW', `width=${w},height=${h}`);
-    window.__showPaymentToast && window.__showPaymentToast('تم فتح الفاتورة في نافذة جديدة', 'info');
+    window.open(url, 'INVOICE_VIEW', `width=500,height=700`);
+    window.__showPaymentToast && window.__showPaymentToast(T.toastInvoiceOpened, 'info');
   }
 }
 
-// Maintain a local state so date filters apply only when user presses Search
 const __state = { date_from: null, date_to: null };
 
 async function load(){
+  const T = t();
   try {
     const filters = {
       q: (qInput.value||'').trim() || null,
@@ -204,8 +395,8 @@ async function load(){
     const r = await window.api.sales_list_credit(filters);
     
     if(!r || !r.ok){ 
-      rows.innerHTML = '<tr><td colspan="7" class="px-5 py-12 text-center text-red-600"><div class="text-5xl mb-3">❌</div><div class="font-bold text-lg">تعذر تحميل فواتير الآجل</div><div class="text-sm mt-2 opacity-70">تحقق من اتصال الإنترنت وحاول مرة أخرى</div></td></tr>'; 
-      window.__showPaymentToast && window.__showPaymentToast('فشل في تحميل البيانات', 'error');
+      rows.innerHTML = `<tr><td colspan="7" class="px-5 py-12 text-center text-red-600">${T.errLoad}</td></tr>`; 
+      window.__showPaymentToast && window.__showPaymentToast(T.toastLoadFail, 'error');
       renderPayPager(0);
       return; 
     }
@@ -213,16 +404,17 @@ async function load(){
     __payTotal = r.total || (r.items ? r.items.length : 0);
     render(r.items||[]);
   } catch (error) {
-    rows.innerHTML = '<tr><td colspan="7" class="px-5 py-12 text-center text-red-600"><div class="text-5xl mb-3">❌</div><div class="font-bold text-lg">حدث خطأ غير متوقع</div></td></tr>';
-    window.__showPaymentToast && window.__showPaymentToast('حدث خطأ غير متوقع', 'error');
+    const T2 = t();
+    rows.innerHTML = `<tr><td colspan="7" class="px-5 py-12 text-center text-red-600">${T2.errUnexpected}</td></tr>`;
+    window.__showPaymentToast && window.__showPaymentToast(T2.toastUnexpected, 'error');
     renderPayPager(0);
   }
 }
 
 function openSettleDialog(sale){
+  const T = t();
   __currentSale = sale;
   
-  // Reset dialog state completely
   dlgInvNo.textContent = `#${sale.invoice_no}`;
   payMethod.value = 'cash';
   cashVal.value = '';
@@ -230,27 +422,21 @@ function openSettleDialog(sale){
   rowCash.style.opacity = '1';
   rowCash.style.transform = 'translateY(0)';
   
-  // Reset button states
   dlgOk.disabled = false;
   dlgCancel.disabled = false;
   dlgOk.style.opacity = '1';
-  dlgOk.innerHTML = '<span>✅</span><span>سداد وطباعة</span>';
+  dlgOk.innerHTML = `<span>✅</span><span id="dlgOkTxt">${T.dlgOk}</span>`;
   
-  // Clear any existing animations
-  dlgBackdrop.style.animation = '';
-  
-  // Show dialog instantly
   dlgBackdrop.style.animation = '';
   dlgBackdrop.style.display = 'flex';
   
-  // Focus immediately
   payMethod.focus();
   
-  window.__showPaymentToast && window.__showPaymentToast(`جاري تحضير سداد الفاتورة #${sale.invoice_no}`, 'info');
+  window.__showPaymentToast && window.__showPaymentToast(T.toastPreparingSettle(sale.invoice_no), 'info');
 }
 
 payMethod.addEventListener('change', ()=>{
-  // No transitions or delays
+  const T = t();
   rowCash.style.transition = '';
   
   if(payMethod.value === 'cash'){
@@ -258,33 +444,28 @@ payMethod.addEventListener('change', ()=>{
     rowCash.style.opacity = '';
     rowCash.style.transform = '';
     cashVal.focus();
-    window.__showPaymentToast && window.__showPaymentToast('يمكنك تحديد المبلغ المستلم أو تركه فارغاً للمبلغ الكامل', 'info');
+    window.__showPaymentToast && window.__showPaymentToast(T.toastCashHint, 'info');
   } else {
     rowCash.style.display = 'none';
     rowCash.style.opacity = '';
     rowCash.style.transform = '';
     cashVal.value = '';
-    const methodNames = { card: 'شبكة', tamara: 'تمارا', tabby: 'تابي' };
-    window.__showPaymentToast && window.__showPaymentToast(`تم اختيار طريقة الدفع: ${methodNames[payMethod.value]}`, 'info');
+    const name = T.methodNames[payMethod.value] || payMethod.value;
+    window.__showPaymentToast && window.__showPaymentToast(T.toastMethodSelected(name), 'info');
   }
 });
 
 dlgCancel.addEventListener('click', (event)=>{ 
-  console.log('Cancel button clicked'); // Debug log
-  
-  // Prevent any other click events
   event.preventDefault();
   event.stopPropagation();
-  
-  // Close immediately without animations
   forceCloseDialog();
-  window.__showPaymentToast && window.__showPaymentToast('تم إلغاء عملية السداد', 'info');
+  window.__showPaymentToast && window.__showPaymentToast(t().toastCancelSettle, 'info');
 });
 
 async function doSettle(){
   if(!__currentSale) return;
+  const T = t();
   
-  // Add loading state
   dlgOk.disabled = true;
   dlgCancel.disabled = true;
   dlgOk.style.opacity = '0.6';
@@ -298,11 +479,11 @@ async function doSettle(){
       const total = Number(__currentSale.grand_total||0);
       cash = v==='' ? total : Number(v);
       if(isNaN(cash) || cash < 0){ 
-        window.__showPaymentToast && window.__showPaymentToast('قيمة غير صحيحة للمبلغ', 'warning');
+        window.__showPaymentToast && window.__showPaymentToast(T.toastInvalidAmount, 'warning');
         return; 
       }
       if(cash < total){
-        window.__showPaymentToast && window.__showPaymentToast(`لا يمكن سداد مبلغ أقل من قيمة الفاتورة (${total.toFixed(2)})`, 'warning');
+        window.__showPaymentToast && window.__showPaymentToast(T.toastAmountLow(total), 'warning');
         cashVal.focus();
         return;
       }
@@ -311,16 +492,14 @@ async function doSettle(){
     const r = await window.api.sales_settle_full({ sale_id: __currentSale.id, method, cash });
     
     if(!r || !r.ok){ 
-      window.__showPaymentToast && window.__showPaymentToast(r?.error||'تعذر تسوية الفاتورة', 'error');
+      window.__showPaymentToast && window.__showPaymentToast(T.toastSettleFail(r?.error), 'error');
       return; 
     }
     
-    // Update button state briefly (no animations)
-    dlgOk.innerHTML = '✅ تم السداد بنجاح!';
+    dlgOk.innerHTML = T.dlgOkDone;
     
-    // Print immediately
     try{
-      let url = `../sales/print.html?id=${encodeURIComponent(__currentSale.id)}&pay=${encodeURIComponent(method)}&cash=${encodeURIComponent(String(cash))}`; // A4 removed
+      let url = `../sales/print.html?id=${encodeURIComponent(__currentSale.id)}&pay=${encodeURIComponent(method)}&cash=${encodeURIComponent(String(cash))}`;
       try{
         const settingsRes = await window.api.settings_get();
         if(settingsRes && settingsRes.ok && settingsRes.item){
@@ -328,54 +507,47 @@ async function doSettle(){
           if(copies > 1){ url += `&copies=${encodeURIComponent(String(copies))}`; }
         }
       }catch(_){}
-      const w = 500; const h = 700;
-      window.open(url, 'PRINT', `width=${w},height=${h},menubar=no,toolbar=no,location=no,status=no`);
-      window.__showPaymentToast && window.__showPaymentToast(`تم سداد الفاتورة #${__currentSale.invoice_no} بنجاح وإرسالها للطباعة`, 'success');
+      window.open(url, 'PRINT', `width=500,height=700,menubar=no,toolbar=no,location=no,status=no`);
+      window.__showPaymentToast && window.__showPaymentToast(T.toastSettleSuccess(__currentSale.invoice_no), 'success');
     }catch(_){ 
-      window.__showPaymentToast && window.__showPaymentToast(`تم سداد الفاتورة #${__currentSale.invoice_no} بنجاح`, 'success');
+      window.__showPaymentToast && window.__showPaymentToast(T.toastSettleSuccessNoPrint(__currentSale.invoice_no), 'success');
     }
     
-    // Close instantly and reload
     showDialog(false);
     __currentSale = null;
-    load(); // Reload the list
+    load();
     
   } catch (error) {
-    window.__showPaymentToast && window.__showPaymentToast('حدث خطأ غير متوقع', 'error');
+    window.__showPaymentToast && window.__showPaymentToast(t().toastUnexpected, 'error');
   } finally {
-    // Remove loading state immediately
     dlgOk.style.opacity = '1';
     dlgOk.disabled = false;
     dlgCancel.disabled = false;
-    dlgOk.innerHTML = '<span>✅</span><span>سداد وطباعة</span>';
+    const T2 = t();
+    dlgOk.innerHTML = `<span>✅</span><span id="dlgOkTxt">${T2.dlgOk}</span>`;
   }
 }
 
 dlgOk.addEventListener('click', doSettle);
 
-// Close dialog when clicking on backdrop
 dlgBackdrop.addEventListener('click', (event) => {
   if (event.target === dlgBackdrop) {
-    console.log('Backdrop clicked - closing dialog'); // Debug log
     forceCloseDialog();
-    window.__showPaymentToast && window.__showPaymentToast('تم إلغاء عملية السداد', 'info');
+    window.__showPaymentToast && window.__showPaymentToast(t().toastCancelSettle, 'info');
   }
 });
 
-// Close dialog with ESC key
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && dlgBackdrop.style.display === 'flex') {
     event.preventDefault();
-    console.log('ESC pressed - closing dialog'); // Debug log
     forceCloseDialog();
-    window.__showPaymentToast && window.__showPaymentToast('تم إلغاء عملية السداد', 'info');
+    window.__showPaymentToast && window.__showPaymentToast(t().toastCancelSettle, 'info');
   }
 });
 
 btnSearch.addEventListener('click', ()=>{
   __state.date_from = dateFrom.value || null;
   __state.date_to = dateTo.value || null;
-  
   load();
 });
 
@@ -384,16 +556,14 @@ btnClearDates.addEventListener('click', ()=>{
   dateTo.value = '';
   __state.date_from = null;
   __state.date_to = null;
-  
   load();
-  window.__showPaymentToast && window.__showPaymentToast('تم مسح المرشحات', 'info');
+  window.__showPaymentToast && window.__showPaymentToast(t().toastFiltersCleared, 'info');
 });
 
 btnBack.addEventListener('click', ()=>{
   window.location.href = '../main/index.html';
 });
 
-// Page size control
 const pageSizeSel = document.getElementById('pageSize');
 if(pageSizeSel){
   pageSizeSel.addEventListener('change', async ()=>{
@@ -404,16 +574,11 @@ if(pageSizeSel){
   });
 }
 
-// Live filtering with faster debounce on text inputs
 function debounce(fn, delay=150){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), delay); }; }
 const trigger = debounce(()=>{ __payPage = 1; load(); }, 150);
 qInput.addEventListener('input', trigger);
 q2Input.addEventListener('input', trigger);
 
-// Dates no longer auto-trigger load; they apply only when pressing Search
-// Keep listeners minimal to avoid accidental reloads
-
-// ESC clears the active field and reloads immediately
 [qInput, q2Input, dateFrom, dateTo].forEach(el=>{
   el.addEventListener('keydown', (e)=>{
     if(e.key==='Escape'){
@@ -423,15 +588,13 @@ q2Input.addEventListener('input', trigger);
   });
 });
 
-// Double-click on date to clear and reload
 ;[dateFrom, dateTo].forEach(inp=>{
   inp.addEventListener('dblclick', ()=>{ inp.value=''; load(); });
 });
 
 (async function init(){ 
-  // Show welcome message immediately for faster startup
   setTimeout(() => {
-    window.__showPaymentToast && window.__showPaymentToast('مرحباً بك في شاشة دفع الفواتير الآجلة', 'info');
+    window.__showPaymentToast && window.__showPaymentToast(t().toastWelcome, 'info');
   }, 200);
   
   await loadSettings(); 
