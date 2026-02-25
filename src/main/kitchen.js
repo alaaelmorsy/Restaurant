@@ -204,7 +204,7 @@ function registerKitchenIPC(){
     <div class="title">طلب مطبخ</div>
     <div class="meta-list">
       <div class="single-line"><span>رقم الفاتورة: <b>${esc(invNo||'')}</b></span><span>التاريخ: <b>${esc(dt||'')}</b></span></div>
-      <div class="single-line"><span>رقم الأوردر: <b>${orderNo?esc(String(orderNo)):''}</b></span><span>مدخل الفاتورة: <b>${esc(waiterName||'')}</b></span></div>
+      <div class="single-line"><span>رقم الطلب: <b>${orderNo?esc(String(orderNo)):''}</b></span><span>مدخل الفاتورة: <b>${esc(waiterName||'')}</b></span></div>
       ${roomName?`<div class=\"single-line\"><span>الغرفة: <b>${esc(roomName)}</b></span></div>`:''}
     </div>
     <div class="divider"></div>
