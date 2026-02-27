@@ -1020,7 +1020,9 @@ async function loadRange(startStr, endStr){
     const soldItemsTbody = document.getElementById('soldItemsTbody');
     // Align with backend fields from sales:items_summary (qty_total, amount_total) like daily.js
     const soldItemsRows = soldItems.map(item=>{
-      const prodName = item.product_name || item.name || '';
+      const arName = String(item.name_ar || item.product_name || item.name || '').trim();
+      const enName = String(item.name_en || '').trim();
+      const prodName = enName ? `${arName} / ${enName}` : arName;
       const qty = Number(item.qty_total || item.total_quantity || 0);
       const total = Number(item.amount_total || item.total_amount || 0);
       return `<tr><td>${prodName}</td><td>${qty}</td><td>${fmt(total)}</td></tr>`;
@@ -1245,9 +1247,12 @@ async function loadRangeOptimized(startStr, endStr){
     // Update sold items table
     const soldTbody = document.getElementById('soldTbody');
     if(soldTbody){
-      const rows = soldItems.map(item => 
-        `<tr><td>${item.name||''}</td><td>${fmt(item.qty_total)}</td><td>${fmt(item.amount_total)}</td></tr>`
-      );
+      const rows = soldItems.map(item => {
+        const arName = String(item.name_ar || item.name || '').trim();
+        const enName = String(item.name_en || '').trim();
+        const prodName = enName ? `${arName} / ${enName}` : arName;
+        return `<tr><td>${prodName}</td><td>${fmt(item.qty_total)}</td><td>${fmt(item.amount_total)}</td></tr>`;
+      });
       soldTbody.innerHTML = rows.join('');
     }
     

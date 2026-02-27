@@ -1087,10 +1087,17 @@ function registerSalesIPC(){
       try{
         await conn.query(`USE \`${DB_NAME}\``);
         await ensureTables(conn);
-        const sql = `SELECT si.product_id, si.name, SUM(si.qty) AS qty_total, SUM(si.line_total) AS amount_total
-                     FROM sales_items si INNER JOIN sales s ON s.id = si.sale_id
+        const sql = `SELECT si.product_id,
+                            si.name,
+                            COALESCE(NULLIF(TRIM(p.name),''), si.name) AS name_ar,
+                            COALESCE(NULLIF(TRIM(p.name_en),''), '') AS name_en,
+                            SUM(si.qty) AS qty_total,
+                            SUM(si.line_total) AS amount_total
+                     FROM sales_items si
+                     INNER JOIN sales s ON s.id = si.sale_id
+                     LEFT JOIN products p ON p.id = si.product_id
                      ${where}
-                     GROUP BY si.product_id, si.name
+                     GROUP BY si.product_id, si.name, p.name, p.name_en
                      ORDER BY SUM(si.qty) DESC`;
         const [rows] = await conn.query(sql, params);
         return { ok:true, items: rows };
@@ -1144,11 +1151,17 @@ function registerSalesIPC(){
         
         // Get sold items summary
         const itemsSql = `
-          SELECT si.product_id, si.name, SUM(si.qty) AS qty_total, SUM(si.line_total) AS amount_total
+          SELECT si.product_id,
+                 si.name,
+                 COALESCE(NULLIF(TRIM(p.name),''), si.name) AS name_ar,
+                 COALESCE(NULLIF(TRIM(p.name_en),''), '') AS name_en,
+                 SUM(si.qty) AS qty_total,
+                 SUM(si.line_total) AS amount_total
           FROM sales_items si 
           INNER JOIN sales s ON s.id = si.sale_id
+          LEFT JOIN products p ON p.id = si.product_id
           ${where}
-          GROUP BY si.product_id, si.name
+          GROUP BY si.product_id, si.name, p.name, p.name_en
           ORDER BY SUM(si.qty) DESC
         `;
         const [items] = await conn.query(itemsSql, params);

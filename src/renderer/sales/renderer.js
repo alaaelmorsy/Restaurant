@@ -45,6 +45,8 @@ function __applyLang(lang){
     paymentMethod: isAr ? 'طريقة الدفع' : 'Payment Method',
     cashReceived: isAr ? 'المبلغ المدفوع' : 'Cash Received',
     cashReceivedPlaceholder: isAr ? 'المبلغ المدفوع' : 'Amount Received',
+    remainingBeforePrint: isAr ? 'المبلغ المتبقي' : 'Remaining amount',
+    remainingBeforePrintPlaceholder: isAr ? 'المتبقي قبل الطباعة' : 'Remaining before print',
     extraValue: isAr ? 'الإضافى' : 'Extra',
     extraPlaceholder: isAr ? 'قيمة الإضافى' : 'Extra Value',
     discountType: isAr ? 'نوع الخصم' : 'Discount Type',
@@ -121,6 +123,8 @@ function __applyLang(lang){
     // Cash received placeholders
     cashReceivedDefault: isAr ? 'المبلغ المدفوع' : 'Amount paid',
     cashReceivedMixed: isAr ? 'المبلغ النقدي (مختلط)' : 'Cash amount (mixed)',
+    cashReceivedMixedLabel: isAr ? 'المدفوع كاش' : 'Paid Cash',
+    remainingBeforePrintMixedLabel: isAr ? 'المدفوع شبكة' : 'Paid Card',
     cashReceivedCredit: isAr ? 'المبلغ المدفوع (آجل)' : 'Amount paid (credit)',
     cashReceivedLocked: isAr ? 'غير قابل للإدخال لهذه الطريقة' : 'Not applicable for this method',
     // Driver
@@ -279,12 +283,14 @@ function __applyLang(lang){
   const tobaccoFeeLabel = document.querySelector('#tobaccoFeeRow .text-\\[9px\\]');
   if(tobaccoFeeLabel) tobaccoFeeLabel.textContent = t.tobaccoFee;
   
-  // Payment fields labels
+  const pmCurrent = document.getElementById('paymentMethod')?.value;
+  const isMixedCurrent = pmCurrent === 'mixed';
   const fieldLabels = document.querySelectorAll('.field-label');
   fieldLabels.forEach(label => {
     const forAttr = label.getAttribute('for');
     if(forAttr === 'paymentMethod') label.textContent = t.paymentMethod;
-    else if(forAttr === 'cashReceived') label.textContent = t.cashReceived;
+    else if(forAttr === 'cashReceived') label.textContent = isMixedCurrent ? (t.cashReceivedMixedLabel || 'المدفوع كاش') : t.cashReceived;
+    else if(forAttr === 'remainingBeforePrint') label.textContent = isMixedCurrent ? (t.remainingBeforePrintMixedLabel || 'المدفوع شبكة') : t.remainingBeforePrint;
     else if(forAttr === 'extraValue') label.textContent = t.extraValue;
     else if(forAttr === 'discountType') label.textContent = t.discountType;
     else if(forAttr === 'discountValue') label.textContent = t.discountValue;
@@ -298,6 +304,9 @@ function __applyLang(lang){
   const cashReceivedInput = document.getElementById('cashReceived');
   if(cashReceivedInput) cashReceivedInput.placeholder = t.cashReceivedPlaceholder;
   
+  const remainingBeforePrintInput = document.getElementById('remainingBeforePrint');
+  if(remainingBeforePrintInput) remainingBeforePrintInput.placeholder = t.remainingBeforePrintPlaceholder;
+
   const extraValueInput = document.getElementById('extraValue');
   if(extraValueInput) extraValueInput.placeholder = t.extraPlaceholder;
   
@@ -545,30 +554,77 @@ const extraAmountEl = document.getElementById('extraAmount');
 
 const paymentMethod = document.getElementById('paymentMethod');
 const cashReceived = document.getElementById('cashReceived');
+const remainingBeforePrint = document.getElementById('remainingBeforePrint');
 // Coupon controls
 const couponCodeEl = document.getElementById('couponCode');
 const applyCouponBtn = null; // زر التطبيق لم يعد مستخدمًا
 const couponInfoEl = document.getElementById('couponInfo');
 let __coupon = null; // { code, mode, value, amount }
 let __globalOffer = null; // { mode, value }
+
+function applyPaymentFieldState(){
+  if(!paymentMethod) return;
+  const method = String(paymentMethod.value || 'cash').toLowerCase();
+  const cashLabelEl = document.querySelector('label[for="cashReceived"]');
+  const remainingLabelEl = document.querySelector('label[for="remainingBeforePrint"]');
+
+  if(cashLabelEl){
+    cashLabelEl.textContent = (method === 'mixed')
+      ? (__currentLang.cashReceivedMixedLabel || 'المدفوع كاش')
+      : (__currentLang.cashReceived || 'المبلغ المدفوع');
+  }
+  if(remainingLabelEl){
+    remainingLabelEl.textContent = (method === 'mixed')
+      ? (__currentLang.remainingBeforePrintMixedLabel || 'المدفوع شبكة')
+      : (__currentLang.remainingBeforePrint || 'المبلغ المتبقي');
+  }
+
+  if(!cashReceived) return;
+  if(method === 'mixed'){
+    cashReceived.disabled = false;
+    cashReceived.placeholder = (__currentLang.cashReceivedMixed || 'المبلغ النقدي (مختلط)');
+  } else if(method === 'credit' || method === 'card' || method === 'tamara' || method === 'tabby'){
+    cashReceived.value = '';
+    cashReceived.disabled = true;
+    cashReceived.placeholder = (method === 'credit')
+      ? (__currentLang.cashReceivedCredit || 'المبلغ المدفوع (آجل)')
+      : (__currentLang.cashReceivedLocked || 'غير قابل للإدخال لهذه الطريقة');
+  } else {
+    cashReceived.disabled = false;
+    cashReceived.placeholder = (__currentLang.cashReceivedDefault || 'المبلغ المدفوع');
+  }
+}
+
+function updateRemainingBeforePrint(){
+  if(!remainingBeforePrint) return;
+  const total = Number(window.__sale_calcs?.grand_total || 0);
+  const pm = String(paymentMethod?.value || 'cash').toLowerCase();
+  const cashStr = String(cashReceived?.value || '').trim();
+  const entered = Number(cashStr);
+  const safeEntered = (cashStr === '' || isNaN(entered) || entered < 0) ? 0 : entered;
+  let remaining = 0;
+
+  if(pm === 'credit'){
+    remaining = total;
+  } else if(pm === 'card' || pm === 'network' || pm === 'tamara' || pm === 'tabby'){
+    remaining = 0;
+  } else {
+    remaining = cashStr === '' ? 0 : Math.abs(safeEntered - total);
+  }
+
+  remainingBeforePrint.value = Number(remaining || 0).toFixed(2);
+  remainingBeforePrint.classList.toggle('remaining-zero', remaining <= 0.0001);
+  remainingBeforePrint.classList.toggle('remaining-due', remaining > 0.0001);
+}
+
 if(cashReceived){
   cashReceived.addEventListener('input', () => {
     const s = (cashReceived.value||'').trim();
-    // لا تعرض تحذيرًا إذا كان الحقل فارغًا
-    if(s === ''){ setError(''); if(__currentRoomId){ __saveRoomCart(__currentRoomId, cart); } return; }
+    if(s === ''){ setError(''); updateRemainingBeforePrint(); if(__currentRoomId){ __saveRoomCart(__currentRoomId, cart); } return; }
     const val = Number(s);
-    if(isNaN(val) || val < 0){ setError(__currentLang.invalidAmount || 'قيمة غير صحيحة للمبلغ المدفوع'); return; }
-    const need = Number((window.__sale_calcs?.grand_total || 0));
-    // لا تعرض رسالة "أقل من الإجمالي" في وضع مختلط
-    if(paymentMethod && paymentMethod.value === 'mixed'){
-      setError('');
-    } else {
-      if(val < need){
-        setError(__currentLang.lessThanTotal || 'المبلغ المدفوع أقل من الإجمالي شامل الضريبة');
-      } else {
-        setError('');
-      }
-    }
+    if(isNaN(val) || val < 0){ setError(__currentLang.invalidAmount || 'قيمة غير صحيحة للمبلغ المدفوع'); updateRemainingBeforePrint(); return; }
+    setError('');
+    updateRemainingBeforePrint();
     if(__currentRoomId){ __saveRoomCart(__currentRoomId, cart); }
   });
 }
@@ -1328,6 +1384,7 @@ function computeTotals(){
     tobacco_fee: Number((tobaccoFee||0).toFixed(2)),
     coupon: __coupon || null,
   };
+  updateRemainingBeforePrint();
 }
 
 function renderCart(){
@@ -1553,23 +1610,7 @@ async function loadSettings(){
   }
   
   if(paymentMethod){
-    // ضبط نص الحقل وفق طريقة الدفع الحالية
-    try{
-      if(cashReceived){
-        // Initialize paid input based on default/current payment method
-        if(paymentMethod.value === 'mixed'){
-          cashReceived.disabled = false;
-          cashReceived.placeholder = (__currentLang.cashReceivedMixed || 'المبلغ النقدي (مختلط)');
-        } else if(paymentMethod.value === 'credit' || paymentMethod.value === 'card' || paymentMethod.value === 'tamara' || paymentMethod.value === 'tabby'){
-          cashReceived.value = '';
-          cashReceived.disabled = true;
-          cashReceived.placeholder = (paymentMethod.value === 'credit') ? (__currentLang.cashReceivedCredit || 'المبلغ المدفوع (آجل)') : (__currentLang.cashReceivedLocked || 'غير قابل للإدخال لهذه الطريقة');
-        } else {
-          cashReceived.disabled = false;
-          cashReceived.placeholder = (__currentLang.cashReceivedDefault || 'المبلغ المدفوع');
-        }
-      }
-    }catch(_){ }
+    try{ applyPaymentFieldState(); }catch(_){ }
   }
 
   // تطبيق الكوبون تلقائياً عند الكتابة أو اللصق، وإلغاءه عند التفريغ
@@ -2892,7 +2933,7 @@ btnPay.addEventListener('click', async () => {
     if(cashStr !== '' && (isNaN(cash) || cash < 0)){ setError(__currentLang.invalidAmount || 'قيمة غير صحيحة للمبلغ المدفوع'); enableButtons(); return; }
     const minNeeded = Number((window.__sale_calcs?.grand_total ?? grand).toFixed(2));
     // اسمح بالطباعة إذا كان الحقل فارغاً، امنع فقط إذا تم إدخال قيمة أقل من الإجمالي
-    if(cashStr !== '' && cash < minNeeded){ setError(__currentLang.lessThanTotal || 'المبلغ المدفوع أقل من الإجمالي شامل الضريبة'); cashReceived.focus(); enableButtons(); return; }
+    if(cashStr !== '' && cash < minNeeded){ __showSalesToast('⚠️ ' + (__currentLang.lessThanTotal || 'المبلغ المدفوع أقل من الإجمالي شامل الضريبة'), { icon:'⚠️', danger:true, ms:3000 }); setError(''); cashReceived.focus(); enableButtons(); return; }
     // إذا كان cash > 0 سيظهر في الطباعة، وإن كان 0 لن يظهر صف "المبلغ المدفوع"
   } else if(paymentMethod.value === 'mixed'){
     // مختلط: يجب إدخال مبلغ نقدي، والباقي شبكة تلقائيًا
@@ -2907,7 +2948,7 @@ btnPay.addEventListener('click', async () => {
     // للشبكة/تمارا/تابي: إن تم إدخال مبلغ، يجب ألا يقل عن الإجمالي
     if(cashStr !== '' && (isNaN(cash) || cash < 0)){ setError(__currentLang.invalidAmount || 'قيمة غير صحيحة للمبلغ المدفوع'); enableButtons(); return; }
     const total = Number((window.__sale_calcs?.grand_total ?? grand).toFixed(2));
-    if(cashStr !== '' && cash < total){ setError(__currentLang.lessThanTotal || 'المبلغ المدفوع أقل من الإجمالي شامل الضريبة'); cashReceived.focus(); enableButtons(); return; }
+    if(cashStr !== '' && cash < total){ __showSalesToast('⚠️ ' + (__currentLang.lessThanTotal || 'المبلغ المدفوع أقل من الإجمالي شامل الضريبة'), { icon:'⚠️', danger:true, ms:3000 }); setError(''); cashReceived.focus(); enableButtons(); return; }
     window.__mixed_payment = null;
   } else {
     // لطرق الدفع الأخرى، لا حاجة لاختبارات خاصة
@@ -3058,8 +3099,7 @@ btnPay.addEventListener('click', async () => {
       }, 3000);
     }
   }catch(_){ }
-  // إعادة خانة المبلغ إلى وضعها الطبيعي
-  if(cashReceived){ cashReceived.value=''; cashReceived.placeholder=(__currentLang.cashReceivedDefault||'المبلغ المدفوع'); cashReceived.disabled=false; }
+  if(cashReceived){ cashReceived.value=''; }
   if(notes){ notes.value=''; }
   // تفريغ الخصم ليكون الافتراضي بدون خصم
   if(discountTypeEl){ discountTypeEl.value = 'none'; }
@@ -3095,20 +3135,7 @@ btnPay.addEventListener('click', async () => {
     } else {
       paymentMethod.value = methods[0];
     }
-    // اضبط خانة المبلغ وفق الطريقة الافتراضية
-    if(cashReceived){
-      if(paymentMethod.value === 'mixed'){
-        cashReceived.disabled = false;
-        cashReceived.placeholder = (__currentLang.cashReceivedMixed || 'المبلغ النقدي (مختلط)');
-      } else if(paymentMethod.value === 'credit' || paymentMethod.value === 'card' || paymentMethod.value === 'tamara' || paymentMethod.value === 'tabby'){
-        cashReceived.value = '';
-        cashReceived.disabled = true;
-        cashReceived.placeholder = (paymentMethod.value === 'credit') ? (__currentLang.cashReceivedCredit || 'المبلغ المدفوع (آجل)') : (__currentLang.cashReceivedLocked || 'غير قابل للإدخال لهذه الطريقة');
-      } else {
-        cashReceived.disabled = false;
-        cashReceived.placeholder = (__currentLang.cashReceivedDefault || 'المبلغ المدفوع');
-      }
-    }
+    applyPaymentFieldState();
   }catch(_){ /* ignore */ }
   
   // إعادة تمكين أزرار الطباعة
@@ -3255,21 +3282,7 @@ async function populateCategories(preFetchedRes = null){
     if(paymentMethod){
       paymentMethod.addEventListener('change', ()=>{
         setError('');
-        if(cashReceived){
-          // Toggle input behavior based on payment method
-          if(paymentMethod.value === 'mixed'){
-            cashReceived.disabled = false;
-            cashReceived.placeholder = (__currentLang.cashReceivedMixed || 'المبلغ النقدي (مختلط)');
-          } else if(paymentMethod.value === 'credit' || paymentMethod.value === 'card' || paymentMethod.value === 'tamara' || paymentMethod.value === 'tabby'){
-            // For credit/network/Tamara/Tabby: lock the field
-            cashReceived.value = '';
-            cashReceived.disabled = true;
-            cashReceived.placeholder = (paymentMethod.value === 'credit') ? (__currentLang.cashReceivedCredit || 'المبلغ المدفوع (آجل)') : (__currentLang.cashReceivedLocked || 'غير قابل للإدخال لهذه الطريقة');
-          } else {
-            cashReceived.disabled = false;
-            cashReceived.placeholder = (__currentLang.cashReceivedDefault || 'المبلغ المدفوع');
-          }
-        }
+        applyPaymentFieldState();
         if(paymentMethod.value !== 'mixed'){
           window.__mixed_payment = null;
         }

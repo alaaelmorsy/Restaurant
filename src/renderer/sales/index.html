@@ -899,12 +899,27 @@
       margin: 0;
     }
 
+    .row.four-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 0.65fr 1fr;
+      gap: 4px;
+      margin: 0;
+    }
+
     .pay-field {
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 1px;
       margin: 0;
+      min-width: 0;
+    }
+
+    .row.four-col .pay-field .pretty-input,
+    .row.four-col .pay-field .styled-select,
+    .row.four-col .pay-field .styled-select select {
+      width: 100%;
+      min-width: 0;
     }
 
     .field-label {
@@ -972,6 +987,60 @@
       outline: none;
       border-color: #3b82f6;
       box-shadow: 0 0 0 2px rgba(59, 130, 246, .10);
+    }
+
+    .remaining-display {
+      background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+      border: 1px solid #fdba74;
+      color: #9a3412;
+      text-align: center;
+      letter-spacing: 0.3px;
+    }
+
+    .remaining-display.remaining-zero {
+      background: linear-gradient(135deg, #ecfdf5 0%, #dcfce7 100%);
+      border-color: #86efac;
+      color: #166534;
+    }
+
+    .remaining-display.remaining-due {
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+      border-color: #fca5a5;
+      color: #991b1b;
+    }
+
+    @media (max-width: 1280px) {
+      .row.four-col {
+        grid-template-columns: 1fr 1fr 0.55fr 0.9fr;
+        gap: 3px;
+      }
+
+      .row.four-col .field-label {
+        font-size: 9px;
+      }
+
+      .row.four-col .pretty-input,
+      .row.four-col .styled-select select {
+        font-size: 10px;
+        padding: 3px 4px;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .row.four-col {
+        grid-template-columns: 1fr 1fr 0.5fr 0.85fr;
+        gap: 2px;
+      }
+
+      .row.four-col .field-label {
+        font-size: 8px;
+      }
+
+      .row.four-col .pretty-input,
+      .row.four-col .styled-select select {
+        font-size: 9px;
+        padding: 2px 3px;
+      }
     }
 
     .searchable-select {
@@ -1535,8 +1604,8 @@
                 <span id="tobaccoFee" class="text-[10px] font-bold text-orange-900 direction-ltr"></span>
               </div>
 
-              <!-- 8) الحقول: طريقة الدفع + المبلغ المدفوع + الإضافى -->
-              <div class="row three-col">
+              <!-- 8) الحقول: طريقة الدفع + المبلغ المدفوع + المتبقي + الإضافى -->
+              <div class="row four-col">
                 <div class="pay-field">
                   <label for="paymentMethod" class="field-label font-black text-black">طريقة الدفع</label>
                   <div class="styled-select">
@@ -1548,6 +1617,11 @@
                   <label for="cashReceived" class="field-label font-black text-black">المبلغ المدفوع</label>
                   <input id="cashReceived" class="pretty-input font-black text-black" type="number" step="0.01"
                     placeholder="المبلغ المدفوع" />
+                </div>
+                <div class="pay-field">
+                  <label for="remainingBeforePrint" class="field-label font-black text-black">المبلغ المتبقي</label>
+                  <input id="remainingBeforePrint" class="pretty-input remaining-display font-black" type="text"
+                    value="0.00" readonly tabindex="-1" placeholder="المتبقي قبل الطباعة" />
                 </div>
                 <div class="pay-field">
                   <label for="extraValue" class="field-label font-black text-black">الإضافى</label>

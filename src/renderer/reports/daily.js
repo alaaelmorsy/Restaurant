@@ -969,7 +969,12 @@ async function load(){
     // Fill sold items table (products sold)
     try{
       const tbody = document.getElementById('soldItemsTbody');
-      const rows = soldItems.map(it => `<tr><td>${it.name||''}</td><td>${Number(it.qty_total||0)}</td><td>${fmt(it.amount_total)}</td></tr>`).join('');
+      const rows = soldItems.map(it => {
+        const arName = String(it.name_ar || it.name || '').trim();
+        const enName = String(it.name_en || '').trim();
+        const displayName = enName ? `${arName} / ${enName}` : arName;
+        return `<tr><td>${displayName}</td><td>${Number(it.qty_total||0)}</td><td>${fmt(it.amount_total)}</td></tr>`;
+      }).join('');
       tbody.innerHTML = rows || '<tr><td colspan="3" class="muted">لا توجد بيانات</td></tr>';
     }catch(_){ }
 
