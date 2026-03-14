@@ -1,5 +1,5 @@
 // Kitchen Printers IPC: manage kitchen printers and routing by main types, and print tickets
-const { ipcMain, BrowserWindow } = require('electron');
+const { ipcMain, BrowserWindow, app } = require('electron');
 const path = require('path');
 const { getPool, DB_NAME } = require('../db/connection');
 
@@ -114,15 +114,30 @@ function registerKitchenIPC(){
     }catch(e){ console.error(e); return { ok:false, error:'فشل حفظ الأقسام للطابعة' }; }
   });
 
-  // simple ticket renderer
+  // ─── Optimized kitchen ticket renderer ───
+  // نافذة مخفية واحدة تُعاد استخدامها لكل طلبات المطبخ (lazy init)
+  let __printWin = null;
+  function getPrintWindow(){
+    if(__printWin && !__printWin.isDestroyed()) return __printWin;
+    __printWin = new BrowserWindow({ width: 420, height: 680, show:false, webPreferences:{ sandbox:false } });
+    __printWin.on('closed', () => { __printWin = null; });
+    return __printWin;
+  }
+  // تنظيف النافذة عند إغلاق البرنامج لمنع بقائها في Task Manager
+  app.on('before-quit', () => {
+    try{ if(__printWin && !__printWin.isDestroyed()){ __printWin.destroy(); __printWin = null; } }catch(_){}
+  });
+
+  // طابور طباعة لمنع التداخل عند طباعة عدة طلبات متتالية
+  let __printQueue = Promise.resolve();
   async function printHtmlToDevice({ html, deviceName, copies, marginLeftMm = 0, marginRightMm = 0 }){
-    const win = new BrowserWindow({ width: 420, height: 680, show:false, webPreferences:{ sandbox:false } });
-    try{
+    // أضف الطلب للطابور — كل طلب ينتظر اللي قبله
+    const job = __printQueue.then(async () => {
+      const win = getPrintWindow();
       await win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html));
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 50)); // 50ms كافية بدل 200ms
       const n = Math.max(1, Number(copies||1));
       for(let i=0;i<n;i++){
-        // Electron 28: use callback signature
         await new Promise((resolve, reject) => {
           win.webContents.print({
             silent:true,
@@ -136,7 +151,10 @@ function registerKitchenIPC(){
         });
       }
       return { ok:true };
-    } finally { win.destroy(); }
+    });
+    // حدّث الطابور — لو فشل طلب، الطابور يكمل
+    __printQueue = job.catch(() => {});
+    return job;
   }
 
   function buildKitchenHtml({ header, items, roomName, saleId, waiterName, printAt, orderNo, invoiceNo, invoiceDate, marginLeftMm = 0, marginRightMm = 0 }){

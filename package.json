@@ -1,6 +1,6 @@
 {
   "name": "pos-restaurant",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "description": "POS Desktop App for KSA - Login skeleton (Electron + Node.js + MySQL)",
   "main": "src/main/main.js",
   "scripts": {
@@ -65,6 +65,7 @@
   "author": "مؤسسة تعلم التقنيات",
   "license": "ISC",
   "dependencies": {
+    "@whiskeysockets/baileys": "^7.0.0-rc.9",
     "@wppconnect-team/wppconnect": "^1.37.8",
     "axios": "^1.12.1",
     "bcryptjs": "^2.4.3",
