@@ -2584,7 +2584,8 @@ try{
       }
       if(itemsToSend.length === 0){ setError(__currentLang.noNewItemsKitchen || 'لا توجد أصناف جديدة لإرسالها للمطبخ'); return; }
 
-      const r = await window.api.kitchen_print_order({ items: itemsToSend, room_name: (roomMeta?roomMeta.name:null), sale_id: null, waiter_name: waiterName, copies_per_section: 1, order_no: null });
+      const kitchenCopies = Math.max(1, Number(settings.kitchen_print_copies || 1));
+      const r = await window.api.kitchen_print_order({ items: itemsToSend, room_name: (roomMeta?roomMeta.name:null), sale_id: null, waiter_name: waiterName, copies_per_section: kitchenCopies, order_no: null });
 
       // عند النجاح وعدم التخطي (لا توجد طابعات)، قم بوسم العناصر على أنها مُرسلة
       if(r && r.ok && !r.skipped){
@@ -3028,7 +3029,8 @@ btnPay.addEventListener('click', async () => {
     }
 
     if(itemsToSend.length){
-      __kitchenPayload = { items: itemsToSend, room_name: (roomMeta?roomMeta.name:null), sale_id: r.sale_id, waiter_name: waiterName, copies_per_section: 1, order_no: r.order_no, sentSnapshot: sentSnapshot };
+      const kitchenCopies = Math.max(1, Number(settings.kitchen_print_copies || 1));
+      __kitchenPayload = { items: itemsToSend, room_name: (roomMeta?roomMeta.name:null), sale_id: r.sale_id, waiter_name: waiterName, copies_per_section: kitchenCopies, order_no: r.order_no, sentSnapshot: sentSnapshot };
     }
   }catch(_){ /* ignore kitchen prep errors */ }
 

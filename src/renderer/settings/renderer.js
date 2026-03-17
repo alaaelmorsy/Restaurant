@@ -41,7 +41,7 @@ function __applyLang(lang){
     after: isAr ? 'بعد' : 'After',
     before: isAr ? 'قبل' : 'Before',
     printSettings: isAr ? 'إعدادات الطباعة' : 'Print Settings',
-    printCopies: isAr ? 'عدد النسخ' : 'Print Copies',
+    printCopies: isAr ? 'عدد نسخ الكاشير' : 'Cashier Copies',
     showChange: isAr ? 'إظهار الباقي' : 'Show Change',
     silentPrint: isAr ? 'طباعة صامتة' : 'Silent Print',
     showItemDesc: isAr ? 'إظهار وصف الصنف' : 'Show Item Description',
@@ -533,6 +533,7 @@ const fCurrencySymbol = document.getElementById('f_currency_symbol');
 const fCurrencyPos = document.getElementById('f_currency_pos');
 // const fPrintFormat = null; // removed from UI
 const fPrintCopies = document.getElementById('f_print_copies');
+const fKitchenPrintCopies = document.getElementById('f_kitchen_print_copies');
 const fShowChange = document.getElementById('f_show_change');
 const fSilentPrint = document.getElementById('f_silent_print');
 const fShowItemDesc = document.getElementById('f_show_item_desc');
@@ -719,6 +720,7 @@ async function loadSettings(){
   fCurrencyPos.value = s.currency_symbol_position || 'after';
   // default_print_format removed from UI (thermal is enforced globally)
   fPrintCopies.value = String(Number(s.print_copies || (s.print_two_copies ? 2 : 1)));
+  if(fKitchenPrintCopies) fKitchenPrintCopies.value = String(Number(s.kitchen_print_copies || 1));
   fShowChange.checked = s.print_show_change !== 0;
   fSilentPrint.checked = !!s.silent_print;
   if(fShowItemDesc){
@@ -1080,6 +1082,7 @@ saveBtn.addEventListener('click', async () => {
     currency_symbol_position: (fCurrencyPos.value === 'before' ? 'before' : 'after'),
     default_print_format: 'thermal', // enforced globally; field removed from UI
     print_copies: Math.max(1, Number(fPrintCopies.value || 1)),
+    kitchen_print_copies: Math.max(1, Number((fKitchenPrintCopies?.value) || 1)),
     silent_print: !!fSilentPrint.checked,
     print_show_change: !!fShowChange.checked ? 1 : 0,
     show_item_desc: !!fShowItemDesc?.checked ? 1 : 0,

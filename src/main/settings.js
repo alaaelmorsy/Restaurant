@@ -92,6 +92,9 @@ function registerSettingsIPC(){
     if(missing('print_copies')){
       await conn.query("ALTER TABLE app_settings ADD COLUMN print_copies INT NOT NULL DEFAULT 1 AFTER default_print_format");
     }
+    if(missing('kitchen_print_copies')){
+      await conn.query("ALTER TABLE app_settings ADD COLUMN kitchen_print_copies INT NOT NULL DEFAULT 1 AFTER print_copies");
+    }
     // Print margins (right/left) in millimeters
     if(missing('print_margin_right_mm')){
       await conn.query("ALTER TABLE app_settings ADD COLUMN print_margin_right_mm DECIMAL(6,2) NULL AFTER print_copies");
@@ -393,6 +396,7 @@ function registerSettingsIPC(){
         item.cart_separate_duplicate_lines = item.cart_separate_duplicate_lines ? 1 : 0;
         // Default copies: if print_copies missing/null, derive from legacy flag
         item.print_copies = Number(item.print_copies || (item.print_two_copies ? 2 : 1));
+        item.kitchen_print_copies = Math.max(1, Number(item.kitchen_print_copies || 1));
         // Ensure logo size numbers
         item.logo_width_px = Number(item.logo_width_px || 120);
         item.logo_height_px = Number(item.logo_height_px || 120);
@@ -524,7 +528,7 @@ function registerSettingsIPC(){
           seller_legal_name=?, seller_vat_number=?, company_site=?, company_location=?, mobile=?, email=?, logo_path=?, 
           vat_percent=?, prices_include_vat=?, payment_methods=?, default_payment_method=?, default_order_type=?,
           currency_code=?, currency_symbol=?, currency_symbol_position=?, app_locale=?,
-          default_print_format=?, print_copies=?, silent_print=?, print_show_change=?, show_item_desc=?, op_price_manual=?, allow_sell_zero_stock=?, allow_negative_inventory=?, cart_separate_duplicate_lines=?,
+          default_print_format=?, print_copies=?, kitchen_print_copies=?, silent_print=?, print_show_change=?, show_item_desc=?, op_price_manual=?, allow_sell_zero_stock=?, allow_negative_inventory=?, cart_separate_duplicate_lines=?,
           logo_width_px=?, logo_height_px=?, invoice_footer_note=?, hide_product_images=?, hide_item_description=?, closing_hour=?, zatca_enabled=?, recovery_unlocked=?, 
           tobacco_fee_percent=?, tobacco_min_fee_amount=?,
           daily_email_enabled=?, daily_email_time=?, db_backup_enabled=?, db_backup_time=?, smtp_host=?, smtp_port=?, smtp_secure=?, smtp_user=?, smtp_pass=?,
@@ -565,6 +569,7 @@ function registerSettingsIPC(){
           (p.app_locale === 'en' ? 'en' : 'ar'),
           'thermal', // A4 removed
           Math.max(1, Number(p.print_copies || 1)),
+          Math.max(1, Number(p.kitchen_print_copies || 1)),
           (p.silent_print ? 1 : 0),
           (p.print_show_change === 0 ? 0 : 1),
           (p.show_item_desc === 0 ? 0 : 1),
