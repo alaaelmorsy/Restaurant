@@ -73,6 +73,7 @@ function __applyLang(lang){
     loadError: isAr ? '-- خطأ في التحميل --' : '-- Load Error --',
     whatsappSettings: isAr ? 'إعدادات WhatsApp' : 'WhatsApp Settings',
     whatsappAuto: isAr ? 'إرسال الفاتورة تلقائياً عبر WhatsApp' : 'Auto-send Invoice via WhatsApp',
+    enablePaymentPopup: isAr ? 'تفعيل نافذة طرق الدفع عند الطباعة' : 'Enable Payment Methods Popup on Print',
     logoSettings: isAr ? 'إعدادات الشعار' : 'Logo Settings',
     chooseLogo: isAr ? 'اختيار شعار' : 'Choose Logo',
     removeLogo: isAr ? 'حذف الشعار' : 'Remove Logo',
@@ -301,6 +302,7 @@ function __applyLang(lang){
     else if(forAttr === 'f_show_change') label.textContent = t.showChange;
     else if(forAttr === 'f_silent_print') label.textContent = t.silentPrint;
     else if(forAttr === 'f_show_item_desc') label.textContent = t.showItemDesc;
+    else if(forAttr === 'f_enable_payment_methods_popup') label.textContent = t.enablePaymentPopup;
     else if(forAttr === 'f_hide_item_description') label.textContent = t.hideItemDesc;
     else if(forAttr === 'f_default_payment') label.textContent = t.defaultPayment;
     else if(forAttr === 'f_default_order_type') label.textContent = t.defaultOrderType;
@@ -537,6 +539,7 @@ const fKitchenPrintCopies = document.getElementById('f_kitchen_print_copies');
 const fShowChange = document.getElementById('f_show_change');
 const fSilentPrint = document.getElementById('f_silent_print');
 const fShowItemDesc = document.getElementById('f_show_item_desc');
+const fEnablePaymentMethodsPopup = document.getElementById('f_enable_payment_methods_popup');
 const fDefaultPayment = document.getElementById('f_default_payment');
 const fDefaultOrderType = document.getElementById('f_default_order_type');
 const fSellerLegal = document.getElementById('f_seller_legal');
@@ -719,12 +722,15 @@ async function loadSettings(){
   fCurrencySymbol.value = s.currency_symbol || '﷼';
   fCurrencyPos.value = s.currency_symbol_position || 'after';
   // default_print_format removed from UI (thermal is enforced globally)
-  fPrintCopies.value = String(Number(s.print_copies || (s.print_two_copies ? 2 : 1)));
-  if(fKitchenPrintCopies) fKitchenPrintCopies.value = String(Number(s.kitchen_print_copies || 1));
+  fPrintCopies.value = String(Number(s.print_copies != null ? s.print_copies : (s.print_two_copies ? 2 : 1)));
+  if(fKitchenPrintCopies) fKitchenPrintCopies.value = String(Number(s.kitchen_print_copies != null ? s.kitchen_print_copies : 1));
   fShowChange.checked = s.print_show_change !== 0;
   fSilentPrint.checked = !!s.silent_print;
   if(fShowItemDesc){
     fShowItemDesc.checked = s.show_item_desc !== 0;
+  }
+  if(fEnablePaymentMethodsPopup){
+    fEnablePaymentMethodsPopup.checked = !!s.enable_payment_methods_popup;
   }
   fDefaultPayment.value = s.default_payment_method || '';
   if(fDefaultOrderType) fDefaultOrderType.value = s.default_order_type || '';
@@ -1081,11 +1087,12 @@ saveBtn.addEventListener('click', async () => {
     currency_symbol: (fCurrencySymbol.value||'﷼').trim() || '﷼',
     currency_symbol_position: (fCurrencyPos.value === 'before' ? 'before' : 'after'),
     default_print_format: 'thermal', // enforced globally; field removed from UI
-    print_copies: Math.max(1, Number(fPrintCopies.value || 1)),
-    kitchen_print_copies: Math.max(1, Number((fKitchenPrintCopies?.value) || 1)),
+    print_copies: Math.max(0, Number(fPrintCopies.value || 0)),
+    kitchen_print_copies: Math.max(0, Number((fKitchenPrintCopies?.value) || 0)),
     silent_print: !!fSilentPrint.checked,
     print_show_change: !!fShowChange.checked ? 1 : 0,
     show_item_desc: !!fShowItemDesc?.checked ? 1 : 0,
+    enable_payment_methods_popup: !!fEnablePaymentMethodsPopup?.checked,
     default_payment_method: (fDefaultPayment.value||'') || null,
     default_order_type: (fDefaultOrderType?.value||'') || null,
     seller_legal_name: (fSellerLegal.value||'').trim(),

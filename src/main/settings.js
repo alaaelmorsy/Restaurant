@@ -193,6 +193,9 @@ function registerSettingsIPC(){
     if(missing('zatca_enabled')){
       await conn.query("ALTER TABLE app_settings ADD COLUMN zatca_enabled TINYINT NOT NULL DEFAULT 0 AFTER closing_hour");
     }
+    if(missing('enable_payment_methods_popup')){
+      await conn.query("ALTER TABLE app_settings ADD COLUMN enable_payment_methods_popup TINYINT NOT NULL DEFAULT 0 AFTER zatca_enabled");
+    }
     // UI toggle for WhatsApp controls (show/hide via SQL query)
     if(missing('show_whatsapp_controls')){
       await conn.query("ALTER TABLE app_settings ADD COLUMN show_whatsapp_controls TINYINT NOT NULL DEFAULT 1 AFTER zatca_enabled");
@@ -395,8 +398,8 @@ function registerSettingsIPC(){
         item.show_item_desc = (item.show_item_desc === 0) ? 0 : 1;
         item.cart_separate_duplicate_lines = item.cart_separate_duplicate_lines ? 1 : 0;
         // Default copies: if print_copies missing/null, derive from legacy flag
-        item.print_copies = Number(item.print_copies || (item.print_two_copies ? 2 : 1));
-        item.kitchen_print_copies = Math.max(1, Number(item.kitchen_print_copies || 1));
+        item.print_copies = Number(item.print_copies != null ? item.print_copies : (item.print_two_copies ? 2 : 1));
+        item.kitchen_print_copies = Math.max(0, Number(item.kitchen_print_copies != null ? item.kitchen_print_copies : 1));
         // Ensure logo size numbers
         item.logo_width_px = Number(item.logo_width_px || 120);
         item.logo_height_px = Number(item.logo_height_px || 120);
@@ -404,6 +407,7 @@ function registerSettingsIPC(){
         item.hide_product_images = item.hide_product_images ? 1 : 0;
         item.hide_item_description = item.hide_item_description ? 1 : 0;
         item.zatca_enabled = item.zatca_enabled ? 1 : 0;
+        item.enable_payment_methods_popup = item.enable_payment_methods_popup ? 1 : 0;
         // Defaults for tobacco fee settings
         item.tobacco_fee_percent = Number(item.tobacco_fee_percent || 100);
         // إزالة إعداد حد أدنى للأساس — الحد ثابت 25 ريال في المنطق
@@ -529,7 +533,7 @@ function registerSettingsIPC(){
           vat_percent=?, prices_include_vat=?, payment_methods=?, default_payment_method=?, default_order_type=?,
           currency_code=?, currency_symbol=?, currency_symbol_position=?, app_locale=?,
           default_print_format=?, print_copies=?, kitchen_print_copies=?, silent_print=?, print_show_change=?, show_item_desc=?, op_price_manual=?, allow_sell_zero_stock=?, allow_negative_inventory=?, cart_separate_duplicate_lines=?,
-          logo_width_px=?, logo_height_px=?, invoice_footer_note=?, hide_product_images=?, hide_item_description=?, closing_hour=?, zatca_enabled=?, recovery_unlocked=?, 
+          logo_width_px=?, logo_height_px=?, invoice_footer_note=?, hide_product_images=?, hide_item_description=?, closing_hour=?, zatca_enabled=?, enable_payment_methods_popup=?, recovery_unlocked=?, 
           tobacco_fee_percent=?, tobacco_min_fee_amount=?,
           daily_email_enabled=?, daily_email_time=?, db_backup_enabled=?, db_backup_time=?, smtp_host=?, smtp_port=?, smtp_secure=?, smtp_user=?, smtp_pass=?,
           support_end_date=?,
@@ -568,8 +572,8 @@ function registerSettingsIPC(){
           (p.currency_symbol_position === 'before' ? 'before' : 'after'),
           (p.app_locale === 'en' ? 'en' : 'ar'),
           'thermal', // A4 removed
-          Math.max(1, Number(p.print_copies || 1)),
-          Math.max(1, Number(p.kitchen_print_copies || 1)),
+          Math.max(0, Number(p.print_copies != null ? p.print_copies : 1)),
+          Math.max(0, Number(p.kitchen_print_copies != null ? p.kitchen_print_copies : 1)),
           (p.silent_print ? 1 : 0),
           (p.print_show_change === 0 ? 0 : 1),
           (p.show_item_desc === 0 ? 0 : 1),
@@ -584,6 +588,7 @@ function registerSettingsIPC(){
           (p.hide_item_description ? 1 : 0),
           (p.closing_hour ? String(p.closing_hour).slice(0,5)+':00' : null),
           (p.zatca_enabled ? 1 : 0),
+          (p.enable_payment_methods_popup ? 1 : 0),
           (p.recovery_unlocked ? 1 : 0),
           (p.tobacco_fee_percent==='' || p.tobacco_fee_percent===null || p.tobacco_fee_percent===undefined) ? null : Number(p.tobacco_fee_percent),
           (p.tobacco_min_fee_amount==='' || p.tobacco_min_fee_amount===null || p.tobacco_min_fee_amount===undefined) ? null : Number(p.tobacco_min_fee_amount),

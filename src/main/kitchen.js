@@ -252,7 +252,7 @@ function registerKitchenIPC(){
   ipcMain.handle('kitchen:print_order', async (_e, payload) => {
     const { items, room_name, sale_id, waiter_name, copies_per_section, order_no } = payload || {};
     const cart = Array.isArray(items) ? items : [];
-    const copies = Math.max(1, Number(copies_per_section||1));
+    const copies = Math.max(0, Number(copies_per_section != null ? copies_per_section : 1));
     try{
       const pool = await getPool(); const conn = await pool.getConnection();
       try{
@@ -295,7 +295,9 @@ function registerKitchenIPC(){
           }catch(_){ }
 
           const html = buildKitchenHtml({ header: '', items: its, roomName: room_name||'', saleId: sale_id||'', waiterName: waiter_name||'', printAt: Date.now(), orderNo: (order_no||null), invoiceNo: invNo, invoiceDate: invDate, marginLeftMm: mLeft, marginRightMm: mRight });
-          try{ await printHtmlToDevice({ html, deviceName: p.device_name, copies, marginLeftMm: mLeft, marginRightMm: mRight }); }catch(err){ console.error('kitchen print failed', p.device_name, err); }
+          if(copies > 0) {
+            try{ await printHtmlToDevice({ html, deviceName: p.device_name, copies, marginLeftMm: mLeft, marginRightMm: mRight }); }catch(err){ console.error('kitchen print failed', p.device_name, err); }
+          }
         }
         return { ok:true };
       } finally { conn.release(); }

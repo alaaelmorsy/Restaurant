@@ -503,11 +503,18 @@ async function doSettle(){
       try{
         const settingsRes = await window.api.settings_get();
         if(settingsRes && settingsRes.ok && settingsRes.item){
-          const copies = Math.max(1, Number(settingsRes.item.print_copies || (settingsRes.item.print_two_copies ? 2 : 1)));
-          if(copies > 1){ url += `&copies=${encodeURIComponent(String(copies))}`; }
+          const copies = Math.max(0, Number(settingsRes.item.print_copies != null ? settingsRes.item.print_copies : (settingsRes.item.print_two_copies ? 2 : 1)));
+          if(copies !== 1){ url += `&copies=${encodeURIComponent(String(copies))}`; }
         }
       }catch(_){}
-      window.open(url, 'PRINT', `width=500,height=700,menubar=no,toolbar=no,location=no,status=no`);
+      const pWin = window.open(url, 'PRINT', `width=500,height=700,menubar=no,toolbar=no,location=no,status=no`);
+      const h = (e) => {
+        if(e.data && e.data.type === 'invoice-after-print') {
+          if(pWin) pWin.close();
+          window.removeEventListener('message', h);
+        }
+      };
+      window.addEventListener('message', h);
       window.__showPaymentToast && window.__showPaymentToast(T.toastSettleSuccess(__currentSale.invoice_no), 'success');
     }catch(_){ 
       window.__showPaymentToast && window.__showPaymentToast(T.toastSettleSuccessNoPrint(__currentSale.invoice_no), 'success');

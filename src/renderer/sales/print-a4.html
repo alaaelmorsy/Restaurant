@@ -261,7 +261,7 @@
                 ev.preventDefault(); ev.stopPropagation();
                 try{
                   const roomParam = params.get('room') || '';
-                  const copies = Math.max(1, Number(settings.print_copies || (settings.print_two_copies ? 2 : 1)));
+                  const copies = Math.max(0, Number(settings.print_copies != null ? settings.print_copies : (settings.print_two_copies ? 2 : 1)));
                   for(let i=1;i<=copies;i++){
                     await api.print_invoice_silent({ id: saleId, pay: (pay || (s.sale?.payment_method || '')), cash: String(cash), room: roomParam, format: 'a4' });
                   }
@@ -793,7 +793,7 @@
           const __FAST_NO_VAT__ = Number(settings?.vat_percent||0) === 0;
           const __SILENT_ENABLED__ = !!(settings && settings.silent_print);
           const __PREVIEW_ONLY__ = params.get('preview') === '1';
-          const copies = Math.max(1, Number(params.get('copies') || settings?.print_copies || (settings?.print_two_copies ? 2 : 1)));
+          const copies = Math.max(0, Number(params.has('copies') ? params.get('copies') : (settings?.print_copies != null ? settings.print_copies : (settings?.print_two_copies ? 2 : 1))));
           
           if(!__SILENT_ENABLED__ && !__PREVIEW_ONLY__){
             // الطباعة العادية: اطبع مربع الطباعة عدة مرات حسب عدد النسخ
@@ -801,21 +801,23 @@
             if(!sessionStorage.getItem(firedKey)){
               sessionStorage.setItem(firedKey, '1');
               
-              let printCount = 0;
-              const handleAfterPrint = () => {
-                printCount++;
-                if(printCount < copies){
-                  // اطبع النسخة التالية
-                  setTimeout(() => window.print(), 100);
-                } else {
-                  window.removeEventListener('afterprint', handleAfterPrint);
-                }
-              };
-              
-              window.addEventListener('afterprint', handleAfterPrint);
-              
-              // ابدأ الطباعة الأولى تلقائياً
-              setTimeout(() => window.print(), __FAST_NO_VAT__ ? 10 : 300);
+              if(copies > 0) {
+                let printCount = 0;
+                const handleAfterPrint = () => {
+                  printCount++;
+                  if(printCount < copies){
+                    // اطبع النسخة التالية
+                    setTimeout(() => window.print(), 100);
+                  } else {
+                    window.removeEventListener('afterprint', handleAfterPrint);
+                  }
+                };
+                
+                window.addEventListener('afterprint', handleAfterPrint);
+                
+                // ابدأ الطباعة الأولى تلقائياً
+                setTimeout(() => window.print(), __FAST_NO_VAT__ ? 10 : 300);
+              }
             }
           }
         }catch(e){

@@ -1406,13 +1406,13 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
                       <div style="background: white; border: 1px solid #fbcfe8; border-radius: 4px; padding: 6px;">
                         <label for="f_print_copies" style="font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 10px; color: #9f1239; display: block; margin-bottom: 3px;">عدد نسخ الكاشير</label>
-                        <input id="f_print_copies" type="number" min="1" step="1" value="1" style="width: 90px; padding: 4px 6px; border: 1px solid #fbcfe8; border-radius: 3px; font-size: 11px; font-weight: 700; color: #1f2937; font-family: 'Cairo', sans-serif; -moz-appearance: textfield;" onwheel="this.blur()">
+                        <input id="f_print_copies" type="number" min="0" step="1" value="1" style="width: 90px; padding: 4px 6px; border: 1px solid #fbcfe8; border-radius: 3px; font-size: 11px; font-weight: 700; color: #1f2937; font-family: 'Cairo', sans-serif; -moz-appearance: textfield;" onwheel="this.blur()">
                         <style>#f_print_copies::-webkit-outer-spin-button, #f_print_copies::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }</style>
                       </div>
 
                       <div style="background: white; border: 1px solid #fbcfe8; border-radius: 4px; padding: 6px;">
                         <label for="f_kitchen_print_copies" style="font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 10px; color: #9f1239; display: block; margin-bottom: 3px;">عدد نسخ المطبخ</label>
-                        <input id="f_kitchen_print_copies" type="number" min="1" step="1" value="1" style="width: 90px; padding: 4px 6px; border: 1px solid #fbcfe8; border-radius: 3px; font-size: 11px; font-weight: 700; color: #1f2937; font-family: 'Cairo', sans-serif; -moz-appearance: textfield;" onwheel="this.blur()">
+                        <input id="f_kitchen_print_copies" type="number" min="0" step="1" value="1" style="width: 90px; padding: 4px 6px; border: 1px solid #fbcfe8; border-radius: 3px; font-size: 11px; font-weight: 700; color: #1f2937; font-family: 'Cairo', sans-serif; -moz-appearance: textfield;" onwheel="this.blur()">
                         <style>#f_kitchen_print_copies::-webkit-outer-spin-button, #f_kitchen_print_copies::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }</style>
                       </div>
                     </div>
@@ -1430,6 +1430,11 @@
                     <div style="background: white; border: 1px solid #fbcfe8; border-radius: 4px; padding: 6px; display: flex; align-items: center; gap: 6px;">
                       <input id="f_show_item_desc" type="checkbox" style="width: 15px; height: 15px; accent-color: #db2777; cursor: pointer; flex-shrink: 0;">
                       <label for="f_show_item_desc" style="font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 11px; color: #374151; cursor: pointer; margin: 0; flex: 1;">إظهار وصف الصنف</label>
+                    </div>
+
+                    <div style="background: white; border: 1px solid #fbcfe8; border-radius: 4px; padding: 6px; display: flex; align-items: center; gap: 6px;">
+                      <input id="f_enable_payment_methods_popup" type="checkbox" style="width: 15px; height: 15px; accent-color: #db2777; cursor: pointer; flex-shrink: 0;">
+                      <label for="f_enable_payment_methods_popup" style="font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 11px; color: #374151; cursor: pointer; margin: 0; flex: 1;">تفعيل نافذة طرق الدفع عند الطباعة</label>
                     </div>
                   </div>
                 </div>

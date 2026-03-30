@@ -800,7 +800,7 @@ async function __clearRoomSession(id){ try{ await window.api.rooms_clear(id); }c
         // افتح نافذة الطباعة مباشرة لإشعار الدائن الجديد
         try{
           const page = 'print.html'; // A4 removed
-          const creditCopies = Math.max(1, Number(settings.print_copies || (settings.print_two_copies ? 2 : 1)));
+          const creditCopies = Math.max(0, Number(settings.print_copies != null ? settings.print_copies : (settings.print_two_copies ? 2 : 1)));
           const params = new URLSearchParams({ id: String(r.credit_sale_id), pay: String(r.base_payment_method||''), base: String(r.base_sale_id||''), base_no: String(r.base_invoice_no||'') });
           if(creditCopies > 1){ params.set('copies', String(creditCopies)); }
           const w = 500;
@@ -920,6 +920,7 @@ async function __clearRoomSession(id){ try{ await window.api.rooms_clear(id); }c
       settings.show_low_stock_alerts = (typeof it.show_low_stock_alerts === 'undefined') ? true : !!it.show_low_stock_alerts;
       // عتبة تنبيه انخفاض المخزون
       settings.low_stock_threshold = Number(it.low_stock_threshold ?? settings.low_stock_threshold ?? 5);
+      settings.enable_payment_methods_popup = !!it.enable_payment_methods_popup;
       // عبئ خيارات الدفع في الواجهة
       if(paymentMethod){
         paymentMethod.innerHTML='';
@@ -979,6 +980,99 @@ const acmCr = document.getElementById('acmCr');
 const acmNataddr = document.getElementById('acmNataddr');
 const acmNotes = document.getElementById('acmNotes');
 
+// Payment methods modal elements
+const pmBackdrop = document.getElementById('paymentMethodsModal');
+const pmList = document.getElementById('paymentMethodsList');
+const pmCancel = document.getElementById('pmCancel');
+const pmPrint = document.getElementById('pmPrint');
+let pmSelected = null;
+
+pmCancel?.addEventListener('click', () => {
+  if (pmBackdrop) pmBackdrop.style.display = 'none';
+});
+
+pmPrint?.addEventListener('click', () => {
+  if (pmSelected) {
+    if (pmBackdrop) pmBackdrop.style.display = 'none';
+    // Update the main payment method select and then trigger the print
+    if (paymentMethod) paymentMethod.value = pmSelected;
+    // Trigger the actual print logic
+    __performPrintInvoice();
+  }
+});
+
+function showPaymentMethodsModal() {
+  if (!pmBackdrop || !pmList) return;
+  
+  pmList.innerHTML = '';
+  pmSelected = null;
+  if (pmPrint) pmPrint.disabled = true;
+  
+  const PM_META = {
+    cash:   { label: (__currentLang.payMethodCash   || 'كاش'),     icon: '💵', grad: 'from-emerald-400 to-green-500',   ring: 'ring-emerald-500',  bg: 'bg-emerald-50',   text: 'text-emerald-700'   },
+    card:   { label: (__currentLang.payMethodCard   || 'شبكة'),    icon: '💳', grad: 'from-blue-400 to-indigo-500',     ring: 'ring-blue-500',     bg: 'bg-blue-50',      text: 'text-blue-700'      },
+    credit: { label: (__currentLang.payMethodCredit || 'آجل'),     icon: '📋', grad: 'from-amber-400 to-orange-500',    ring: 'ring-amber-500',    bg: 'bg-amber-50',     text: 'text-amber-700'     },
+    mixed:  { label: (__currentLang.payMethodMixed  || 'مختلط'),   icon: '🔀', grad: 'from-purple-400 to-violet-500',   ring: 'ring-purple-500',   bg: 'bg-purple-50',    text: 'text-purple-700'    },
+    tamara: { label: (__currentLang.payMethodTamara || 'تمارا'),   icon: '🌙', grad: 'from-pink-400 to-rose-500',       ring: 'ring-pink-500',     bg: 'bg-pink-50',      text: 'text-pink-700',     imgSrc: '../../../assets/tamara-logo.svg' },
+    tabby:  { label: (__currentLang.payMethodTabby  || 'تابي'),    icon: '🐱', grad: 'from-teal-400 to-cyan-500',       ring: 'ring-teal-500',     bg: 'bg-teal-50',      text: 'text-teal-700',     imgSrc: '../../../assets/tabby-logo.svg' },
+  };
+
+  const methods = settings.payment_methods || ['cash', 'card', 'mixed'];
+  methods.forEach(m => {
+    const meta = PM_META[m] || { label: m, icon: '💰', grad: 'from-gray-400 to-slate-500', ring: 'ring-gray-400', bg: 'bg-gray-50', text: 'text-gray-700' };
+
+    const btn = document.createElement('button');
+    btn.dataset.method = m;
+    btn.className = [
+      'group relative flex flex-col items-center justify-center gap-2',
+      'rounded-2xl border-2 border-gray-100 bg-white',
+      'p-4 cursor-pointer transition-all duration-200',
+      'hover:border-gray-300 hover:shadow-md hover:-translate-y-0.5',
+      'focus:outline-none'
+    ].join(' ');
+    btn.style.minHeight = '90px';
+
+    const iconHtml = meta.imgSrc
+      ? `<img src="${meta.imgSrc}" alt="${meta.label}" style="width:72px; height:28px; object-fit:contain;" />`
+      : `<span style="font-size:24px; line-height:1;">${meta.icon}</span>`;
+
+    btn.innerHTML = `
+      <div class="w-16 h-12 rounded-xl ${meta.imgSrc ? '' : 'bg-gradient-to-br ' + meta.grad + ' shadow-md'} flex items-center justify-center group-hover:scale-110 transition-transform duration-200" style="${meta.imgSrc ? '' : ''}">
+        ${iconHtml}
+      </div>
+      <span class="font-bold text-sm text-gray-700 group-hover:text-gray-900">${meta.label}</span>
+      <div class="pm-check absolute top-2 left-2 w-5 h-5 rounded-full bg-blue-500 hidden items-center justify-center shadow">
+        <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      </div>
+    `;
+
+    btn.onclick = () => {
+      Array.from(pmList.children).forEach(b => {
+        b.classList.remove('border-blue-500', 'shadow-lg', '-translate-y-1', 'bg-blue-50');
+        b.classList.add('border-gray-100', 'bg-white');
+        const chk = b.querySelector('.pm-check');
+        if (chk) chk.classList.remove('flex'); 
+        if (chk) chk.classList.add('hidden');
+      });
+      btn.classList.remove('border-gray-100', 'bg-white');
+      btn.classList.add('border-blue-500', 'shadow-lg', '-translate-y-1', 'bg-blue-50');
+      const chk = btn.querySelector('.pm-check');
+      if (chk) { chk.classList.remove('hidden'); chk.classList.add('flex'); }
+      pmSelected = m;
+      if (pmPrint) {
+        pmPrint.disabled = false;
+        pmPrint.style.opacity = '1';
+        pmPrint.style.cursor = 'pointer';
+        pmPrint.style.boxShadow = '0 4px 14px rgba(79,70,229,0.5)';
+      }
+    };
+
+    pmList.appendChild(btn);
+  });
+  
+  pmBackdrop.style.display = 'flex';
+}
+
 // Restrict phone, VAT, and CR fields to numbers only
 [acmPhone, acmVat, acmCr].forEach(field => {
   if(field){
@@ -1023,7 +1117,7 @@ function showToast(message, type = 'info', duration = 3000) {
   }, duration);
 }
 
-let settings = { vat_percent: 15, prices_include_vat: 1, currency_code: 'SAR', currency_symbol:'\ue900', currency_symbol_position:'after', payment_methods: ['cash','card','mixed'], op_price_manual: 0, tobacco_fee_percent: 100, tobacco_min_invoice_sub: 25, tobacco_min_fee_amount: 25, low_stock_threshold: 5, show_low_stock_alerts: false, show_item_desc: true, hide_item_description: false };
+let settings = { vat_percent: 15, prices_include_vat: 1, currency_code: 'SAR', currency_symbol:'\ue900', currency_symbol_position:'after', payment_methods: ['cash','card','mixed'], op_price_manual: 0, tobacco_fee_percent: 100, tobacco_min_invoice_sub: 25, tobacco_min_fee_amount: 25, low_stock_threshold: 5, show_low_stock_alerts: false, show_item_desc: true, hide_item_description: false, enable_payment_methods_popup: false };
 let cart = []; // {id, name, price, qty, image_path}
 let activeTypes = new Set(); // أسماء الأنواع الرئيسية النشطة فقط
 let __isProcessingOld = false; // قفل الشاشة أثناء معالجة فاتورة سابقة
@@ -2584,7 +2678,7 @@ try{
       }
       if(itemsToSend.length === 0){ setError(__currentLang.noNewItemsKitchen || 'لا توجد أصناف جديدة لإرسالها للمطبخ'); return; }
 
-      const kitchenCopies = Math.max(1, Number(settings.kitchen_print_copies || 1));
+      const kitchenCopies = Math.max(0, Number(settings.kitchen_print_copies != null ? settings.kitchen_print_copies : 1));
       const r = await window.api.kitchen_print_order({ items: itemsToSend, room_name: (roomMeta?roomMeta.name:null), sale_id: null, waiter_name: waiterName, copies_per_section: kitchenCopies, order_no: null });
 
       // عند النجاح وعدم التخطي (لا توجد طابعات)، قم بوسم العناصر على أنها مُرسلة
@@ -2889,17 +2983,25 @@ btnPay.addEventListener('click', async () => {
   
   if(cart.length === 0){ __showSalesToast(__currentLang.addProductsFirst||'أضف منتجات أولاً', { icon:'⚠️', danger:true, ms:5000 }); return; }
   
+  if (settings.enable_payment_methods_popup) {
+    showPaymentMethodsModal();
+  } else {
+    __performPrintInvoice();
+  }
+});
+
+async function __performPrintInvoice() {
   // تعطيل أزرار الطباعة ومنع الضغط المتكرر
-  btnPay.disabled = true;
+  if (btnPay) btnPay.disabled = true;
   const btnPayTopElem = document.getElementById('btnPayTop');
   if(btnPayTopElem) btnPayTopElem.disabled = true;
   
   // حفظ النصوص الأصلية
-  const originalBtnPayText = btnPay.innerHTML;
+  const originalBtnPayText = btnPay ? btnPay.innerHTML : '';
   const originalBtnPayTopText = btnPayTopElem ? btnPayTopElem.innerHTML : '';
   
   // تغيير النص إلى "جاري الطباعة..."
-  btnPay.innerHTML = (__currentLang.printing || 'جاري الطباعة...');
+  if (btnPay) btnPay.innerHTML = (__currentLang.printing || 'جاري الطباعة...');
   if(btnPayTopElem) {
     const longText = btnPayTopElem.querySelector('.hidden.sm\\:inline');
     const shortText = btnPayTopElem.querySelector('.sm\\:hidden');
@@ -2909,8 +3011,10 @@ btnPay.addEventListener('click', async () => {
   
   // دالة لإعادة تمكين الأزرار
   const enableButtons = () => {
-    btnPay.disabled = false;
-    btnPay.innerHTML = originalBtnPayText;
+    if (btnPay) {
+      btnPay.disabled = false;
+      btnPay.innerHTML = originalBtnPayText;
+    }
     if(btnPayTopElem) {
       btnPayTopElem.disabled = false;
       btnPayTopElem.innerHTML = originalBtnPayTopText;
@@ -3029,12 +3133,12 @@ btnPay.addEventListener('click', async () => {
     }
 
     if(itemsToSend.length){
-      const kitchenCopies = Math.max(1, Number(settings.kitchen_print_copies || 1));
+      const kitchenCopies = Math.max(0, Number(settings.kitchen_print_copies != null ? settings.kitchen_print_copies : 1));
       __kitchenPayload = { items: itemsToSend, room_name: (roomMeta?roomMeta.name:null), sale_id: r.sale_id, waiter_name: waiterName, copies_per_section: kitchenCopies, order_no: r.order_no, sentSnapshot: sentSnapshot };
     }
   }catch(_){ /* ignore kitchen prep errors */ }
 
-  const copies = Math.max(1, Number(settings.print_copies || (settings.print_two_copies ? 2 : 1)));
+  const copies = Math.max(0, Number(settings.print_copies != null ? settings.print_copies : (settings.print_two_copies ? 2 : 1)));
   const query = '&pay=' + encodeURIComponent(paymentMethod.value) + '&cash=' + encodeURIComponent(String(cash));
   const roomParam = __currentRoomId ? ('&room=' + encodeURIComponent(__currentRoomId)) : '';
   const orderParam = (typeof r.order_no !== 'undefined' && r.order_no !== null) ? ('&order=' + encodeURIComponent(String(r.order_no))) : '';
@@ -3144,7 +3248,7 @@ btnPay.addEventListener('click', async () => {
   enableButtons();
   
   await loadCatalog();
-});
+}
 
 async function populateCategories(preFetchedRes = null){
   try{

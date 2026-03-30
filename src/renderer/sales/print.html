@@ -1626,7 +1626,7 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
           const __FAST_NO_VAT__ = Number(settings?.vat_percent||0) === 0;
           const __SILENT_ENABLED__ = !!(settings && settings.silent_print);
           const __PREVIEW_ONLY__ = params.get('preview') === '1';
-          const copies = Math.max(1, Number(params.get('copies') || settings?.print_copies || (settings?.print_two_copies ? 2 : 1)));
+          const copies = Math.max(0, Number(params.has('copies') ? params.get('copies') : (settings?.print_copies != null ? settings.print_copies : (settings?.print_two_copies ? 2 : 1))));
 
           // إذا كانت الطباعة الصامتة مفعّلة: اطبع في الخلفية عبر العملية الرئيسية مع إبقاء معاينة الفاتورة ظاهرة
           if(__SILENT_ENABLED__ && !__PREVIEW_ONLY__){
@@ -1660,23 +1660,27 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
             if(!sessionStorage.getItem(firedKey)){
               sessionStorage.setItem(firedKey, '1');
               
-              // إشعار الشاشة الأصلية بعد طباعة المستخدم
-              let printCount = 0;
-              const handleAfterPrint = () => {
-                printCount++;
-                if(printCount >= copies){
-                  try{ if(window.opener){ window.opener.postMessage({ type:'invoice-after-print' }, '*'); } }catch(_){ }
-                  window.removeEventListener('afterprint', handleAfterPrint);
-                } else {
-                  // اطبع النسخة التالية
-                  setTimeout(() => window.print(), 100);
-                }
-              };
-              
-              window.addEventListener('afterprint', handleAfterPrint);
-              
-              // ابدأ الطباعة الأولى تلقائياً
-              setTimeout(() => window.print(), 100);
+              if(copies > 0) {
+                // إشعار الشاشة الأصلية بعد طباعة المستخدم
+                let printCount = 0;
+                const handleAfterPrint = () => {
+                  printCount++;
+                  if(printCount >= copies){
+                    try{ if(window.opener){ window.opener.postMessage({ type:'invoice-after-print' }, '*'); } }catch(_){ }
+                    window.removeEventListener('afterprint', handleAfterPrint);
+                  } else {
+                    // اطبع النسخة التالية
+                    setTimeout(() => window.print(), 100);
+                  }
+                };
+                
+                window.addEventListener('afterprint', handleAfterPrint);
+                
+                // ابدأ الطباعة الأولى تلقائياً
+                setTimeout(() => window.print(), 100);
+              } else {
+                try{ if(window.opener){ window.opener.postMessage({ type:'invoice-after-print' }, '*'); } }catch(_){ }
+              }
             }
           } else {
             // وضع المعاينة فقط: لا تطبع تلقائياً

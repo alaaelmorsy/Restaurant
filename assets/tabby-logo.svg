@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 85" width="220" height="85">
+  <!-- Background green rounded rectangle -->
+  <rect width="220" height="85" rx="14" fill="#3DFABC"/>
+
+  <!-- "t" with double crossbar (Tabby brand icon) -->
+  <!-- Vertical stem of t -->
+  <rect x="18" y="14" width="14" height="57" rx="7" fill="#1C1C1C"/>
+  <!-- Lower crossbar of t -->
+  <rect x="10" y="44" width="30" height="10" rx="5" fill="#1C1C1C"/>
+  <!-- Upper crossbar of t (the special tabby t) -->
+  <rect x="10" y="28" width="30" height="9" rx="4.5" fill="#1C1C1C"/>
+
+  <!-- "a" -->
+  <text x="48" y="67" font-family="Arial Black, Helvetica, sans-serif" font-weight="900" font-size="54" fill="#1C1C1C" letter-spacing="-1">abby</text>
+</svg>
