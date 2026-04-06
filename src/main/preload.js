@@ -133,7 +133,10 @@ const { contextBridge, ipcRenderer } = require('electron');
       'حدث خطأ أثناء الحفظ':'An error occurred while saving',
       'تعبئة اسم المستخدم وكلمة المرور':'Fill username and password',
       'حدث خطأ':'An error occurred',
-      'يرجى إدخال اسم المستخدم وكلمة المرور':'Please enter username and password'
+      'يرجى إدخال اسم المستخدم وكلمة المرور':'Please enter username and password',
+      'تكبير':'Zoom in',
+      'تصغير':'Zoom out',
+      'تكبير/تصغير':'Zoom in/out'
     }); TR.en_to_ar = Object.fromEntries(Object.entries(TR.ar_to_en).map(([a,e])=>[e,a])); }catch(_){ }
 
     // More UI translations collected from renderer screens
@@ -375,6 +378,118 @@ const { contextBridge, ipcRenderer } = require('electron');
             }
           }
         }catch(_){ }
+
+        // ── Floating Zoom Control ──
+        try{
+          if(!isPrint && isMain && !document.getElementById('zoomControlStyles')){
+            const zst = document.createElement('style'); zst.id='zoomControlStyles';
+            zst.textContent = `
+              #zoomControl{
+                position:fixed; top:50%; inset-inline-end:0; transform:translateY(-50%);
+                z-index:10001; display:flex; align-items:center; direction:ltr;
+                font-family:'Cairo',sans-serif;
+              }
+              #zoomToggleBtn{
+                width:28px; height:56px; border:0; border-radius:10px 0 0 10px;
+                background:linear-gradient(135deg,#2563eb,#3b82f6); color:#fff;
+                font-size:16px; font-weight:800; cursor:pointer; display:flex;
+                align-items:center; justify-content:center;
+                box-shadow:2px 2px 12px rgba(37,99,235,.3);
+                transition:background .2s, box-shadow .2s;
+              }
+              #zoomToggleBtn:hover{ background:linear-gradient(135deg,#1d4ed8,#2563eb); }
+              #zoomPanel{
+                display:none; flex-direction:column; gap:4px; padding:6px;
+                background:#fff; border-radius:12px 0 0 12px;
+                box-shadow:-2px 2px 16px rgba(0,0,0,.15); border:1px solid #e5e7eb;
+                border-right:0;
+              }
+              #zoomPanel.open{ display:flex; }
+              .zoom-btn{
+                width:36px; height:36px; border:0; border-radius:8px;
+                background:linear-gradient(135deg,#2563eb,#3b82f6); color:#fff;
+                font-size:20px; font-weight:900; cursor:pointer; display:flex;
+                align-items:center; justify-content:center;
+                box-shadow:0 4px 10px rgba(37,99,235,.2);
+                transition:transform .1s, filter .2s;
+              }
+              .zoom-btn:hover{ filter:brightness(1.1); }
+              .zoom-btn:active{ transform:scale(.93); }
+              #zoomLevel{
+                font-size:11px; font-weight:800; color:#374151;
+                text-align:center; min-width:36px; line-height:1.2;
+                user-select:none;
+              }
+              @media print{ #zoomControl{display:none!important} }
+            `;
+            document.head.appendChild(zst);
+          }
+          if(!isPrint && isMain && !document.getElementById('zoomControl')){
+            const wrap = document.createElement('div'); wrap.id='zoomControl';
+            const toggle = document.createElement('button'); toggle.id='zoomToggleBtn';
+            toggle.type='button'; toggle.setAttribute('aria-label','تكبير/تصغير');
+            toggle.innerHTML='▶';
+            const panel = document.createElement('div'); panel.id='zoomPanel';
+
+            const btnPlus = document.createElement('button'); btnPlus.className='zoom-btn';
+            btnPlus.type='button'; btnPlus.textContent='+'; btnPlus.title='تكبير';
+            const btnMinus = document.createElement('button'); btnMinus.className='zoom-btn';
+            btnMinus.type='button'; btnMinus.textContent='−'; btnMinus.title='تصغير';
+            const levelLabel = document.createElement('div'); levelLabel.id='zoomLevel';
+            levelLabel.textContent='100%';
+
+            panel.appendChild(btnPlus);
+            panel.appendChild(levelLabel);
+            panel.appendChild(btnMinus);
+            wrap.appendChild(toggle);
+            wrap.appendChild(panel);
+            document.body.appendChild(wrap);
+
+            let panelOpen = false;
+            let currentZoom = 1;
+            const updateLabel = () => { levelLabel.textContent = Math.round(currentZoom*100)+'%'; };
+
+            // Load saved zoom
+            (async()=>{
+              try{
+                const r = await ipcRenderer.invoke('zoom:get');
+                if(r && r.zoom){ currentZoom = r.zoom; updateLabel(); }
+              }catch(_){}
+            })();
+
+            toggle.addEventListener('click', (ev)=>{
+              ev.stopPropagation();
+              panelOpen = !panelOpen;
+              panel.classList.toggle('open', panelOpen);
+              toggle.innerHTML = panelOpen ? '◀' : '▶';
+            });
+
+            btnPlus.addEventListener('click', async (ev)=>{
+              ev.stopPropagation();
+              currentZoom = Math.min(2, +(currentZoom + 0.1).toFixed(2));
+              updateLabel();
+              try{ await ipcRenderer.invoke('zoom:set', { zoom: currentZoom }); }catch(_){}
+            });
+            btnMinus.addEventListener('click', async (ev)=>{
+              ev.stopPropagation();
+              currentZoom = Math.max(0.5, +(currentZoom - 0.1).toFixed(2));
+              updateLabel();
+              try{ await ipcRenderer.invoke('zoom:set', { zoom: currentZoom }); }catch(_){}
+            });
+          }
+
+          // Apply saved zoom on page load
+          (async()=>{
+            try{
+              const r = await ipcRenderer.invoke('zoom:get');
+              if(r && r.zoom && r.zoom !== 1){
+                const { webFrame } = require('electron');
+                webFrame.setZoomFactor(r.zoom);
+              }
+            }catch(_){}
+          })();
+        }catch(_){ }
+
         // Function to ensure language selector exists and stays mounted
         const ensureLangSelector = (langVal) => {
           if(isPrint || !nav) return;
@@ -663,6 +778,10 @@ contextBridge.exposeInMainWorld('api', {
 
   // Window control
   window_set_fullscreen: (shouldBeFullscreen) => ipcRenderer.invoke('window:set_fullscreen', shouldBeFullscreen),
+
+  // Zoom control
+  zoom_get: () => ipcRenderer.invoke('zoom:get'),
+  zoom_set: (zoom) => ipcRenderer.invoke('zoom:set', { zoom }),
 
   // WhatsApp
   whatsapp_initialize: () => ipcRenderer.invoke('whatsapp:initialize'),

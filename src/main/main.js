@@ -439,6 +439,31 @@ function createMainWindow() {
     return { ok: true };
   });
 
+  // Zoom controls — persist zoom level and apply to all windows
+  ipcMain.handle('zoom:get', async () => {
+    try {
+      const p = path.join(app.getPath('userData'), 'app-zoom.json');
+      if (fs.existsSync(p)) {
+        const j = JSON.parse(fs.readFileSync(p, 'utf-8'));
+        const z = parseFloat(j && j.zoom) || 1;
+        return { ok: true, zoom: z };
+      }
+    } catch (_) { }
+    return { ok: true, zoom: 1 };
+  });
+  ipcMain.handle('zoom:set', async (_e, { zoom }) => {
+    try {
+      const z = Math.max(0.5, Math.min(2, parseFloat(zoom) || 1));
+      const p = path.join(app.getPath('userData'), 'app-zoom.json');
+      fs.writeFileSync(p, JSON.stringify({ zoom: z }), 'utf-8');
+      // Apply to ALL open windows
+      BrowserWindow.getAllWindows().forEach(w => {
+        try { w.webContents.setZoomFactor(z); } catch (_) { }
+      });
+      return { ok: true, zoom: z };
+    } catch (e) { return { ok: false, error: String(e && e.message || e) }; }
+  });
+
   // Saved accounts fallback (userData JSON)
   ipcMain.handle('saved_accounts:get', async () => {
     try{
