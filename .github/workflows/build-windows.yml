@@ -3,8 +3,10 @@ name: Build Windows EXE
 on:
   workflow_dispatch:
   push:
-    tags:
-      - v*
+    branches:
+      - main
+    paths:
+      - "package.json"
 
 permissions:
   contents: write
@@ -14,27 +16,68 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-          cache: "npm"
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-      - name: Build CSS
-        run: npm run tailwind:build
-      - name: Build Windows EXE
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npm run dist:win:all
+
       - name: Get version from package.json
         id: package-version
         run: |
           $version = node -p "require('./package.json').version"
           echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          echo "TAG=v$version" >> $env:GITHUB_OUTPUT
         shell: pwsh
-      - name: Create Release and Upload Assets
+
+      - name: Check if tag already exists
+        id: check-tag
         run: |
-          gh release create ${{ github.ref_name }} `
+          $tag = "v${{ steps.package-version.outputs.VERSION }}"
+          $exists = git ls-remote --tags origin "refs/tags/$tag" | Select-String $tag
+          if ($exists) {
+            echo "EXISTS=true" >> $env:GITHUB_OUTPUT
+          } else {
+            echo "EXISTS=false" >> $env:GITHUB_OUTPUT
+          }
+        shell: pwsh
+
+      - name: Skip if version already released
+        if: steps.check-tag.outputs.EXISTS == 'true'
+        run: |
+          echo "Version ${{ steps.package-version.outputs.VERSION }} already released. Skipping."
+          exit 0
+        shell: pwsh
+
+      - uses: actions/setup-node@v6
+        if: steps.check-tag.outputs.EXISTS == 'false'
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install dependencies
+        if: steps.check-tag.outputs.EXISTS == 'false'
+        run: npm ci --legacy-peer-deps
+
+      - name: Build CSS
+        if: steps.check-tag.outputs.EXISTS == 'false'
+        run: npm run tailwind:build
+
+      - name: Build Windows EXE
+        if: steps.check-tag.outputs.EXISTS == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: npm run dist:win:all
+
+      - name: Create Tag
+        if: steps.check-tag.outputs.EXISTS == 'false'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag ${{ steps.package-version.outputs.TAG }}
+          git push origin ${{ steps.package-version.outputs.TAG }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release and Upload Assets
+        if: steps.check-tag.outputs.EXISTS == 'false'
+        run: |
+          gh release create ${{ steps.package-version.outputs.TAG }} `
             --title "الإصدار ${{ steps.package-version.outputs.VERSION }}" `
             --latest `
             "./dist/Restaurant-Setup-${{ steps.package-version.outputs.VERSION }}.exe" `
