@@ -7,12 +7,17 @@ on:
     paths:
       - "package.json"
 
+concurrency:
+  group: build-release
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
 jobs:
   build-windows:
     runs-on: windows-latest
+    if: github.ref_type == 'branch'
     steps:
       - uses: actions/checkout@v5
 
@@ -27,7 +32,7 @@ jobs:
       - name: Check if release already exists
         id: check
         run: |
-          $exists = gh release view ${{ steps.pkg.outputs.TAG }} 2>$null
+          gh release view ${{ steps.pkg.outputs.TAG }} 2>$null
           if ($LASTEXITCODE -eq 0) {
             echo "EXISTS=true" >> $env:GITHUB_OUTPUT
           } else {
@@ -62,6 +67,7 @@ jobs:
         run: |
           gh release create ${{ steps.pkg.outputs.TAG }} `
             --title "الإصدار ${{ steps.pkg.outputs.VERSION }}" `
+            --target ${{ github.sha }} `
             --latest `
             "./dist/Restaurant-Setup-${{ steps.pkg.outputs.VERSION }}.exe" `
             "./dist/Restaurant-Setup-${{ steps.pkg.outputs.VERSION }}.msi" `
