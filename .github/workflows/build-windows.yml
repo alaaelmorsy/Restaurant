@@ -1,7 +1,6 @@
 name: Build Windows EXE
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
@@ -18,70 +17,54 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Get version from package.json
-        id: package-version
+        id: pkg
         run: |
           $version = node -p "require('./package.json').version"
           echo "VERSION=$version" >> $env:GITHUB_OUTPUT
           echo "TAG=v$version" >> $env:GITHUB_OUTPUT
         shell: pwsh
 
-      - name: Check if tag already exists
-        id: check-tag
+      - name: Check if release already exists
+        id: check
         run: |
-          $tag = "v${{ steps.package-version.outputs.VERSION }}"
-          $exists = git ls-remote --tags origin "refs/tags/$tag" | Select-String $tag
-          if ($exists) {
+          $exists = gh release view ${{ steps.pkg.outputs.TAG }} 2>$null
+          if ($LASTEXITCODE -eq 0) {
             echo "EXISTS=true" >> $env:GITHUB_OUTPUT
           } else {
             echo "EXISTS=false" >> $env:GITHUB_OUTPUT
           }
         shell: pwsh
-
-      - name: Skip if version already released
-        if: steps.check-tag.outputs.EXISTS == 'true'
-        run: |
-          echo "Version ${{ steps.package-version.outputs.VERSION }} already released. Skipping."
-          exit 0
-        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v6
-        if: steps.check-tag.outputs.EXISTS == 'false'
+        if: steps.check.outputs.EXISTS == 'false'
         with:
           node-version: "24"
           cache: "npm"
 
       - name: Install dependencies
-        if: steps.check-tag.outputs.EXISTS == 'false'
+        if: steps.check.outputs.EXISTS == 'false'
         run: npm ci --legacy-peer-deps
 
       - name: Build CSS
-        if: steps.check-tag.outputs.EXISTS == 'false'
+        if: steps.check.outputs.EXISTS == 'false'
         run: npm run tailwind:build
 
       - name: Build Windows EXE
-        if: steps.check-tag.outputs.EXISTS == 'false'
+        if: steps.check.outputs.EXISTS == 'false'
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npm run dist:win:all
 
-      - name: Create Tag
-        if: steps.check-tag.outputs.EXISTS == 'false'
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git tag ${{ steps.package-version.outputs.TAG }}
-          git push origin ${{ steps.package-version.outputs.TAG }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Create Release and Upload Assets
-        if: steps.check-tag.outputs.EXISTS == 'false'
+        if: steps.check.outputs.EXISTS == 'false'
         run: |
-          gh release create ${{ steps.package-version.outputs.TAG }} `
-            --title "الإصدار ${{ steps.package-version.outputs.VERSION }}" `
+          gh release create ${{ steps.pkg.outputs.TAG }} `
+            --title "الإصدار ${{ steps.pkg.outputs.VERSION }}" `
             --latest `
-            "./dist/Restaurant-Setup-${{ steps.package-version.outputs.VERSION }}.exe" `
-            "./dist/Restaurant-Setup-${{ steps.package-version.outputs.VERSION }}.msi" `
+            "./dist/Restaurant-Setup-${{ steps.pkg.outputs.VERSION }}.exe" `
+            "./dist/Restaurant-Setup-${{ steps.pkg.outputs.VERSION }}.msi" `
             "./dist/latest.yml"
         shell: pwsh
         env:
