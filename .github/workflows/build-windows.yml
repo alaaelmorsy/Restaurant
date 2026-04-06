@@ -2,78 +2,61 @@ name: Build Windows EXE
 
 on:
   push:
-    branches:
-      - main
-    tags-ignore:
-      - "**"
-    paths:
-      - "package.json"
-
-concurrency:
-  group: build-release
-  cancel-in-progress: false
+    tags:
+      - "v*"
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build-windows:
+  build:
     runs-on: windows-latest
-    if: startsWith(github.ref, 'refs/heads/')
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Get version from package.json
         id: pkg
         run: |
           $version = node -p "require('./package.json').version"
           echo "VERSION=$version" >> $env:GITHUB_OUTPUT
-          echo "TAG=v$version" >> $env:GITHUB_OUTPUT
         shell: pwsh
 
-      - name: Check if release already exists
-        id: check
+      - name: Validate tag matches package.json version
         run: |
-          gh release view ${{ steps.pkg.outputs.TAG }} 2>$null
-          if ($LASTEXITCODE -eq 0) {
-            echo "EXISTS=true" >> $env:GITHUB_OUTPUT
-          } else {
-            echo "EXISTS=false" >> $env:GITHUB_OUTPUT
+          $tag = "${{ github.ref_name }}"
+          $version = "v${{ steps.pkg.outputs.VERSION }}"
+          if ($tag -ne $version) {
+            Write-Error "Tag ($tag) does not match package.json version ($version). Please update package.json before pushing the tag."
+            exit 1
           }
         shell: pwsh
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-node@v6
-        if: steps.check.outputs.EXISTS == 'false'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "22"
           cache: "npm"
 
       - name: Install dependencies
-        if: steps.check.outputs.EXISTS == 'false'
         run: npm ci --legacy-peer-deps
 
-      - name: Build CSS
-        if: steps.check.outputs.EXISTS == 'false'
-        run: npm run tailwind:build
-
-      - name: Build Windows EXE
-        if: steps.check.outputs.EXISTS == 'false'
+      - name: Build installers
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run dist:win:all
 
       - name: Create Release and Upload Assets
-        if: steps.check.outputs.EXISTS == 'false'
-        run: |
-          gh release create ${{ steps.pkg.outputs.TAG }} `
-            --title "الإصدار ${{ steps.pkg.outputs.VERSION }}" `
-            --target ${{ github.sha }} `
-            --latest `
-            "./dist/Restaurant-Setup-${{ steps.pkg.outputs.VERSION }}.exe" `
-            "./dist/Restaurant-Setup-${{ steps.pkg.outputs.VERSION }}.msi" `
-            "./dist/latest.yml"
-        shell: pwsh
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "الإصدار ${{ steps.pkg.outputs.VERSION }}"
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: |
+            ./dist/Restaurant-Setup-${{ steps.pkg.outputs.VERSION }}.exe
+            ./dist/Restaurant-Setup-${{ steps.pkg.outputs.VERSION }}.msi
+            ./dist/latest.yml
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
