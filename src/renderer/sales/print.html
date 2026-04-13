@@ -178,6 +178,24 @@
       #header{ border-bottom: 1px dashed #cbd5e1; padding-bottom: 2px !important; margin-bottom: 2px; }
       #company{ letter-spacing: .1px; }
       #companyInfo{ text-align: center; line-height: 1.1; }
+      #paymentsHistoryBody td:last-child{ text-align:left; }
+      .pay-history-amount{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:8px;
+        direction:ltr;
+        width:100%;
+      }
+      .pay-history-amount .amount-value{
+        font-weight:800;
+        order:2;
+      }
+      .pay-history-amount .amount-symbol{
+        font-family:'CairoPrint', 'saudi_riyal', system-ui, -apple-system, Segoe UI, Roboto, "Noto Kufi Arabic", Arial, sans-serif !important;
+        font-weight:900 !important;
+        order:1;
+      }
 
       /* تخطيط محسّن لقسم الإجماليات */
       table.totals{
@@ -404,6 +422,20 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
         </tbody>
       </table>
 
+      <div id="paymentsHistorySection" style="display:none; margin-top:4px;">
+        <div class="muted" style="font-weight:800; margin-bottom:2px;">سجل الدفعات</div>
+        <table>
+          <thead>
+            <tr>
+              <th>التاريخ</th>
+              <th>الطريقة</th>
+              <th>المبلغ</th>
+            </tr>
+          </thead>
+          <tbody id="paymentsHistoryBody"></tbody>
+        </table>
+      </div>
+
       <div id="qrBox" class="center" style="margin:2px 0;">
         <div id="qr" style="display:inline-block; transform:scale(0.8); transform-origin:center;"></div>
       </div>
@@ -619,6 +651,13 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
           if(!s || !s.ok){ document.body.innerHTML = '<div style="padding:12px">تعذر تحميل الفاتورة</div>'; return; }
           if(!s.sale){ document.body.innerHTML = '<div style="padding:12px">بيانات الفاتورة غير موجودة</div>'; return; }
           const sale = s.sale, items = s.items || [];
+          let paymentHistory = [];
+          try{
+            if(typeof api.sales_get_payments === 'function'){
+              const paymentsRes = await api.sales_get_payments(saleId);
+              if(paymentsRes && paymentsRes.ok){ paymentHistory = paymentsRes.payments || []; }
+            }
+          }catch(_){ }
 
           const pay = params.get('pay') || (s.sale?.payment_method || '');
           let cash = Number(params.get('cash')||0);
@@ -782,6 +821,18 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
               return pos === 'before' ? `${symHtml} ${n}` : `${n} ${symHtml}`;
             }catch(_){
               return n;
+            }
+          }
+
+          function fmtPaymentsHistoryOpposite(a){
+            const n = Number(a||0).toFixed(2);
+            try{
+              let sym = String((settings && settings.currency_symbol) || '').trim();
+              if(!sym){ sym = '﷼'; }
+              if(sym === 'SAR' || sym === 'ريال' || sym === 'ر.س' || sym.includes('ريال')){ sym = '﷼'; }
+              return `<div class="pay-history-amount"><span class="amount-value">${n}</span><span class="amount-symbol">${sym}</span></div>`;
+            }catch(_){
+              return `<div class="pay-history-amount"><span class="amount-value">${n}</span><span class="amount-symbol">﷼</span></div>`;
             }
           }
 
@@ -1450,10 +1501,32 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
             const isMixed = (pay||'')==='mixed';
             // Rename to isCreditNote to avoid shadowing and ensure clarity
             const isCreditNote = String(sale?.doc_type||'')==='credit_note' || String(sale?.invoice_no||'').startsWith('CN-') || (pay === 'refund');
+            const partialPaid = Number(sale.amount_paid || 0);
+            const historyPaidSum = (paymentHistory || []).reduce((acc, p) => acc + Number(p?.amount || 0), 0);
+            // إن وُجدت دفعات في السجل لكن amount_paid لم يُحدَّث، نعرض مجموع السجل
+            const effectiveAmountPaid = Math.max(partialPaid, historyPaidSum);
 
             // إخفاء صف المتبقي في الفواتير الدائنة
             if(isCreditNote){
               if(remainRow) remainRow.style.display='none';
+            }
+
+            if(!isCreditNote && paymentHistory.length){
+              paidEl.innerHTML = fmt(effectiveAmountPaid);
+              paidRow.style.display = '';
+              remEl.innerHTML = fmt(Math.max(0, grand - effectiveAmountPaid));
+              remainRow.style.display = '';
+              const historySection = document.getElementById('paymentsHistorySection');
+              const historyBody = document.getElementById('paymentsHistoryBody');
+              const labels = { cash:'كاش', card:'شبكة', tamara:'تمارا', tabby:'تابي', bank_transfer:'حوالة' };
+              historyBody.innerHTML = paymentHistory.map((payment) => `
+                <tr>
+                  <td>${new Intl.DateTimeFormat('en-GB-u-ca-gregory', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:true }).format(new Date(payment.paid_at))}</td>
+                  <td>${labels[String(payment.method||'').toLowerCase()] || payment.method || ''}</td>
+                  <td>${fmtPaymentsHistoryOpposite(payment.amount)}</td>
+                </tr>
+              `).join('');
+              historySection.style.display = '';
             }
 
             if(!isMixed){
@@ -1499,9 +1572,9 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
                   paid = entered;
                   remain = Number((Math.max(0, grand - entered)).toFixed(2));
                 } else {
-                  // إن لم يُدخل مبلغ: أظهر المدفوع = 0 والمتبقي = كامل الإجمالي
-                  paid = 0;
-                  remain = Number(grand.toFixed(2));
+                  // بدون مبلغ في الرابط: المدفوع من قاعدة البيانات أو مجموع سجل الدفعات
+                  paid = effectiveAmountPaid;
+                  remain = Number((Math.max(0, grand - paid)).toFixed(2));
                 }
               } else {
                 // طرق أخرى: لا مدفوع، المتبقي هو الإجمالي فقط إذا أُدخل مبلغ

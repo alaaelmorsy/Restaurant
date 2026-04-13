@@ -2318,6 +2318,7 @@ async function loadCatalog(){
     const query = { active: '1', sort: 'custom', limit: pageSize, offset: st.offset, compress_images: true, exclude_no_category: '1' };
     if(cat){ query.category = cat; }
     let resp = null;
+    let catalogSource = 'api';
     
     // استخدم البيانات المحملة مسبقاً إن وُجدت (للتحميل الفوري)
     // نعطي أولوية لـ __prefetchedProductsAll لأنها تحتوي على جميع المنتجات
@@ -2328,6 +2329,7 @@ async function loadCatalog(){
         const filtered = all.filter(p => p.category && p.category !== '' && (cat ? p.category === cat : true));
         const page = filtered.slice(st.offset, st.offset + pageSize);
         resp = { ok: true, items: page, total: filtered.length };
+        catalogSource = 'prefetchAll';
       }catch(_){ resp = null; }
     } else if(window.__prefetchedProducts && st.offset === 0){
       // fallback: استخدم أول 50 منتج فقط إذا لم تكن البيانات الكاملة جاهزة
@@ -2339,6 +2341,7 @@ async function loadCatalog(){
         const filtered = all.filter(p => p.category && p.category !== '' && (cat ? p.category === cat : true));
         const page = filtered.slice(0, pageSize);
         resp = { ok: true, items: page, total: filtered.length };
+        catalogSource = 'prefetch50';
       }catch(_){ resp = null; }
     }
     
@@ -2358,7 +2361,34 @@ async function loadCatalog(){
       return;
     }
     const list = (resp.items||[]).filter(p => !p.category || activeTypes.has(p.category));
-    if(list.length < pageSize){ st.done = true; }
+    const apiTotal = Number(resp.total);
+    const nextOffset = st.offset + list.length;
+    if(!list.length){
+      st.done = true;
+    } else if(catalogSource === 'prefetchAll'){
+      const dbTotal = Number(window.__prefetchedProductsDbTotal);
+      const allLen = (window.__prefetchedProductsAll && window.__prefetchedProductsAll.length) || 0;
+      const haveFullPrefetch = !Number.isFinite(dbTotal) || dbTotal <= 0 || allLen >= dbTotal;
+      const filteredLen = Number.isFinite(apiTotal) ? apiTotal : nextOffset;
+      if(!haveFullPrefetch && nextOffset >= filteredLen){
+        window.__prefetchedProductsAll = null;
+        st.done = false;
+      } else {
+        st.done = haveFullPrefetch && nextOffset >= filteredLen;
+      }
+    } else if(catalogSource === 'prefetch50'){
+      const dbTotal = Number(window.__prefetchedProductsDbTotal);
+      const chunkTotal = Number.isFinite(apiTotal) ? apiTotal : list.length;
+      if(Number.isFinite(dbTotal) && dbTotal > 50){
+        st.done = false;
+      } else {
+        st.done = nextOffset >= chunkTotal;
+      }
+    } else {
+      st.done = (Number.isFinite(apiTotal) && apiTotal > 0)
+        ? (nextOffset >= apiTotal)
+        : (list.length < pageSize);
+    }
     st.offset += list.length;
     const shouldReplace = (st.offset - list.length) === 0;
     
@@ -2372,6 +2402,11 @@ async function loadCatalog(){
     }
     
     renderCatalogCards(list, { replace: shouldReplace });
+
+    // إكمال الدفعات دون الاعتماد على تمرير النافذة (الشبكة قد تكون أقصر من ارتفاع الشاشة)
+    if(st.token === requestToken && !st.done){
+      queueMicrotask(() => { loadCatalog(); });
+    }
   } finally {
     if(st.token === requestToken){
       st.busy = false;
@@ -3432,6 +3467,8 @@ async function populateCategories(preFetchedRes = null){
     try{
       if(rProducts && rProducts.ok && rProducts.items){
         window.__prefetchedProducts = rProducts.items;
+        const t = Number(rProducts.total);
+        window.__prefetchedProductsDbTotal = Number.isFinite(t) ? t : rProducts.items.length;
         
         // جلب الباقي في الخلفية بدون انتظار (400+ منتج إضافية)
         if(rProducts.total && rProducts.total > 50){
@@ -3492,6 +3529,7 @@ async function populateCategories(preFetchedRes = null){
     // مسح البيانات المحملة مسبقاً
     window.__prefetchedProducts = null;
     window.__prefetchedProductsAll = null;
+    window.__prefetchedProductsDbTotal = null;
     // مسح شاشة المنتجات وإعادة التحميل من قاعدة البيانات
     if(loadCatalog.__state){ loadCatalog.__state.cat=''; loadCatalog.__state.offset=0; loadCatalog.__state.done=false; loadCatalog.__state.busy=false; }
     catalog.innerHTML='';

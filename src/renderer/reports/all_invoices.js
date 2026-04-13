@@ -125,6 +125,213 @@ const dateFormatter = new Intl.DateTimeFormat('en-GB-u-ca-gregory', {
   hour:'2-digit', minute:'2-digit', hour12:true
 });
 
+function invoiceStatusLabel(sale){
+  const isCredit = String(sale?.payment_method || '').toLowerCase() === 'credit';
+  const isPaid = String(sale?.payment_status || 'paid') === 'paid';
+  const paidAmt = Number(sale?.amount_paid || 0);
+  if(isCredit && !isPaid && paidAmt > 0){ return 'مدفوعة جزئياً'; }
+  if(isCredit && !isPaid){ return 'غير مدفوعة'; }
+  return '';
+}
+
+function invoiceRecognizedRatio(sale){
+  const grand = Math.max(0, Number(sale?.grand_total || 0));
+  if(grand <= 0){ return 0; }
+  const isCredit = String(sale?.payment_method || '').toLowerCase() === 'credit';
+  const isPaid = String(sale?.payment_status || 'paid') === 'paid';
+  if(isCredit && !isPaid){
+    const paid = Math.max(0, Math.min(grand, Number(sale?.amount_paid || 0)));
+    return paid / grand;
+  }
+  return 1;
+}
+
+function recognizedValue(sale, field){
+  return Number(sale?.[field] || 0) * invoiceRecognizedRatio(sale);
+}
+
+/** أعمدة المبالغ وإجماليات التقرير: فواتير الآجل تُحسب كاملة (مدفوعة/غير مدفوعة/جزئية) وليس الجزء المدفوع فقط */
+function allInvoicesRowAmount(sale, field){
+  const isCN = (String(sale?.doc_type || '') === 'credit_note' || String(sale?.invoice_no || '').startsWith('CN-'));
+  if(isCN) return recognizedValue(sale, field);
+  if(String(sale?.payment_method || '').toLowerCase() === 'credit'){
+    return Number(sale?.[field] || 0);
+  }
+  return recognizedValue(sale, field);
+}
+
+function isCreditNoteSale(s){
+  return (String(s?.doc_type || '') === 'credit_note' || String(s?.invoice_no || '').startsWith('CN-'));
+}
+
+/** فواتير نُحمّل لها invoice_payments: آجل عليها مدفوعات، أو فاتورة جزئية (طريقة الدفع ليست آجل) */
+function saleIdsNeedingPaymentRows(allInvoices){
+  const ids = new Set();
+  if(!Array.isArray(allInvoices)) return [];
+  for(const s of allInvoices){
+    if(isCreditNoteSale(s)) continue;
+    const sid = Number(s.id);
+    if(!Number.isFinite(sid) || sid <= 0) continue;
+    const ap = Number(s.amount_paid || 0);
+    if(ap <= 0) continue;
+    const g = Number(s.grand_total || 0);
+    const isCredit = String(s.payment_method || '').toLowerCase() === 'credit';
+    if(isCredit) ids.add(sid);
+    else if(ap < g - 0.009) ids.add(sid);
+  }
+  return [...ids];
+}
+
+/** المبلغ المحصّل لبطاقات «طرق الدفع» (لا يُستخدم إجمالي الفاتورة عند الدفع الجزئي) */
+function collectedAmountForPaymentTotals(s, isCN){
+  if(isCN) return recognizedValue(s, 'grand_total');
+  const g = Math.max(0, Number(s.grand_total || 0));
+  const ap = Math.max(0, Number(s.amount_paid || 0));
+  const unpaid = String(s.payment_status || 'paid') !== 'paid';
+  if(unpaid) return Math.min(g, ap);
+  if(ap > 0 && ap < g - 0.009) return ap;
+  return g;
+}
+
+const PAY_METHOD_KNOWN = new Set(['cash','card','tamara','tabby','bank_transfer','credit']);
+
+async function buildPaymentsBySaleMap(saleIdsForPayments, allInvoices){
+  const map = new Map();
+  const uniqBatch = [...new Set((saleIdsForPayments || []).map(x => Number(x)).filter(x => Number.isFinite(x) && x > 0))];
+
+  try{
+    if(uniqBatch.length && typeof window.api.sales_get_payments_batch === 'function'){
+      const res = await window.api.sales_get_payments_batch(uniqBatch);
+      if(res && res.ok && Array.isArray(res.payments)){
+        for(const p of res.payments){
+          const sid = Number(p.sale_id);
+          if(!Number.isFinite(sid) || sid <= 0) continue;
+          if(!map.has(sid)) map.set(sid, []);
+          map.get(sid).push(p);
+        }
+      }
+    }
+  }catch(_){}
+
+  // إن فشل الدفعة أو التطبيق قديم: جلب سجل الدفعات لكل فاتورة آjel عليها مبلغ مدفوع ولا يوجد لها صفوف بعد
+  if(!Array.isArray(allInvoices) || !allInvoices.length) return map;
+
+  const needFetch = [];
+  for(const s of allInvoices){
+    if(isCreditNoteSale(s)) continue;
+    const sid = Number(s.id);
+    if(!Number.isFinite(sid) || sid <= 0) continue;
+    if(Number(s.amount_paid||0) <= 0) continue;
+    const rows = map.get(sid);
+    if(rows && rows.length) continue;
+    const isCredit = String(s.payment_method||'').toLowerCase() === 'credit';
+    const g = Number(s.grand_total||0);
+    const ap = Number(s.amount_paid||0);
+    if(isCredit || (ap > 0 && ap < g - 0.009)) needFetch.push(sid);
+  }
+  const toFetch = [...new Set(needFetch)];
+  const CONC = 10;
+  for(let i = 0; i < toFetch.length; i += CONC){
+    const slice = toFetch.slice(i, i + CONC);
+    await Promise.all(slice.map(async (sid) => {
+      try{
+        if(typeof window.api.sales_get_payments !== 'function') return;
+        const r = await window.api.sales_get_payments(sid);
+        if(r && r.ok && Array.isArray(r.payments) && r.payments.length){
+          map.set(sid, r.payments);
+        }
+      }catch(_){}
+    }));
+  }
+  return map;
+}
+
+function addPayMethodAmount(totalPayTotals, key, amount, isCN){
+  if(!key) return;
+  const k = String(key).toLowerCase();
+  const norm = (k === 'network') ? 'card' : k;
+  const prev = Number(totalPayTotals.get(norm)||0);
+  totalPayTotals.set(norm, prev + Number(amount||0) * (isCN ? -1 : 1));
+}
+
+/** إجماليات طرق الدفع: من invoice_payments عند توفرها؛ وإلا المبلغ المحصّل (جزئي/آجل) لا إجمالي الفاتورة */
+function accumulateInvoicePaymentTotals(s, totalPayTotals, paymentsBySale){
+  const isCN = isCreditNoteSale(s);
+  const pm = String(s.payment_method || '').toLowerCase();
+  const collected = collectedAmountForPaymentTotals(s, isCN);
+  const list = paymentsBySale.get(Number(s.id)) || [];
+
+  function attributeFromPaymentRows(){
+    let sumListed = 0;
+    let attributed = 0;
+    for(const p of list){
+      const amt = Number(p.amount||0);
+      sumListed += amt;
+      let m = String(p.method ?? '').trim().toLowerCase();
+      if(m === 'network') m = 'card';
+      if(m && PAY_METHOD_KNOWN.has(m)){
+        addPayMethodAmount(totalPayTotals, m, amt, isCN);
+        attributed += amt;
+      }
+    }
+    const loose = sumListed - attributed;
+    if(loose > 0.009){
+      addPayMethodAmount(totalPayTotals, 'credit', loose, isCN);
+    }
+    const ap = Number(s.amount_paid||0);
+    if(ap > sumListed + 0.009){
+      const rem = ap - sumListed;
+      if(pm === 'credit'){
+        addPayMethodAmount(totalPayTotals, 'credit', rem, isCN);
+      } else if(pm && PAY_METHOD_KNOWN.has(pm)){
+        addPayMethodAmount(totalPayTotals, pm, rem, isCN);
+      } else {
+        addPayMethodAmount(totalPayTotals, 'credit', rem, isCN);
+      }
+    }
+    // فاتورة آجل غير مسددة: صفوف الدفع تغطي المدفوع فقط؛ أضف المتبقي على الحساب (مطابق لتقارير الفترة/اليومية)
+    const gTot = Math.max(0, Number(s.grand_total || 0));
+    const apTot = Math.max(0, Number(s.amount_paid || 0));
+    if(pm === 'credit' && String(s.payment_status || 'paid') !== 'paid'){
+      const covered = Math.max(apTot, sumListed);
+      const outstanding = Math.max(0, gTot - covered);
+      if(outstanding > 0.009){
+        addPayMethodAmount(totalPayTotals, 'credit', outstanding, isCN);
+      }
+    }
+  }
+
+  if(!isCN && list.length){
+    attributeFromPaymentRows();
+    return;
+  }
+
+  if(pm === 'credit' && !isCN){
+    const ap = Number(s.amount_paid||0);
+    if(ap > 0){
+      addPayMethodAmount(totalPayTotals, 'credit', ap, isCN);
+    }
+    return;
+  }
+
+  if(pm==='mixed'){
+    const cashPart = Number(s.pay_cash_amount || 0);
+    const cardPart = Number(s.pay_card_amount || 0);
+    const half = collected > 0 ? collected / 2 : 0;
+    addPayMethodAmount(totalPayTotals, 'cash', cashPart>0 ? cashPart : half, isCN);
+    addPayMethodAmount(totalPayTotals, 'card', cardPart>0 ? cardPart : half, isCN);
+  } else if(pm==='cash'){
+    const settledCash = Number(s.settled_cash || 0);
+    const cashPart = Number(s.pay_cash_amount || 0);
+    addPayMethodAmount(totalPayTotals, 'cash', settledCash>0 ? settledCash : (cashPart>0 ? cashPart : collected), isCN);
+  } else if(pm==='card' || pm==='network' || pm==='tamara' || pm==='tabby'){
+    const cardPart = Number(s.pay_card_amount || 0);
+    addPayMethodAmount(totalPayTotals, pm, cardPart>0 ? cardPart : collected, isCN);
+  } else if(pm){
+    addPayMethodAmount(totalPayTotals, pm, collected, isCN);
+  }
+}
+
 const btnBack = document.getElementById('btnBack');
 if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
 
@@ -187,9 +394,9 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
               const dateStr = dateFormatter.format(created);
               const custPhone = s.customer_phone || s.disp_customer_phone || '';
               const cust = custPhone || (s.customer_name || s.disp_customer_name || '');
-              const pre = Number(s.sub_total||0);
-              const vat = Number(s.vat_total||0);
-              const grand = Number(s.grand_total||0);
+              const pre = allInvoicesRowAmount(s, 'sub_total');
+              const vat = allInvoicesRowAmount(s, 'vat_total');
+              const grand = allInvoicesRowAmount(s, 'grand_total');
               sumPre += pre; sumVat += vat; sumGrand += grand;
               const pm = String(s.payment_method || '').toLowerCase();
               const payLabel = (function(method){
@@ -426,9 +633,9 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
           const dateStr = dateFormatter.format(created);
           const custPhone = s.customer_phone || s.disp_customer_phone || '';
           const cust = custPhone || (s.customer_name || s.disp_customer_name || '');
-          const pre = Number(s.sub_total||0);
-          const vat = Number(s.vat_total||0);
-          const grand = Number(s.grand_total||0);
+          const pre = allInvoicesRowAmount(s, 'sub_total');
+          const vat = allInvoicesRowAmount(s, 'vat_total');
+          const grand = allInvoicesRowAmount(s, 'grand_total');
           sumPre += pre; sumVat += vat; sumGrand += grand;
           const pm = String(s.payment_method || '').toLowerCase();
           const payLabel = (function(method){
@@ -501,9 +708,9 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
               const dateStr = dateFormatter.format(created);
               const custPhone = s.customer_phone || s.disp_customer_phone || '';
               const cust = custPhone || (s.customer_name || s.disp_customer_name || '');
-              const pre = Number(s.sub_total||0);
-              const vat = Number(s.vat_total||0);
-              const grand = Number(s.grand_total||0);
+              const pre = allInvoicesRowAmount(s, 'sub_total');
+              const vat = allInvoicesRowAmount(s, 'vat_total');
+              const grand = allInvoicesRowAmount(s, 'grand_total');
               totalSumGrand += grand;
               const pm = String(s.payment_method || '').toLowerCase();
               const payLabel = (function(method){
@@ -842,43 +1049,20 @@ async function loadRange(startStr, endStr, userId, page = 1){
 
     // جلب جميع الفواتير لحساب الإجماليات الكلية - استخدم التاريخ المعدل
     const allInvoices = await loadAllInvoices(startStr, adjustedEndStr, userId);
-    
+    const paymentsBySale = await buildPaymentsBySaleMap(saleIdsNeedingPaymentRows(allInvoices), allInvoices);
+
     // حساب الإجماليات الكلية من جميع الفواتير
     let totalSumPre = 0, totalSumVat = 0, totalSumGrand = 0;
     const totalPayTotals = new Map();
-    
+
     allInvoices.forEach(s=>{
-      const isCN = (String(s.doc_type||'') === 'credit_note' || String(s.invoice_no||'').startsWith('CN-'));
-      const pre = Number(s.sub_total||0);
-      const vat = Number(s.vat_total||0);
-      const grand = Number(s.grand_total||0);
-      totalSumPre += pre; 
-      totalSumVat += vat; 
+      const pre = allInvoicesRowAmount(s, 'sub_total');
+      const vat = allInvoicesRowAmount(s, 'vat_total');
+      const grand = allInvoicesRowAmount(s, 'grand_total');
+      totalSumPre += pre;
+      totalSumVat += vat;
       totalSumGrand += grand;
-      
-      // حساب إجماليات طرق الدفع
-      const pm = String(s.payment_method || '').toLowerCase();
-      const addAmt = (key, amount)=>{
-        if(!key) return;
-        const k = (key==='network' ? 'card' : key);
-        const prev = Number(totalPayTotals.get(k)||0);
-        totalPayTotals.set(k, prev + Number(amount||0) * (isCN ? -1 : 1));
-      };
-      if(pm==='mixed'){
-        const cashPart = Number(s.pay_cash_amount || 0);
-        const cardPart = Number(s.pay_card_amount || 0);
-        addAmt('cash', cashPart>0 ? cashPart : (grand>0 ? grand/2 : 0));
-        addAmt('card', cardPart>0 ? cardPart : (grand>0 ? grand/2 : 0));
-      } else if(pm==='cash'){
-        const settledCash = Number(s.settled_cash || 0);
-        const cashPart = Number(s.pay_cash_amount || 0);
-        addAmt('cash', settledCash>0 ? settledCash : (cashPart>0 ? cashPart : grand));
-      } else if(pm==='card' || pm==='network' || pm==='tamara' || pm==='tabby'){
-        const cardPart = Number(s.pay_card_amount || 0);
-        addAmt(pm, cardPart>0 ? cardPart : grand);
-      } else if(pm){
-        addAmt(pm, grand);
-      }
+      accumulateInvoicePaymentTotals(s, totalPayTotals, paymentsBySale);
     });
 
     const invTbody = document.getElementById('invTbody');
@@ -889,39 +1073,19 @@ async function loadRange(startStr, endStr, userId, page = 1){
 
     const rows = items.map(s=>{
       const isCN = (String(s.doc_type||'') === 'credit_note' || String(s.invoice_no||'').startsWith('CN-'));
-      const docType = isCN ? 'إشعار دائن' : 'فاتورة';
+      const statusTxt = invoiceStatusLabel(s);
+      const docType = isCN ? 'إشعار دائن' : `فاتورة${statusTxt ? ` - ${statusTxt}` : ''}`;
       let created = s.created_at ? new Date(s.created_at) : null;
       if(!created || isNaN(created.getTime())){ try{ created = new Date(String(s.created_at).replace(' ', 'T')); }catch(_){ created = new Date(); } }
       const dateStr = dateFormatter.format(created);
       const custPhone = s.customer_phone || s.disp_customer_phone || '';
       const cust = custPhone || (s.customer_name || s.disp_customer_name || '');
-      const pre = Number(s.sub_total||0);
-      const vat = Number(s.vat_total||0);
-      const grand = Number(s.grand_total||0);
+      const pre = allInvoicesRowAmount(s, 'sub_total');
+      const vat = allInvoicesRowAmount(s, 'vat_total');
+      const grand = allInvoicesRowAmount(s, 'grand_total');
       sumPre += pre; sumVat += vat; sumGrand += grand;
       const pm = String(s.payment_method || '').toLowerCase();
-      // accumulate totals by payment method with mixed split
-      const addAmt = (key, amount)=>{
-        if(!key) return;
-        const k = (key==='network' ? 'card' : key);
-        const prev = Number(payTotals.get(k)||0);
-        payTotals.set(k, prev + Number(amount||0) * (isCN ? -1 : 1));
-      };
-      if(pm==='mixed'){
-        const cashPart = Number(s.pay_cash_amount || 0);
-        const cardPart = Number(s.pay_card_amount || 0);
-        addAmt('cash', cashPart>0 ? cashPart : (grand>0 ? grand/2 : 0));
-        addAmt('card', cardPart>0 ? cardPart : (grand>0 ? grand/2 : 0));
-      } else if(pm==='cash'){
-        const settledCash = Number(s.settled_cash || 0);
-        const cashPart = Number(s.pay_cash_amount || 0);
-        addAmt('cash', settledCash>0 ? settledCash : (cashPart>0 ? cashPart : grand));
-      } else if(pm==='card' || pm==='network' || pm==='tamara' || pm==='tabby'){
-        const cardPart = Number(s.pay_card_amount || 0);
-        addAmt(pm, cardPart>0 ? cardPart : grand);
-      } else if(pm){
-        addAmt(pm, grand);
-      }
+      accumulateInvoicePaymentTotals(s, payTotals, paymentsBySale);
       const payLabel = (function(method){
         const m = String(method||'').toLowerCase();
         if(m==='cash') return 'نقدًا';
@@ -1111,42 +1275,20 @@ window.goToPage = async function(page){
 
     // جلب جميع الفواتير لحساب الإجماليات الكلية
     const allInvoices = await loadAllInvoices(startStr, adjustedEndStr, userId);
-    
+    const paymentsBySaleGo = await buildPaymentsBySaleMap(saleIdsNeedingPaymentRows(allInvoices), allInvoices);
+
     // حساب الإجماليات الكلية من جميع الفواتير
     let totalSumPre = 0, totalSumVat = 0, totalSumGrand = 0;
     const totalPayTotals = new Map();
-    
+
     allInvoices.forEach(s=>{
-      const isCN = (String(s.doc_type||'') === 'credit_note' || String(s.invoice_no||'').startsWith('CN-'));
-      const pre = Number(s.sub_total||0);
-      const vat = Number(s.vat_total||0);
-      const grand = Number(s.grand_total||0);
-      totalSumPre += pre; 
-      totalSumVat += vat; 
+      const pre = allInvoicesRowAmount(s, 'sub_total');
+      const vat = allInvoicesRowAmount(s, 'vat_total');
+      const grand = allInvoicesRowAmount(s, 'grand_total');
+      totalSumPre += pre;
+      totalSumVat += vat;
       totalSumGrand += grand;
-      
-      const pm = String(s.payment_method || '').toLowerCase();
-      const addAmt = (key, amount)=>{
-        if(!key) return;
-        const k = (key==='network' ? 'card' : key);
-        const prev = Number(totalPayTotals.get(k)||0);
-        totalPayTotals.set(k, prev + Number(amount||0) * (isCN ? -1 : 1));
-      };
-      if(pm==='mixed'){
-        const cashPart = Number(s.pay_cash_amount || 0);
-        const cardPart = Number(s.pay_card_amount || 0);
-        addAmt('cash', cashPart>0 ? cashPart : (grand>0 ? grand/2 : 0));
-        addAmt('card', cardPart>0 ? cardPart : (grand>0 ? grand/2 : 0));
-      } else if(pm==='cash'){
-        const settledCash = Number(s.settled_cash || 0);
-        const cashPart = Number(s.pay_cash_amount || 0);
-        addAmt('cash', settledCash>0 ? settledCash : (cashPart>0 ? cashPart : grand));
-      } else if(pm==='card' || pm==='network' || pm==='tamara' || pm==='tabby'){
-        const cardPart = Number(s.pay_card_amount || 0);
-        addAmt(pm, cardPart>0 ? cardPart : grand);
-      } else if(pm){
-        addAmt(pm, grand);
-      }
+      accumulateInvoicePaymentTotals(s, totalPayTotals, paymentsBySaleGo);
     });
 
     const invTbody = document.getElementById('invTbody');
@@ -1157,38 +1299,19 @@ window.goToPage = async function(page){
 
     const rows = items.map(s=>{
       const isCN = (String(s.doc_type||'') === 'credit_note' || String(s.invoice_no||'').startsWith('CN-'));
-      const docType = isCN ? 'إشعار دائن' : 'فاتورة';
+      const statusTxt = invoiceStatusLabel(s);
+      const docType = isCN ? 'إشعار دائن' : `فاتورة${statusTxt ? ` - ${statusTxt}` : ''}`;
       let created = s.created_at ? new Date(s.created_at) : null;
       if(!created || isNaN(created.getTime())){ try{ created = new Date(String(s.created_at).replace(' ', 'T')); }catch(_){ created = new Date(); } }
       const dateStr = dateFormatter.format(created);
       const custPhone = s.customer_phone || s.disp_customer_phone || '';
       const cust = custPhone || (s.customer_name || s.disp_customer_name || '');
-      const pre = Number(s.sub_total||0);
-      const vat = Number(s.vat_total||0);
-      const grand = Number(s.grand_total||0);
+      const pre = allInvoicesRowAmount(s, 'sub_total');
+      const vat = allInvoicesRowAmount(s, 'vat_total');
+      const grand = allInvoicesRowAmount(s, 'grand_total');
       sumPre += pre; sumVat += vat; sumGrand += grand;
       const pm = String(s.payment_method || '').toLowerCase();
-      const addAmt = (key, amount)=>{
-        if(!key) return;
-        const k = (key==='network' ? 'card' : key);
-        const prev = Number(payTotals.get(k)||0);
-        payTotals.set(k, prev + Number(amount||0) * (isCN ? -1 : 1));
-      };
-      if(pm==='mixed'){
-        const cashPart = Number(s.pay_cash_amount || 0);
-        const cardPart = Number(s.pay_card_amount || 0);
-        addAmt('cash', cashPart>0 ? cashPart : (grand>0 ? grand/2 : 0));
-        addAmt('card', cardPart>0 ? cardPart : (grand>0 ? grand/2 : 0));
-      } else if(pm==='cash'){
-        const settledCash = Number(s.settled_cash || 0);
-        const cashPart = Number(s.pay_cash_amount || 0);
-        addAmt('cash', settledCash>0 ? settledCash : (cashPart>0 ? cashPart : grand));
-      } else if(pm==='card' || pm==='network' || pm==='tamara' || pm==='tabby'){
-        const cardPart = Number(s.pay_card_amount || 0);
-        addAmt(pm, cardPart>0 ? cardPart : grand);
-      } else if(pm){
-        addAmt(pm, grand);
-      }
+      accumulateInvoicePaymentTotals(s, payTotals, paymentsBySaleGo);
       const payLabel = (function(method){
         const m = String(method||'').toLowerCase();
         if(m==='cash') return 'نقدًا';

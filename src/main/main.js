@@ -293,7 +293,7 @@ function createMainWindow() {
       contextIsolation: true,
     },
     title: 'نظام الرابط - الرئيسية',
-    show: true,
+    show: false,
     backgroundColor: '#f4f7fb',
     icon: getResourcePath(path.join('assets', 'icon', 'app.ico'))
   });
@@ -301,8 +301,10 @@ function createMainWindow() {
   // Optimistic UI: Load login screen immediately
   win.loadFile(path.join(__dirname, '../renderer/login/index.html'));
 
-  // Setup auto updater
+  // Login (and first run): fill work area; user can restore/resize anytime
   win.once('ready-to-show', () => {
+    try { win.maximize(); } catch (_) { /* ignore */ }
+    win.show();
     setupAutoUpdater(win);
   });
 

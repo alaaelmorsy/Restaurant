@@ -49,6 +49,117 @@
           font-size: 13px;
         }
       }
+
+      /* Fallback styles to keep partial-payment actions readable
+         even if some Tailwind gradient utilities are unavailable. */
+      #dlgPartialCancel,
+      #dlgPartialSettleAll,
+      #dlgPartialPay {
+        color: #ffffff !important;
+        border-width: 1px !important;
+        border-style: solid !important;
+      }
+
+      #dlgPartialCancel {
+        background: linear-gradient(135deg, #334155, #1e293b) !important;
+        border-color: #334155 !important;
+      }
+
+      #dlgPartialSettleAll {
+        background: linear-gradient(135deg, #059669, #047857) !important;
+        border-color: #047857 !important;
+      }
+
+      #dlgPartialPay {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        border-color: #b45309 !important;
+      }
+
+      #dlgPartialCancel:disabled,
+      #dlgPartialSettleAll:disabled,
+      #dlgPartialPay:disabled {
+        opacity: 0.65 !important;
+        cursor: not-allowed !important;
+      }
+
+      /* Full fallback theme for partial payment dialog */
+      #dlgPartial > div {
+        border-color: #dbe3f1 !important;
+      }
+
+      #dlgPartial > div > div:first-child {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        color: #ffffff !important;
+      }
+
+      #dlgPartialInvNo {
+        color: #ffffff !important;
+      }
+
+      #dlgPartialTotal,
+      #dlgPartialPaid,
+      #dlgPartialRemaining {
+        letter-spacing: 0.2px;
+      }
+
+      #dlgPartialTotal {
+        color: #0f172a !important;
+      }
+
+      #dlgPartialPaid {
+        color: #047857 !important;
+      }
+
+      #dlgPartialRemaining {
+        color: #b45309 !important;
+      }
+
+      #dlgPartialHistoryRows tr td {
+        color: #334155 !important;
+      }
+
+      #partialAmount,
+      #partialMethod {
+        border-color: #cbd5e1 !important;
+        color: #1e293b !important;
+        background-color: #ffffff !important;
+      }
+
+      #partialAmount::placeholder {
+        color: #94a3b8 !important;
+      }
+
+      /* Actions buttons in invoices table */
+      #rows button[data-act="partial"],
+      #rows button[data-act="settle"],
+      #rows button[data-act="view"] {
+        color: #ffffff !important;
+        border-width: 1px !important;
+        border-style: solid !important;
+        font-weight: 700 !important;
+      }
+
+      #rows button[data-act="partial"] {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        border-color: #b45309 !important;
+      }
+
+      #rows button[data-act="settle"] {
+        background: linear-gradient(135deg, #16a34a, #15803d) !important;
+        border-color: #166534 !important;
+      }
+
+      #rows button[data-act="view"] {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+        border-color: #1e40af !important;
+      }
+
+      #rows button[data-act="partial"]:disabled,
+      #rows button[data-act="settle"]:disabled,
+      #rows button[data-act="view"]:disabled {
+        opacity: 0.6 !important;
+        cursor: not-allowed !important;
+      }
     </style>
   </head>
   <body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
@@ -163,13 +274,14 @@
                 <th id="thCustomer" class="px-5 py-4 text-right text-sm font-bold text-blue-700">👤 العميل</th>
                 <th id="thPhone" class="px-5 py-4 text-right text-sm font-bold text-blue-700">📱 الجوال</th>
                 <th id="thTotal" class="px-5 py-4 text-right text-sm font-bold text-blue-700">💰 الإجمالي</th>
+                <th id="thRemaining" class="px-5 py-4 text-right text-sm font-bold text-blue-700">📉 المتبقي</th>
                 <th id="thDate" class="px-5 py-4 text-right text-sm font-bold text-blue-700">📅 التاريخ</th>
                 <th id="thStatus" class="px-5 py-4 text-right text-sm font-bold text-blue-700">🏷️ الحالة</th>
                 <th id="thActions" class="px-5 py-4 text-center text-sm font-bold text-blue-700">⚡ الإجراءات</th>
               </tr>
             </thead>
             <tbody id="rows" class="divide-y divide-slate-100">
-              <tr><td colspan="7" class="px-5 py-12 text-center text-slate-500"><div class="text-5xl mb-3 opacity-50">📋</div><div class="font-bold">لا توجد فواتير آجلة</div></td></tr>
+              <tr><td colspan="8" class="px-5 py-12 text-center text-slate-500"><div class="text-5xl mb-3 opacity-50">📋</div><div class="font-bold">لا توجد فواتير آجلة</div></td></tr>
             </tbody>
           </table>
         </div>
@@ -228,6 +340,87 @@
           <button id="dlgOk" class="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-bold shadow-md flex items-center gap-2 border border-green-500">
             <span>✅</span>
             <span id="dlgOkTxt">سداد وطباعة</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Partial Payment Dialog -->
+    <div id="dlgPartial" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); align-items:center; justify-content:center; z-index:1001;">
+      <div class="bg-white w-full max-w-3xl mx-4 rounded-3xl overflow-hidden shadow-2xl border border-slate-200">
+        <div class="px-6 py-5 bg-gradient-to-r from-amber-500 to-amber-600 text-white">
+          <div class="text-lg font-black flex items-center gap-2">
+            <span class="text-2xl">💰</span>
+            <span>دفع جزئي على الفاتورة <span id="dlgPartialInvNo"></span></span>
+          </div>
+        </div>
+        <div class="p-6 space-y-5">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div class="text-xs text-slate-500 font-bold">إجمالي الفاتورة</div>
+              <div id="dlgPartialTotal" class="text-xl font-black text-slate-800 mt-1">0.00</div>
+            </div>
+            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+              <div class="text-xs text-emerald-700 font-bold">المدفوع حتى الآن</div>
+              <div id="dlgPartialPaid" class="text-xl font-black text-emerald-700 mt-1">0.00</div>
+            </div>
+            <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+              <div class="text-xs text-amber-700 font-bold">المتبقي</div>
+              <div id="dlgPartialRemaining" class="text-xl font-black text-amber-700 mt-1">0.00</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="text-sm font-black text-slate-700">سجل الدفعات السابقة</div>
+            </div>
+            <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+              <table class="w-full text-sm">
+                <thead class="bg-slate-50">
+                  <tr>
+                    <th class="px-4 py-3 text-right font-bold text-slate-600">التاريخ</th>
+                    <th class="px-4 py-3 text-right font-bold text-slate-600">الطريقة</th>
+                    <th class="px-4 py-3 text-right font-bold text-slate-600">المبلغ</th>
+                    <th class="px-4 py-3 text-right font-bold text-slate-600">ملاحظات</th>
+                  </tr>
+                </thead>
+                <tbody id="dlgPartialHistoryRows">
+                  <tr><td colspan="4" class="px-4 py-5 text-center text-slate-400">لا توجد دفعات مسجلة</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="partialAmount" class="block text-sm font-bold text-slate-700 mb-2">المبلغ المراد دفعه</label>
+              <input id="partialAmount" type="number" min="0.01" step="0.01" placeholder="أدخل مبلغ الدفعة"
+                     class="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-sm font-semibold text-slate-700 placeholder-slate-400" />
+            </div>
+            <div>
+              <label for="partialMethod" class="block text-sm font-bold text-slate-700 mb-2">طريقة السداد</label>
+              <select id="partialMethod"
+                      class="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-sm font-bold text-slate-700">
+                <option value="cash">💵 كاش</option>
+                <option value="card">💳 شبكة</option>
+                <option value="tamara">🛍️ تمارا</option>
+                <option value="tabby">📱 تابي</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex gap-3 justify-end flex-wrap">
+          <button id="dlgPartialCancel" class="px-6 py-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-xl font-bold shadow-md flex items-center gap-2 border border-slate-500">
+            <span>❌</span>
+            <span>إلغاء</span>
+          </button>
+          <button id="dlgPartialSettleAll" class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-bold shadow-md flex items-center gap-2 border border-emerald-500">
+            <span>✅</span>
+            <span>سداد كامل المتبقي</span>
+          </button>
+          <button id="dlgPartialPay" class="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-bold shadow-md flex items-center gap-2 border border-amber-400">
+            <span>💰</span>
+            <span>دفع الجزء</span>
           </button>
         </div>
       </div>

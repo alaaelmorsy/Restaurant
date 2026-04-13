@@ -111,6 +111,20 @@ function registerSalesIPC(){
     if(!colPayCash.length){ await conn.query("ALTER TABLE sales ADD COLUMN pay_cash_amount DECIMAL(12,2) NULL AFTER settled_cash"); }
     const [colPayCard] = await conn.query("SHOW COLUMNS FROM sales LIKE 'pay_card_amount'");
     if(!colPayCard.length){ await conn.query("ALTER TABLE sales ADD COLUMN pay_card_amount DECIMAL(12,2) NULL AFTER pay_cash_amount"); }
+    const [colAmountPaid] = await conn.query("SHOW COLUMNS FROM sales LIKE 'amount_paid'");
+    if(!colAmountPaid.length){ await conn.query("ALTER TABLE sales ADD COLUMN amount_paid DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER grand_total"); }
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS invoice_payments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        sale_id INT NOT NULL,
+        amount DECIMAL(12,2) NOT NULL,
+        method VARCHAR(32) NOT NULL,
+        paid_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        notes VARCHAR(255) NULL,
+        KEY idx_sale_id (sale_id),
+        CONSTRAINT fk_invoice_payments_sale FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
 
     // Ensure delivery company columns exist
     const [colDelCompId] = await conn.query("SHOW COLUMNS FROM sales LIKE 'delivery_company_id'");
@@ -328,6 +342,108 @@ function registerSalesIPC(){
   function genInvoiceNoFromSeq(seq){
     // Simple sequential number starting from 1 (no padding)
     return String(seq);
+  }
+
+  function toMoney(value){
+    return Number(Number(value || 0).toFixed(2));
+  }
+
+  function getSaleRemaining(sale){
+    return Math.max(0, toMoney(Number(sale?.grand_total || 0) - Number(sale?.amount_paid || 0)));
+  }
+
+  function broadcastSalesChanged(payload){
+    try{
+      const { BrowserWindow } = require('electron');
+      BrowserWindow.getAllWindows().forEach(w => w.webContents.send('sales:changed', payload));
+    }catch(_){ }
+  }
+
+  async function getInvoicePaymentsLocal(conn, saleId){
+    const [payments] = await conn.query(
+      'SELECT id, sale_id, amount, method, paid_at, notes FROM invoice_payments WHERE sale_id=? ORDER BY paid_at ASC, id ASC',
+      [saleId]
+    );
+    return (payments || []).map(p => ({ ...p, amount: toMoney(p.amount) }));
+  }
+
+  async function settleCreditSaleLocal(conn, sale, method, cash){
+    const saleId = Number(sale.id || 0);
+    const total = toMoney(sale.grand_total);
+    const settledCash = (method === 'cash') ? Math.max(total, toMoney(cash || total)) : null;
+    await conn.query(
+      'UPDATE sales SET payment_method=?, payment_status="paid", settled_at=NOW(), settled_method=?, settled_cash=?, amount_paid=grand_total WHERE id=?',
+      [method, method, settledCash, saleId]
+    );
+    if(method === 'cash'){
+      await conn.query('UPDATE sales SET pay_cash_amount = grand_total, pay_card_amount = NULL WHERE id=?', [saleId]);
+    } else if(method === 'card' || method === 'tamara' || method === 'tabby' || method === 'bank_transfer'){
+      await conn.query('UPDATE sales SET pay_cash_amount = NULL, pay_card_amount = grand_total WHERE id=?', [saleId]);
+    }
+    const [[updated]] = await conn.query('SELECT * FROM sales WHERE id=? LIMIT 1', [saleId]);
+    return updated || null;
+  }
+
+  async function payPartialLocal(conn, payload){
+    const saleId = Number(payload?.sale_id || 0);
+    const amount = toMoney(payload?.amount);
+    const method = String(payload?.method || '').toLowerCase();
+    const notes = payload?.notes ? String(payload.notes).slice(0, 255) : null;
+    const okMethod = ['cash','card','tamara','tabby','bank_transfer'].includes(method);
+    if(!saleId){ return { ok:false, error:'رقم الفاتورة مفقود' }; }
+    if(!okMethod){ return { ok:false, error:'طريقة سداد غير صالحة' }; }
+    if(!(amount > 0)){ return { ok:false, error:'قيمة الدفعة غير صالحة' }; }
+
+    await conn.beginTransaction();
+    try{
+      const [[sale]] = await conn.query('SELECT * FROM sales WHERE id=? FOR UPDATE', [saleId]);
+      if(!sale){ await conn.rollback(); return { ok:false, error:'الفاتورة غير موجودة' }; }
+      if(String(sale.payment_method).toLowerCase() !== 'credit'){
+        await conn.rollback();
+        return { ok:false, error:'ليست فاتورة آجل' };
+      }
+      if(String(sale.payment_status || 'paid') !== 'unpaid'){
+        await conn.rollback();
+        return { ok:false, error:'الفاتورة مدفوعة مسبقًا' };
+      }
+      const remaining = getSaleRemaining(sale);
+      if(amount > remaining){
+        await conn.rollback();
+        return { ok:false, error:'قيمة الدفعة أكبر من المتبقي' };
+      }
+
+      await conn.query(
+        'INSERT INTO invoice_payments (sale_id, amount, method, notes, paid_at) VALUES (?, ?, ?, ?, NOW())',
+        [saleId, amount, method, notes]
+      );
+      await conn.query('UPDATE sales SET amount_paid = amount_paid + ? WHERE id=?', [amount, saleId]);
+
+      let [[updatedSale]] = await conn.query('SELECT * FROM sales WHERE id=? LIMIT 1', [saleId]);
+      const isFullyPaid = toMoney(updatedSale?.amount_paid) >= toMoney(updatedSale?.grand_total);
+      if(isFullyPaid){
+        updatedSale = await settleCreditSaleLocal(conn, updatedSale, method, amount) || updatedSale;
+      }
+
+      const amountPaid = isFullyPaid ? toMoney(updatedSale?.grand_total) : toMoney(updatedSale?.amount_paid);
+      const remainingAfter = Math.max(0, toMoney(Number(updatedSale?.grand_total || 0) - amountPaid));
+      const payments = await getInvoicePaymentsLocal(conn, saleId);
+      await conn.commit();
+
+      invalidateSaleCache(saleId);
+      broadcastSalesChanged({
+        action: isFullyPaid ? 'settled' : 'partial_payment',
+        sale_id: saleId,
+        method,
+        amount,
+        amount_paid: amountPaid,
+        remaining: remainingAfter
+      });
+
+      return { ok:true, sale_id: saleId, amount_paid: amountPaid, remaining: remainingAfter, is_fully_paid: isFullyPaid, payments };
+    }catch(e){
+      try{ await conn.rollback(); }catch(_){ }
+      throw e;
+    }
   }
 
   // Reset all sales and restart invoice sequence
@@ -973,6 +1089,65 @@ function registerSalesIPC(){
     }catch(e){ console.error(e); return { ok:false, error:'تعذر تحميل فواتير الآجل' }; }
   });
 
+  ipcMain.handle('sales:get_payments', async (_e, saleId) => {
+    const id = Number((saleId && saleId.id) ? saleId.id : saleId);
+    if(!id){ return { ok:false, error:'رقم الفاتورة مفقود' }; }
+    if (isSecondaryDevice()) {
+      return await fetchFromAPI(`/invoices/${id}/payments`);
+    }
+    try{
+      const pool = await getPool();
+      const conn = await pool.getConnection();
+      try{
+        await conn.query(`USE \`${DB_NAME}\``);
+        await ensureTables(conn);
+        const payments = await getInvoicePaymentsLocal(conn, id);
+        return { ok:true, payments };
+      } finally { conn.release(); }
+    }catch(e){ console.error(e); return { ok:false, error:'تعذر جلب سجل الدفعات' }; }
+  });
+
+  ipcMain.handle('sales:get_payments_batch', async (_e, saleIds) => {
+    if (isSecondaryDevice()) {
+      return { ok:true, payments: [] };
+    }
+    const raw = Array.isArray(saleIds) ? saleIds : [];
+    const uniq = [...new Set(raw.map(x => Number(x)).filter(x => Number.isFinite(x) && x > 0))];
+    if(!uniq.length){ return { ok:true, payments: [] }; }
+    try{
+      const pool = await getPool();
+      const conn = await pool.getConnection();
+      try{
+        await conn.query(`USE \`${DB_NAME}\``);
+        await ensureTables(conn);
+        const ph = uniq.map(() => '?').join(',');
+        const [rows] = await conn.query(
+          `SELECT id, sale_id, amount, method, paid_at, notes FROM invoice_payments WHERE sale_id IN (${ph}) ORDER BY sale_id ASC, paid_at ASC, id ASC`,
+          uniq
+        );
+        const payments = (rows || []).map(p => ({ ...p, amount: toMoney(p.amount) }));
+        return { ok:true, payments };
+      } finally { conn.release(); }
+    }catch(e){ console.error(e); return { ok:false, error:'تعذر جلب سجل الدفعات' }; }
+  });
+
+  ipcMain.handle('sales:pay_partial', async (_e, payload) => {
+    const id = Number(payload?.sale_id || 0);
+    if (isSecondaryDevice()) {
+      if(!id){ return { ok:false, error:'رقم الفاتورة مفقود' }; }
+      return await postToAPI(`/invoices/${id}/pay-partial`, payload || {});
+    }
+    try{
+      const pool = await getPool();
+      const conn = await pool.getConnection();
+      try{
+        await conn.query(`USE \`${DB_NAME}\``);
+        await ensureTables(conn);
+        return await payPartialLocal(conn, payload || {});
+      } finally { conn.release(); }
+    }catch(e){ console.error(e); return { ok:false, error:'تعذر تسجيل الدفعة الجزئية' }; }
+  });
+
   // List credit notes (CN) with base invoice details within a date range
   ipcMain.handle('sales:list_credit_notes', async (_e, query) => {
     if (isSecondaryDevice()) {
@@ -1041,6 +1216,11 @@ function registerSalesIPC(){
 
   // Settle a credit invoice fully (convert to immediate method)
   ipcMain.handle('sales:settle_full', async (_e, payload) => {
+    if (isSecondaryDevice()) {
+      const id = Number(payload?.sale_id || 0);
+      if(!id){ return { ok:false, error:'رقم الفاتورة مفقود' }; }
+      return await postToAPI(`/invoices/${id}/settle-full`, payload || {});
+    }
     try{
       const p = payload || {}; const id = Number(p.sale_id||0);
       const method = String(p.method||'').toLowerCase();
@@ -1057,20 +1237,8 @@ function registerSalesIPC(){
         if(!sale){ return { ok:false, error:'الفاتورة غير موجودة' }; }
         if(String(sale.payment_method).toLowerCase() !== 'credit'){ return { ok:false, error:'ليست فاتورة آجل' }; }
         if(String(sale.payment_status||'paid') === 'paid'){ return { ok:false, error:'الفاتورة مدفوعة مسبقًا' }; }
-        // For CASH settlement, store amount in settled_cash. For CARD/Tamara/Tabby, set to NULL.
-        // Update method and settlement info
-        await conn.query('UPDATE sales SET payment_method=?, payment_status="paid", settled_at=NOW(), settled_method=?, settled_cash=? WHERE id=?', [method, method, (method==='cash'?cash:null), id]);
-        // Also set split fields for simple methods to aid reports
-        if(method==='cash'){
-          await conn.query('UPDATE sales SET pay_cash_amount = grand_total, pay_card_amount = NULL WHERE id=?', [id]);
-        } else if(method==='card' || method==='tamara' || method==='tabby' || method==='bank_transfer'){
-          await conn.query('UPDATE sales SET pay_cash_amount = NULL, pay_card_amount = grand_total WHERE id=?', [id]);
-        }
-        // Notify update
-        try{
-          const { BrowserWindow } = require('electron');
-          BrowserWindow.getAllWindows().forEach(w => w.webContents.send('sales:changed', { action: 'settled', sale_id: id, method, cash: (cash||0) }));
-        }catch(_){ }
+        await settleCreditSaleLocal(conn, sale, method, cash);
+        broadcastSalesChanged({ action: 'settled', sale_id: id, method, cash: (cash||0) });
         invalidateSaleCache(id);
         return { ok:true, sale_id: id, method, cash: (cash||0) };
       } finally { conn.release(); }

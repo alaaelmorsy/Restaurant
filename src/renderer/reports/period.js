@@ -40,6 +40,8 @@ function __applyLang(lang){
     tamara: isAr ? 'تمارا' : 'Tamara',
     tabby: isAr ? 'تابي' : 'Tabby',
     mixed: isAr ? 'مختلط' : 'Mixed',
+    bank_transfer: isAr ? 'تحويل بنكي' : 'Bank Transfer',
+    creditNotInGrand: isAr ? 'لا يُحتسب في الإجمالي' : 'Not included in total',
     soldProducts: isAr ? 'المنتجات المباعة' : 'Sold products',
     product: isAr ? 'المنتج' : 'Product',
     quantity: isAr ? 'الكمية' : 'Quantity',
@@ -209,7 +211,147 @@ function labelPaymentMethod(method){
   if(m==='tamara') return __currentLang.tamara || 'تمارا';
   if(m==='tabby') return __currentLang.tabby || 'تابي';
   if(m==='mixed') return __currentLang.mixed || 'مختلط';
+  if(m==='bank_transfer') return __currentLang.bank_transfer || 'تحويل بنكي';
   return method||'';
+}
+
+function payMethodLabelsForReport(){
+  const L = __currentLang || {};
+  return {
+    cash: L.cash || 'نقدًا',
+    card: L.network || 'شبكة',
+    credit: L.credit || 'آجل',
+    tamara: L.tamara || 'تمارا',
+    tabby: L.tabby || 'تابي',
+    mixed: L.mixed || 'مختلط',
+    bank_transfer: L.bank_transfer || 'تحويل بنكي',
+  };
+}
+
+function invoiceStatusLabel(sale){
+  const isCredit = String(sale?.payment_method || '').toLowerCase() === 'credit';
+  const isPaid = String(sale?.payment_status || 'paid') === 'paid';
+  const paidAmt = Number(sale?.amount_paid || 0);
+  if(isCredit && !isPaid && paidAmt > 0){ return 'مدفوعة جزئياً'; }
+  if(isCredit && !isPaid){ return 'غير مدفوعة'; }
+  return '';
+}
+
+function invoiceRecognizedRatio(sale){
+  const grand = Math.max(0, Number(sale?.grand_total || 0));
+  if(grand <= 0){ return 0; }
+  const isCredit = String(sale?.payment_method || '').toLowerCase() === 'credit';
+  const isPaid = String(sale?.payment_status || 'paid') === 'paid';
+  if(isCredit && !isPaid){
+    const paid = Math.max(0, Math.min(grand, Number(sale?.amount_paid || 0)));
+    return paid / grand;
+  }
+  return 1;
+}
+
+function recognizedValue(sale, field){
+  return Number(sale?.[field] || 0) * invoiceRecognizedRatio(sale);
+}
+
+/** إجمالي يُعرض في جدول الفواتير: للآجل الجزئي يظهر المدفوع فقط، وإلا إجمالي الفاتورة */
+function invoiceTableTotalDisplay(sale){
+  const isCredit = String(sale?.payment_method || '').toLowerCase() === 'credit';
+  const isPaid = String(sale?.payment_status || 'paid') === 'paid';
+  const paidAmt = Number(sale?.amount_paid || 0);
+  if(isCredit && !isPaid && paidAmt > 0){
+    const grand = Math.max(0, Number(sale?.grand_total || 0));
+    return Math.max(0, Math.min(grand, paidAmt));
+  }
+  return Number(sale?.grand_total || 0);
+}
+
+/** مجموع المتبقي على الفواتير الآجلة غير المسددة (لصف «طرق الدفع») */
+function creditRemainingTotal(allSales){
+  return (allSales || [])
+    .filter(s => String(s.doc_type || '') !== 'credit_note' && !String(s.invoice_no || '').startsWith('CN-') && String(s.payment_method || '').toLowerCase() === 'credit' && String(s.payment_status || '') !== 'paid')
+    .reduce((acc, s) => {
+      const g = Number(s.grand_total || 0);
+      const paid = Number(s.amount_paid || 0);
+      return acc + Math.max(0, g - paid);
+    }, 0);
+}
+
+async function buildPaymentsBySaleMap(creditSaleIds, salesList){
+  const map = new Map();
+  const uniqBatch = [...new Set((creditSaleIds || []).map(x => Number(x)).filter(x => Number.isFinite(x) && x > 0))];
+  try{
+    if(uniqBatch.length && typeof window.api.sales_get_payments_batch === 'function'){
+      const res = await window.api.sales_get_payments_batch(uniqBatch);
+      if(res && res.ok && Array.isArray(res.payments)){
+        for(const p of res.payments){
+          const sid = Number(p.sale_id);
+          if(!Number.isFinite(sid) || sid <= 0) continue;
+          if(!map.has(sid)) map.set(sid, []);
+          map.get(sid).push(p);
+        }
+      }
+    }
+  }catch(_){}
+  if(!Array.isArray(salesList) || !salesList.length) return map;
+  const needFetch = [];
+  for(const s of salesList){
+    if(String(s.payment_method || '').toLowerCase() !== 'credit') continue;
+    if(String(s.payment_status || '') === 'paid') continue;
+    const sid = Number(s.id);
+    if(!Number.isFinite(sid) || sid <= 0) continue;
+    if(Number(s.amount_paid || 0) <= 0) continue;
+    const rows = map.get(sid);
+    if(rows && rows.length) continue;
+    needFetch.push(sid);
+  }
+  const toFetch = [...new Set(needFetch)];
+  const CONC = 10;
+  for(let i = 0; i < toFetch.length; i += CONC){
+    const slice = toFetch.slice(i, i + CONC);
+    await Promise.all(slice.map(async (sid) => {
+      try{
+        if(typeof window.api.sales_get_payments !== 'function') return;
+        const r = await window.api.sales_get_payments(sid);
+        if(r && r.ok && Array.isArray(r.payments) && r.payments.length){
+          map.set(sid, r.payments);
+        }
+      }catch(_){}
+    }));
+  }
+  return map;
+}
+
+function addPartialCreditPaymentsToPayMap(payByMethod, sale, paymentsBySale){
+  const add = (method, amount)=>{
+    if(!method) return;
+    let k = String(method).toLowerCase();
+    if(k === 'network') k = 'card';
+    const prev = Number(payByMethod.get(k) || 0);
+    payByMethod.set(k, prev + Number(amount || 0));
+  };
+  const list = paymentsBySale.get(Number(sale.id)) || [];
+  const KNOWN = new Set(['cash', 'card', 'tamara', 'tabby', 'bank_transfer', 'credit']);
+  if(list.length){
+    let sumListed = 0;
+    let attributed = 0;
+    for(const p of list){
+      const amt = Number(p.amount || 0);
+      sumListed += amt;
+      let m = String(p.method ?? '').trim().toLowerCase();
+      if(m === 'network') m = 'card';
+      if(m && KNOWN.has(m)){
+        add(m, amt);
+        attributed += amt;
+      }
+    }
+    const loose = sumListed - attributed;
+    if(loose > 0.009) add('credit', loose);
+    const ap = Number(sale.amount_paid || 0);
+    if(ap > sumListed + 0.009) add('credit', ap - sumListed);
+  } else {
+    const ap = Number(sale.amount_paid || 0);
+    if(ap > 0) add('credit', ap);
+  }
 }
 
 const btnBack = document.getElementById('btnBack');
@@ -831,8 +973,11 @@ async function loadRange(startStr, endStr){
     // Removed fallback padding and unbounded fetch: show exactly the selected period
     // Keep allSales as returned by the API within [startStr, endStr] only
 
-    const invoices = allSales.filter(s => String(s.doc_type||'') !== 'credit_note' && !String(s.invoice_no||'').startsWith('CN-') && String(s.payment_status||'paid') === 'paid');
+    const invoices = allSales.filter(s => String(s.doc_type||'') !== 'credit_note' && !String(s.invoice_no||'').startsWith('CN-'));
     const creditNotes = allSales.filter(s => String(s.doc_type||'') === 'credit_note' || String(s.invoice_no||'').startsWith('CN-'));
+
+    const creditUnpaidIds = [...new Set(invoices.filter(s => String(s.payment_method || '').toLowerCase() === 'credit' && String(s.payment_status || '') !== 'paid').map(s => Number(s.id)).filter(id => Number.isFinite(id) && id > 0))];
+    const paymentsBySale = await buildPaymentsBySaleMap(creditUnpaidIds, invoices);
 
     let grossBefore = 0, vatBefore = 0, disc = 0;
     const payByMethod = new Map();
@@ -840,34 +985,35 @@ async function loadRange(startStr, endStr){
     let refundsPreAfterDisc = 0;
 
     invoices.forEach(sale => {
-      const grand = Number(sale.grand_total||0);
-      const vatv = Number(sale.vat_total||0);
-      const discv = Number(sale.discount_amount||0) + Number(sale.delivery_discount_amount||0);
+      const grand = recognizedValue(sale, 'grand_total');
+      const vatv = recognizedValue(sale, 'vat_total');
+      const discv = recognizedValue(sale, 'discount_amount') + recognizedValue(sale, 'delivery_discount_amount');
       const pm = String(sale.payment_method||'').toLowerCase();
       grossBefore += ((grand - vatv) + discv);
       vatBefore += vatv;
       disc += discv;
-      const payCashPart = Number(sale.pay_cash_amount || 0);
-      const payCardPart = Number(sale.pay_card_amount || 0);
+      const ratio = invoiceRecognizedRatio(sale);
+      const payCashPart = Number(sale.pay_cash_amount || 0) * ratio;
+      const payCardPart = Number(sale.pay_card_amount || 0) * ratio;
       const add = (method, amount)=>{
         if(!method) return;
-        const k = String(method).toLowerCase();
+        let k = String(method).toLowerCase();
+        if(k === 'network') k = 'card';
         const prev = Number(payByMethod.get(k)||0);
         payByMethod.set(k, prev + Number(amount||0));
       };
-      if(pm==='mixed'){
+      if(pm === 'credit' && String(sale.payment_status||'') !== 'paid'){
+        addPartialCreditPaymentsToPayMap(payByMethod, sale, paymentsBySale);
+      } else if(pm==='mixed'){
         add('cash', payCashPart);
         add('card', payCardPart);
       } else if(pm==='cash'){
-        const settledCash = Number(sale.settled_cash || 0);
+        const settledCash = Number(sale.settled_cash || 0) * ratio;
         add('cash', (settledCash>0 ? settledCash : (payCashPart>0?payCashPart:grand)));
       } else if(pm==='card' || pm==='network' || pm==='tamara' || pm==='tabby'){
-        add(pm==='network' ? 'card' : pm, (payCardPart>0 ? payCardPart : grand));
+        add(pm, (payCardPart>0 ? payCardPart : grand));
       } else {
         add(pm, grand);
-      }
-      if(pm==='credit' && String(sale.payment_status||'')!=='paid'){
-        add('credit', grand);
       }
     });
 
@@ -909,10 +1055,10 @@ async function loadRange(startStr, endStr){
     const purchases = (purRes && purRes.ok) ? (purRes.items||[]) : [];
     let purchasesTotal = 0; purchases.forEach(p => { purchasesTotal += Number(p.grand_total||0); });
 
-    const salesPre = invoices.reduce((acc,s)=> acc + Number(s.sub_total||0), 0);
+    const salesPre = invoices.reduce((acc,s)=> acc + recognizedValue(s, 'sub_total'), 0);
     // VAT before discount for display (apply on sub_total + tobacco)
     let tobInv = 0, tobCN = 0;
-    try{ tobInv = invoices.reduce((a,s)=> a + Number(s.tobacco_fee||0), 0); }catch(_){ tobInv = 0; }
+    try{ tobInv = invoices.reduce((a,s)=> a + recognizedValue(s, 'tobacco_fee'), 0); }catch(_){ tobInv = 0; }
     try{ tobCN = creditNotes.reduce((a,s)=> a + Number(s.tobacco_fee||0), 0); }catch(_){ tobCN = 0; }
     const salesTob = Math.max(0, tobInv);
     const retTob = Math.max(0, Math.abs(tobCN));
@@ -947,8 +1093,8 @@ async function loadRange(startStr, endStr){
     // Sales after discount row
     const salesAfterDiscPre = (salesPre - discTotal);
     const salesAfterDiscTob = salesTob;
-    const salesAfterDiscVat = invoices.reduce((acc,s)=> acc + Number(s.vat_total||0), 0);
-    const salesAfterDiscAfter = invoices.reduce((acc,s)=> acc + Number(s.grand_total||0), 0);
+    const salesAfterDiscVat = invoices.reduce((acc,s)=> acc + recognizedValue(s, 'vat_total'), 0);
+    const salesAfterDiscAfter = invoices.reduce((acc,s)=> acc + recognizedValue(s, 'grand_total'), 0);
     set('salesAfterDiscPre', salesAfterDiscPre);
     set('salesAfterDiscTob', salesAfterDiscTob);
     set('salesAfterDiscVat', salesAfterDiscVat);
@@ -992,8 +1138,9 @@ async function loadRange(startStr, endStr){
       const payCashPart = Number(s.pay_cash_amount || 0);
       const cashParam = (pmLower==='cash') ? (settledCash>0 ? settledCash : (payCashPart>0 ? payCashPart : Number(s.grand_total||0))) : 0;
       const viewBtn = `<button class=\"btn\" data-view=\"${s.id}\" data-type=\"invoice\" data-pay=\"${pmLower}\" data-cash=\"${cashParam}\">عرض</button>`;
-      const payLabel = labelPaymentMethod(s.payment_method||'');
-      return `<tr><td>${s.invoice_no||''}</td><td dir=\"ltr\" style=\"text-align:left\">${cust}</td><td>${dateStr}</td><td>${payLabel}</td><td>${fmt(s.grand_total)}</td><td>${viewBtn}</td></tr>`;
+      const statusTxt = invoiceStatusLabel(s);
+      const payLabel = `${labelPaymentMethod(s.payment_method||'')}${statusTxt ? ` - ${statusTxt}` : ''}`;
+      return `<tr><td>${s.invoice_no||''}</td><td dir=\"ltr\" style=\"text-align:left\">${cust}</td><td>${dateStr}</td><td>${payLabel}</td><td>${fmt(invoiceTableTotalDisplay(s))}</td><td>${viewBtn}</td></tr>`;
     }).join('');
     if(invTbody){ invTbody.innerHTML = invRows; }
     if(invCount){ invCount.textContent = String(invoices.length||0); }
@@ -1029,25 +1176,34 @@ async function loadRange(startStr, endStr){
     }).join('');
     if(soldItemsTbody){ soldItemsTbody.innerHTML = soldItemsRows || '<tr><td colspan="3" class="muted">لا توجد بيانات</td></tr>'; }
 
-    // Add payment methods table
+    // Add payment methods table (نفس منطق التقرير اليومي: آجل = المتبقي فقط، شارة وصف credit-row)
     const payTbody = document.getElementById('payTbody');
     const sumTotalEl = document.getElementById('sumTotal');
-    let totalPayments = 0;
     const payRows = [];
-    
-    [...payByMethod.entries()].sort().forEach(([method, amount]) => {
-      const label = labelPaymentMethod(method);
-      const amountNum = Number(amount||0);
+    let paymentsSum = 0;
+    const labels = payMethodLabelsForReport();
+    const creditRemainingSum = creditRemainingTotal(allSales);
+    const sortedPay = Array.from(payByMethod.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+    let hasCreditRow = false;
+    const creditBadge = __currentLang.creditNotInGrand || 'لا يُحتسب في الإجمالي';
+    sortedPay.forEach(([method, value]) => {
+      let amount = Number(value || 0);
       if(method === 'credit'){
-        payRows.push(`<tr><td>${label} <span class="badge badge-credit">غير محتسب في الإجمالي</span></td><td>${fmt(amountNum)}</td></tr>`);
-      } else {
-        totalPayments += amountNum;
-        payRows.push(`<tr><td>${label}</td><td>${fmt(amountNum)}</td></tr>`);
+        hasCreditRow = true;
+        amount = Number(creditRemainingSum || 0);
       }
+      if(amount === 0) return;
+      const label = labels[method] || labelPaymentMethod(method);
+      const isCredit = (method === 'credit');
+      if(!isCredit){ paymentsSum += amount; }
+      const note = isCredit ? ` <span class="badge badge-credit">${creditBadge}</span>` : '';
+      payRows.push(`<tr class="${isCredit ? 'credit-row' : ''}"><td>${label}${note}</td><td>${fmt(amount)}</td></tr>`);
     });
-    
+    if(!hasCreditRow && creditRemainingSum > 0){
+      payRows.push(`<tr class="credit-row"><td>${labels.credit} <span class="badge badge-credit">${creditBadge}</span></td><td>${fmt(creditRemainingSum)}</td></tr>`);
+    }
     if(payTbody){ payTbody.innerHTML = payRows.join(''); }
-    if(sumTotalEl){ sumTotalEl.textContent = fmt(totalPayments); }
+    if(sumTotalEl){ sumTotalEl.textContent = fmt(paymentsSum); }
 
     const purRows = purchases.map(p=>{
       const d = p.purchase_at ? new Date(p.purchase_at) : (p.created_at ? new Date(p.created_at) : new Date());
@@ -1328,7 +1484,8 @@ async function applyRange(){
     return;
   }
   
-  await loadRangeOptimized(s, e);
+  // Use precise per-invoice calculations to correctly handle partial credit payments.
+  await loadRange(s, e);
 }
 
 const applyBtn = document.getElementById('applyRangeBtn');

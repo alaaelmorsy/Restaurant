@@ -168,17 +168,21 @@
                 <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">رقم الفاتورة</th>
                 <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">العميل</th>
                 <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">تاريخ الإنشاء</th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">الحالة</th>
                 <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">طريقة الدفع</th>
-                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">المبلغ</th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">المدفوع</th>
+                <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">المتبقي</th>
                 <th class="bg-blue-50 text-blue-900 font-bold p-3 border-b-2 border-gray-300 text-right">عرض</th>
               </tr>
             </thead>
             <tbody id="invTbody"></tbody>
             <tfoot>
               <tr class="bg-blue-100 font-black">
-                <th class="p-3 border-t-2 border-gray-400" colspan="3">الإجماليات</th>
+                <th class="p-3 border-t-2 border-gray-400" colspan="4">الإجماليات</th>
                 <th class="p-3 border-t-2 border-gray-400">عدد: <span id="sumCount">0</span></th>
-                <th class="p-3 border-t-2 border-gray-400" colspan="2">المجموع: <span id="sumGrand">0.00</span></th>
+                <th class="p-3 border-t-2 border-gray-400">المدفوع: <span id="sumPaid">0.00</span></th>
+                <th class="p-3 border-t-2 border-gray-400">المتبقي: <span id="sumRemaining">0.00</span></th>
+                <th class="p-3 border-t-2 border-gray-400">إجمالي الديون: <span id="sumGrand">0.00</span></th>
               </tr>
             </tfoot>
           </table>
