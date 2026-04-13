@@ -210,6 +210,8 @@ async function load(resetPage = true){
   if(v1){ query.q = v1; }
   // secondary filter for customer/phone/tax id
   if(v2){ query.customer_q = v2; }
+  // exclude credit notes from invoices list
+  query.type = 'invoice';
   
   if(resetPage){ __invPage = 1; }
   
