@@ -111,6 +111,7 @@ function __applyLang(lang){
     payMethodMixed: isAr ? 'مختلط' : 'Mixed',
     payMethodTamara: isAr ? 'تمارا' : 'Tamara',
     payMethodTabby: isAr ? 'تابي' : 'Tabby',
+    payMethodBankTransfer: isAr ? 'تحويل بنكي' : 'Bank Transfer',
     // Loading
     loading: isAr ? 'جاري التحميل...' : 'Loading...',
     customerListLoading: isAr ? '⏳ جاري التحميل...' : '⏳ Loading...',
@@ -417,7 +418,7 @@ function __applyLang(lang){
   try{
     const pmSelect = document.getElementById('paymentMethod');
     if(pmSelect){
-      const payLabels = { cash: t.payMethodCash, card: t.payMethodCard, credit: t.payMethodCredit, mixed: t.payMethodMixed, tamara: t.payMethodTamara, tabby: t.payMethodTabby };
+      const payLabels = { cash: t.payMethodCash, card: t.payMethodCard, credit: t.payMethodCredit, mixed: t.payMethodMixed, tamara: t.payMethodTamara, tabby: t.payMethodTabby, bank_transfer: t.payMethodBankTransfer };
       Array.from(pmSelect.options).forEach(opt => {
         if(payLabels[opt.value]) opt.textContent = payLabels[opt.value];
       });
@@ -433,7 +434,7 @@ function __applyLang(lang){
         crEl.placeholder = t.cashReceivedMixed;
       } else if(pmEl.value === 'credit'){
         crEl.placeholder = t.cashReceivedCredit;
-      } else if(pmEl.value === 'card' || pmEl.value === 'tamara' || pmEl.value === 'tabby'){
+      } else if(pmEl.value === 'card' || pmEl.value === 'tamara' || pmEl.value === 'tabby' || pmEl.value === 'bank_transfer'){
         crEl.placeholder = t.cashReceivedLocked;
       } else {
         crEl.placeholder = t.cashReceivedDefault;
@@ -583,7 +584,7 @@ function applyPaymentFieldState(){
   if(method === 'mixed'){
     cashReceived.disabled = false;
     cashReceived.placeholder = (__currentLang.cashReceivedMixed || 'المبلغ النقدي (مختلط)');
-  } else if(method === 'credit' || method === 'card' || method === 'tamara' || method === 'tabby'){
+  } else if(method === 'credit' || method === 'card' || method === 'tamara' || method === 'tabby' || method === 'bank_transfer'){
     cashReceived.value = '';
     cashReceived.disabled = true;
     cashReceived.placeholder = (method === 'credit')
@@ -606,7 +607,7 @@ function updateRemainingBeforePrint(){
 
   if(pm === 'credit'){
     remaining = total;
-  } else if(pm === 'card' || pm === 'network' || pm === 'tamara' || pm === 'tabby'){
+  } else if(pm === 'card' || pm === 'network' || pm === 'tamara' || pm === 'tabby' || pm === 'bank_transfer'){
     remaining = 0;
   } else {
     remaining = cashStr === '' ? 0 : Math.abs(safeEntered - total);
@@ -639,6 +640,10 @@ const driverSelect = document.getElementById('driverSelect');
 const driverMeta = document.getElementById('driverMeta');
 let __allDrivers = []; // cache
 let __selectedDriverId = '';
+const deliveryCompanySelect = document.getElementById('deliveryCompanySelect');
+let __allDeliveryCompanies = [];
+let __selectedDeliveryCompany = null;
+let __lastDeliveryDiscountAmount = 0;
 
 // Order Type dropdown (select)
 const orderTypeSelect = document.getElementById('orderTypeSelect');
@@ -725,6 +730,10 @@ async function __loadRoomCart(id){
       if(notes && typeof s.notes === 'string'){ notes.value = s.notes; }
       if(typeof s.customer_id !== 'undefined' && s.customer_id){ __selectedCustomerId = String(s.customer_id); }
       if(typeof s.driver_id !== 'undefined' && s.driver_id){ __selectedDriverId = String(s.driver_id); }
+      if(typeof s.delivery_company_id !== 'undefined' && s.delivery_company_id){
+        const selectedId = String(s.delivery_company_id);
+        __selectedDeliveryCompany = { id: Number(selectedId) };
+      }
       if(orderTypeSelect && typeof s.order_type === 'string'){ orderTypeSelect.value = s.order_type; }
       return Array.isArray(c) ? c : [];
     }
@@ -743,6 +752,7 @@ async function __saveRoomCart(id, c){
       notes: notes ? (notes.value||'') : '',
       customer_id: __selectedCustomerId ? Number(__selectedCustomerId) : null,
       driver_id: __selectedDriverId ? Number(__selectedDriverId) : null,
+      delivery_company_id: __selectedDeliveryCompany ? Number(__selectedDeliveryCompany.id) : null,
       order_type: orderTypeSelect ? (orderTypeSelect.value||'') : '',
     };
     await window.api.rooms_save_cart(id, c, state);
@@ -926,7 +936,7 @@ async function __clearRoomSession(id){ try{ await window.api.rooms_clear(id); }c
         paymentMethod.innerHTML='';
         const methods = settings.payment_methods;
         methods.forEach(m => {
-          const opt = document.createElement('option'); opt.value=m; opt.textContent=({cash:(__currentLang.payMethodCash||'كاش'), card:(__currentLang.payMethodCard||'شبكة'), credit:(__currentLang.payMethodCredit||'آجل'), mixed:(__currentLang.payMethodMixed||'مختلط'), tamara:(__currentLang.payMethodTamara||'تمارا'), tabby:(__currentLang.payMethodTabby||'تابي')})[m] || m; paymentMethod.appendChild(opt);
+          const opt = document.createElement('option'); opt.value=m; opt.textContent=({cash:(__currentLang.payMethodCash||'كاش'), card:(__currentLang.payMethodCard||'شبكة'), credit:(__currentLang.payMethodCredit||'آجل'), mixed:(__currentLang.payMethodMixed||'مختلط'), tamara:(__currentLang.payMethodTamara||'تمارا'), tabby:(__currentLang.payMethodTabby||'تابي'), bank_transfer:(__currentLang.payMethodBankTransfer||'تحويل بنكي')})[m] || m; paymentMethod.appendChild(opt);
         });
         // اضبط الافتراضي إن وجد
         if(it.default_payment_method && methods.includes(it.default_payment_method)) paymentMethod.value = it.default_payment_method;
@@ -1015,6 +1025,7 @@ function showPaymentMethodsModal() {
     mixed:  { label: (__currentLang.payMethodMixed  || 'مختلط'),   icon: '🔀', grad: 'from-purple-400 to-violet-500',   ring: 'ring-purple-500',   bg: 'bg-purple-50',    text: 'text-purple-700'    },
     tamara: { label: (__currentLang.payMethodTamara || 'تمارا'),   icon: '🌙', grad: 'from-pink-400 to-rose-500',       ring: 'ring-pink-500',     bg: 'bg-pink-50',      text: 'text-pink-700',     imgSrc: '../../../assets/tamara-logo.svg' },
     tabby:  { label: (__currentLang.payMethodTabby  || 'تابي'),    icon: '🐱', grad: 'from-teal-400 to-cyan-500',       ring: 'ring-teal-500',     bg: 'bg-teal-50',      text: 'text-teal-700',     imgSrc: '../../../assets/tabby-logo.svg' },
+    bank_transfer: { label: (__currentLang.payMethodBankTransfer || 'تحويل بنكي'), icon: '🏦', grad: 'from-sky-400 to-blue-600', ring: 'ring-sky-500', bg: 'bg-sky-50', text: 'text-sky-700' },
   };
 
   const methods = settings.payment_methods || ['cash', 'card', 'mixed'];
@@ -1294,6 +1305,14 @@ function computeTotals(){
   const itemsSubAfterDiscount = Math.max(0, itemsSub - (totalDiscount * (itemsSub>0 ? (itemsSub/sub) : 0))); // خصم جزء من الإضافى لا يؤثر على شرط 25
   let subAfterDiscount = Math.max(0, sub - totalDiscount); // بعد الخصم على الأصناف + الإضافى
 
+  // خصم شركة التوصيل (بعد كل الخصومات وقبل الضريبة)
+  __lastDeliveryDiscountAmount = 0;
+  if(__selectedDeliveryCompany && Number(__selectedDeliveryCompany.discount_percent) > 0){
+    const pct = Number(__selectedDeliveryCompany.discount_percent) / 100;
+    __lastDeliveryDiscountAmount = Number((subAfterDiscount * pct).toFixed(2));
+    subAfterDiscount = Math.max(0, subAfterDiscount - __lastDeliveryDiscountAmount);
+  }
+
   // قيم إرشادية للتسمية (لا تؤثر على الإجمالي بعد التقيد بنسبة 100%)
   let couponAmount = 0; let couponLabel = '';
   if(__coupon){
@@ -1397,6 +1416,16 @@ function computeTotals(){
   }
   if(afterDiscountEl){ afterDiscountEl.textContent = fmt(itemsSubAfterDiscount); }
   if(afterDiscountRowEl){ afterDiscountRowEl.style.display = (totalDiscount > 0 ? '' : 'none'); }
+  const deliveryDiscountInfo = document.getElementById('deliveryDiscountInfo');
+  const deliveryDiscountValueEl = document.getElementById('deliveryDiscountValue');
+  if(deliveryDiscountInfo && deliveryDiscountValueEl){
+    if(__lastDeliveryDiscountAmount > 0){
+      deliveryDiscountValueEl.textContent = fmt(__lastDeliveryDiscountAmount);
+      deliveryDiscountInfo.style.display = '';
+    } else {
+      deliveryDiscountInfo.style.display = 'none';
+    }
+  }
   // إظهار رسوم التبغ إن وُجدت
   try{
     const feeRow = document.getElementById('tobaccoFeeRow');
@@ -1682,7 +1711,7 @@ async function loadSettings(){
   if(paymentMethod){
     paymentMethod.innerHTML = '';
     const methods = Array.isArray(settings.payment_methods) && settings.payment_methods.length ? settings.payment_methods : ['cash'];
-    const labels = { cash:(__currentLang.payMethodCash||'كاش'), card:(__currentLang.payMethodCard||'شبكة'), credit:(__currentLang.payMethodCredit||'آجل'), mixed:(__currentLang.payMethodMixed||'مختلط'), tamara:(__currentLang.payMethodTamara||'تمارا'), tabby:(__currentLang.payMethodTabby||'تابي') };
+    const labels = { cash:(__currentLang.payMethodCash||'كاش'), card:(__currentLang.payMethodCard||'شبكة'), credit:(__currentLang.payMethodCredit||'آجل'), mixed:(__currentLang.payMethodMixed||'مختلط'), tamara:(__currentLang.payMethodTamara||'تمارا'), tabby:(__currentLang.payMethodTabby||'تابي'), bank_transfer:(__currentLang.payMethodBankTransfer||'تحويل بنكي') };
     methods.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m; opt.textContent = labels[m] || m;
@@ -1825,6 +1854,32 @@ async function loadDrivers(){
   }catch(_){ /* ignore */ }
 }
 
+let __deliveryCompaniesLoaded = false;
+async function loadDeliveryCompanies(){
+  if(__deliveryCompaniesLoaded) return;
+  try{
+    const res = await window.api.delivery_companies_list({ only_active: true });
+    __allDeliveryCompanies = (res && res.ok && res.items) ? res.items : [];
+    __deliveryCompaniesLoaded = true;
+    if(deliveryCompanySelect){
+      deliveryCompanySelect.innerHTML =
+        `<option value="">بدون توصيل</option>` +
+        __allDeliveryCompanies.map(c => `<option value="${c.id}">${c.name} (${Number(c.discount_percent||0).toFixed(2)}%)</option>`).join('');
+      if(__selectedDeliveryCompany && __selectedDeliveryCompany.id){
+        const selected = __allDeliveryCompanies.find(c => String(c.id) === String(__selectedDeliveryCompany.id));
+        __selectedDeliveryCompany = selected || null;
+        deliveryCompanySelect.value = selected ? String(selected.id) : '';
+      }
+      deliveryCompanySelect.onchange = () => {
+        const id = deliveryCompanySelect.value;
+        __selectedDeliveryCompany = id ? (__allDeliveryCompanies.find(c => String(c.id) === String(id)) || null) : null;
+        computeTotals();
+        if(__currentRoomId){ __saveRoomCart(__currentRoomId, cart); }
+      };
+    }
+  }catch(_){ /* ignore */ }
+}
+
 
 function renderCustomerList(q){
   const query = String(q||'').trim().toLowerCase();
@@ -1925,6 +1980,15 @@ if(driverSelect){
   driverSelect.addEventListener('focus', async () => {
     await loadDrivers(); // Lazy load on first interaction
   }, { once: true }); // Only need to load once
+}
+if(deliveryCompanySelect){
+  deliveryCompanySelect.addEventListener('focus', async () => {
+    await loadDeliveryCompanies();
+  }, { once: true });
+  // Load as early as possible on first pointer interaction
+  deliveryCompanySelect.addEventListener('mousedown', () => {
+    loadDeliveryCompanies().catch(() => {});
+  }, { once: true });
 }
 
 // remove legacy searchable driver UI (replaced by select)
@@ -3094,10 +3158,16 @@ async function __performPrintInvoice() {
     coupon: (__coupon ? { code: __coupon.code, mode: __coupon.mode, value: __coupon.value } : null),
     // pass split amounts for mixed
     pay_cash_amount: (paymentMethod.value==='mixed' && window.__mixed_payment) ? Number(window.__mixed_payment.cash||0) : (paymentMethod.value==='cash' ? (cashStr===''?0:Number(cashStr)) : null),
-    pay_card_amount: (paymentMethod.value==='mixed' && window.__mixed_payment) ? Number(window.__mixed_payment.card||0) : (paymentMethod.value==='card' ? Number((window.__sale_calcs?.grand_total ?? grand).toFixed(2)) : null),
+    pay_card_amount: (paymentMethod.value==='mixed' && window.__mixed_payment) ? Number(window.__mixed_payment.card||0) : ((paymentMethod.value==='card' || paymentMethod.value==='bank_transfer') ? Number((window.__sale_calcs?.grand_total ?? grand).toFixed(2)) : null),
   };
   if(__selectedCustomerId){ payload.customer_id = Number(__selectedCustomerId); }
   if(__selectedDriverId){ payload.driver_id = Number(__selectedDriverId); }
+  if(__selectedDeliveryCompany){
+    if(typeof __selectedDeliveryCompany.name === 'undefined'){ await loadDeliveryCompanies(); }
+    payload.delivery_company_id = Number(__selectedDeliveryCompany.id);
+    payload.delivery_company_name = __selectedDeliveryCompany.name || null;
+    payload.delivery_discount_amount = Number(__lastDeliveryDiscountAmount || 0);
+  }
   if(orderTypeSelect && orderTypeSelect.value){ payload.order_type = orderTypeSelect.value; }
   // أزلنا خيار إدخال اسم العميل مباشرة
 
@@ -3223,6 +3293,9 @@ async function __performPrintInvoice() {
   // تفريغ اختيار السائق بعد الطباعة
   __selectedDriverId = '';
   if(driverSelect){ driverSelect.value = ''; }
+  __selectedDeliveryCompany = null;
+  __lastDeliveryDiscountAmount = 0;
+  if(deliveryCompanySelect){ deliveryCompanySelect.value = ''; }
   // إعادة نوع الطلب إلى الافتراضي بعد الطباعة
   if(orderTypeSelect){
     if(settings.default_order_type){
@@ -3348,7 +3421,9 @@ async function populateCategories(preFetchedRes = null){
     exclude_no_category: '1'  // استثناء المنتجات بدون نوع رئيسي
   }).catch(()=>({ok:false}));
 
-  // Customers and drivers now lazy-loaded on first interaction (performance optimization)
+  // Customers/drivers remain lazy-loaded, but delivery companies are preloaded
+  // to avoid an empty first dropdown open on Sales screen.
+  loadDeliveryCompanies().catch(() => {});
 
   await pSettings;
   

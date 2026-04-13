@@ -20,6 +20,7 @@ const { registerKitchenIPC } = require('./kitchen');
 const { registerCustomerPricingIPC } = require('./customer_pricing');
 const { registerOffersIPC } = require('./offers');
 const { registerDriversIPC } = require('./drivers');
+const { registerDeliveryCompaniesIPC } = require('./delivery_companies');
 const { registerPermissionsIPC } = require('./permissions');
 const { registerDailyEmailScheduler, submitUnsentInvoicesHourly } = require('./scheduler');
 const { initDbFromSaved, updateConfig, getConfig, testConnection } = require('../db/connection');
@@ -1154,6 +1155,7 @@ app.whenReady().then(async () => {
   registerCustomerPricingIPC();
   registerOffersIPC();
   registerDriversIPC();
+  registerDeliveryCompaniesIPC();
   registerPermissionsIPC();
   registerWhatsAppIPC();
   registerUpdateIPC();
@@ -1229,18 +1231,27 @@ app.on('window-all-closed', () => {
 });
 
 // Cleanup services before app quits
-app.on('before-quit', async (event) => {
-  try {
-    console.log('Closing WhatsApp service...');
-    await whatsappService.disconnect();
-  } catch (error) {
-    console.error('Error closing WhatsApp service:', error);
-  }
-  
-  try {
-    console.log('Closing Customer Display...');
-    await customerDisplay.cleanup();
-  } catch (error) {
-    console.error('Error closing Customer Display:', error);
-  }
+let isQuitting = false;
+app.on('before-quit', (event) => {
+  if (isQuitting) return;
+  event.preventDefault();
+  isQuitting = true;
+
+  const { stopAPIServer } = require('./api-server');
+  const { getPool } = require('../db/connection');
+
+  Promise.allSettled([
+    whatsappService.disconnect().catch(() => {}),
+    customerDisplay.cleanup().catch(() => {}),
+    new Promise(resolve => { try { stopAPIServer(); resolve(); } catch(_) { resolve(); } }),
+    new Promise(resolve => {
+      try {
+        const pool = getPool && getPool();
+        if (pool && typeof pool.end === 'function') pool.end(resolve);
+        else resolve();
+      } catch(_) { resolve(); }
+    })
+  ]).finally(() => {
+    app.exit(0);
+  });
 });

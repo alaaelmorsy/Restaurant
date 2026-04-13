@@ -238,6 +238,7 @@
       table.totals tbody tr#discRow td,
       table.totals tbody tr#afterDiscRow td,
       table.totals tbody tr#tobaccoFeeRow td,
+      table.totals tbody tr#deliveryDiscRow td,
       table.totals tbody tr#couponRow td,
       table.totals tbody tr#paidRow td,
       table.totals tbody tr#remainRow td,
@@ -262,6 +263,7 @@
       table.totals tbody tr#remainRow td,
       table.totals tbody tr#paidRow td,
       table.totals tbody tr#couponRow td,
+      table.totals tbody tr#deliveryDiscRow td,
       table.totals tbody tr#discRow td,
       table.totals tbody tr#afterDiscRow td,
       table.totals tbody tr:has(td#grand) td{
@@ -358,6 +360,7 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
         </div>
       </div>
 
+
       <div id="custCard" style="border:2.5px solid #0f172a; border-radius:6px; padding:0; margin-bottom:3px; overflow:hidden;">
         <div style="font-weight:800; padding:2px 4px; background:#e5e7eb; border-bottom:2.5px solid #0f172a;" id="ccName"></div>
         <div style="display:grid; font-size:10px;">
@@ -391,6 +394,7 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
           <tr id="discRow" style="display:none"><td id="discLabel">خصم</td><td style="text-align:left; color:#b91c1c" id="disc"></td></tr>
           <tr id="afterDiscRow" style="display:none"><td>الإجمالي بعد الخصم (قبل الضريبة)</td><td style="text-align:left" id="afterDisc"></td></tr>
           <tr id="tobaccoFeeRow" style="display:none"><td>رسوم التبغ</td><td style="text-align:left" id="tobaccoFee"></td></tr>
+          <tr id="deliveryDiscRow" style="display:none"><td id="deliveryDiscLabel">خصم</td><td style="text-align:left; color:#b91c1c" id="deliveryDisc"></td></tr>
           <tr><td>ضريبة VAT</td><td style="text-align:left" id="vat"></td></tr>
           <tr class="bold"><td>الإجمالي شامل الضريبة</td><td style="text-align:left" id="grand"></td></tr>
           <tr id="couponRow" style="display:none"><td id="couponLabel">كوبون</td><td style="text-align:left; color:#0b3daa" id="couponVal"></td></tr>
@@ -623,7 +627,7 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
             cash = Number(s.sale.settled_cash);
           }
           // خريطة عربية لطرق الدفع
-          const payLabels = { cash:'كاش', card:'شبكة', credit:'آجل', mixed:'مختلط', tamara:'تمارا', tabby:'تابي', refund:'إشعار دائن' };
+          const payLabels = { cash:'كاش', card:'شبكة', credit:'آجل', mixed:'مختلط', tamara:'تمارا', tabby:'تابي', bank_transfer:'تحويل بنكي', refund:'إشعار دائن' };
           const payKey = pay || (s.sale?.payment_method || '');
           document.getElementById('invPay').textContent = payLabels[payKey] || payKey;
           
@@ -699,6 +703,25 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
                document.getElementById('roomLine').hidden = false;
              }
           }
+
+          // delivery company block
+          let __deliveryLabel = 'خصم';
+          try{
+            const deliveryName = String(sale.delivery_company_name || '').trim();
+            if(deliveryName){
+              try{
+                const dcId = Number(sale.delivery_company_id || 0);
+                if(dcId > 0 && typeof api.delivery_companies_get === 'function'){
+                  const dcRes = await api.delivery_companies_get(dcId);
+                  if(dcRes && dcRes.ok && dcRes.item){
+                    const pct = Number(dcRes.item.discount_percent || 0);
+                    __deliveryLabel = `خصم (${deliveryName} - ${pct.toFixed(2)}%)`;
+                  }
+                }
+              }catch(_){ /* ignore */ }
+              if(__deliveryLabel === 'خصم'){ __deliveryLabel = `خصم (${deliveryName})`; }
+            }
+          }catch(_){ /* ignore */ }
 
           // النوع أعلى بيانات الفاتورة حسب الضريبة ورقم العميل
           try{
@@ -1318,6 +1341,14 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
           const baseAfter = sale.total_after_discount ?? (Number(sale.sub_total||0) - Number(sale.discount_amount||0));
           document.getElementById('afterDisc').innerHTML = fmt(isCredit ? Math.abs(Number(baseAfter||0)) : Number(baseAfter||0));
           if(Number(sale.discount_amount||0) > 0){ document.getElementById('afterDiscRow').style.display=''; }
+          if(Math.abs(Number(sale.delivery_discount_amount||0)) > 0){
+            document.getElementById('deliveryDiscRow').style.display='';
+            try{
+              const lbl = document.getElementById('deliveryDiscLabel');
+              if(lbl){ lbl.textContent = __deliveryLabel; }
+            }catch(_){ /* ignore */ }
+            document.getElementById('deliveryDisc').innerHTML = fmt(Math.abs(Number(sale.delivery_discount_amount||0)));
+          }
           try{ document.getElementById('couponRow').style.display='none'; }catch(_){ }
           // إخفاء صف الضريبة بالكامل إذا كانت نسبة الضريبة = 0 في الإعدادات
           try{
@@ -1445,7 +1476,7 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
                     change = 0;
                   }
                 }
-              } else if(pm === 'card' || pm === 'tamara' || pm === 'tabby'){
+              } else if(pm === 'card' || pm === 'tamara' || pm === 'tabby' || pm === 'bank_transfer'){
                 // في الشبكة/تمارا/تابي: إذا أُدخل مبلغ، عامله كالكاش مع إظهار الباقي عند الزيادة
                 if(entered > 0){
                   paid = entered;
@@ -1511,7 +1542,7 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
                 }
                 
                 // في الشبكة/تمارا/تابي: اخفِ "المتبقي" واستخدم صف "الباقي" فقط عند وجود مبلغ مدخل
-                if(pm === 'card' || pm === 'tamara' || pm === 'tabby'){
+                if(pm === 'card' || pm === 'tamara' || pm === 'tabby' || pm === 'bank_transfer'){
                   try{ remainRow.style.display='none'; }catch(_){ }
                   if(entered > 0){
                     const baqi = (paid > grand) ? Number((paid - grand).toFixed(2)) : Number((grand - paid).toFixed(2));

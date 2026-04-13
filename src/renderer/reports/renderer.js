@@ -21,6 +21,7 @@ function hide(id){ const el=document.getElementById(id); if(el){ el.classList.ad
   if(!canReport('reports.view_all_invoices')) hide('allInvoicesReport');
   if(!canReport('reports.view_purchases')) hide('purchasesReport');
   if(!canReport('reports.view_customer_invoices')) hide('customerInvoicesReport');
+  if(!canReport('reports.view_delivery')) hide('deliveryReport');
   if(!canReport('reports.view_credit_invoices')) hide('creditInvoicesReport');
   if(!canReport('reports.view_unpaid_invoices')) hide('unpaidInvoicesReport');
   if(!canReport('reports.view_types')) hide('typesReport');
@@ -42,6 +43,11 @@ if(purchasesCard){ purchasesCard.onclick = ()=>{ window.location.href = './purch
 const custInvCard = document.getElementById('customerInvoicesReport');
 if(custInvCard){ custInvCard.onclick = ()=>{ window.location.href = './customer_invoices.html'; } }
 
+const deliveryReportCard = document.getElementById('deliveryReport');
+if(deliveryReportCard){
+  deliveryReportCard.onclick = ()=>{ window.location.href = './delivery_report.html'; };
+}
+
 const creditInvCard = document.getElementById('creditInvoicesReport');
 if(creditInvCard){ creditInvCard.onclick = ()=>{ window.location.href = './credit_invoices.html'; } }
 
@@ -53,4 +59,7 @@ if(typesCard){ typesCard.onclick = ()=>{ window.location.href = './types.html'; 
 
 const municipalityCard = document.getElementById('municipalityReport');
 if(municipalityCard){ municipalityCard.onclick = ()=>{ window.location.href = './municipality.html'; } }
+
+const zatcaCard = document.getElementById('zatcaReport');
+if(zatcaCard){ zatcaCard.onclick = ()=>{ window.location.href = './zatca_report.html'; } }
 

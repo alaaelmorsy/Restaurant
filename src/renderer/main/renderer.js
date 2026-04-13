@@ -23,6 +23,7 @@ const map = [
   ['cardCustomerPricing', 'cp_h', 'cp_p'],
   ['cardOffers', 'offers_h', 'offers_p'],
   ['cardDrivers', 'drivers_h', 'drivers_p'],
+  ['cardDeliveryCompanies', 'delivery_companies_h', 'delivery_companies_p'],
   ['cardReports', 'reports_h', 'reports_p'],
   ['cardZatca', 'zatca_h', 'zatca_p'],
   ['cardWhatsApp', 'whatsapp_h', 'whatsapp_p'],
@@ -57,6 +58,7 @@ function __applyLang(lang, skipNotify = false){
     cp_h: isAr ? 'تخصيص أسعار' : 'Customer Pricing', cp_p: isAr ? 'تحديد أسعار/خصومات لعميل' : 'Set special prices/discounts',
     offers_h: isAr ? 'العروض والكوبونات' : 'Offers & Coupons', offers_p: isAr ? 'عروض على الأصناف وكوبونات خصم' : 'Items offers and coupons',
     drivers_h: isAr ? 'السائقون' : 'Drivers', drivers_p: isAr ? 'تسجيل وإدارة السائقين' : 'Register and manage drivers',
+    delivery_companies_h: isAr ? 'شركات التوصيل' : 'Delivery Companies', delivery_companies_p: isAr ? 'إدارة شركات التوصيل والخصومات' : 'Manage delivery companies and discounts',
     reports_h: isAr ? 'التقارير' : 'Reports', reports_p: isAr ? 'عرض تقارير المبيعات لاحقًا' : 'View sales reports',
     zatca_h: isAr ? 'الفاتورة الإلكترونية' : 'E-Invoice (ZATCA)', zatca_p: isAr ? 'إعداد وإرسال الفواتير إلكترونيًا (ZATCA)' : 'Configure and submit e-invoices (ZATCA)',
     whatsapp_h: isAr ? 'إدارة WhatsApp' : 'WhatsApp Management', whatsapp_p: isAr ? 'ربط وإرسال الفواتير عبر واتساب' : 'Connect and send invoices via WhatsApp',
@@ -176,6 +178,7 @@ if (cardProducts) {
     cardCustomerPricing: 'customer_pricing',
     cardOffers: 'offers',
     cardDrivers: 'drivers',
+    cardDeliveryCompanies: 'delivery_companies',
     cardReports: 'reports',
     cardZatca: 'zatca',
     cardWhatsApp: 'whatsapp',
@@ -314,6 +317,13 @@ const cardDrivers = document.getElementById('cardDrivers');
 if (cardDrivers) {
   cardDrivers.addEventListener('click', () => {
     window.location.href = '../drivers/index.html';
+  });
+}
+
+const cardDeliveryCompanies = document.getElementById('cardDeliveryCompanies');
+if (cardDeliveryCompanies) {
+  cardDeliveryCompanies.addEventListener('click', () => {
+    window.location.href = '../delivery_companies/index.html';
   });
 }
 

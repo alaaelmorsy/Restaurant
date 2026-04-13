@@ -1700,8 +1700,8 @@
                 </div>
               </div>
 
-              <!-- 10) نوع الطلب والملاحظات في صف واحد -->
-              <div class="row" style="display:grid; grid-template-columns: 1fr 2fr; gap:8px;">
+              <!-- 10) نوع الطلب + شركة التوصيل + السائق في صف واحد -->
+              <div class="row" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;">
                 <div class="pay-field">
                   <label for="orderTypeSelect" class="field-label font-black text-black">نوع الطلب</label>
                   <div class="styled-select">
@@ -1715,14 +1715,17 @@
                   </div>
                 </div>
                 <div class="pay-field">
-                  <label for="notes" class="field-label font-black text-black">ملاحظات</label>
-                  <textarea id="notes" class="pretty-input font-black text-black" rows="1"
-                    placeholder="اكتب ملاحظات إضافية" style="min-height:26px;"></textarea>
+                  <label for="deliveryCompanySelect" class="field-label font-black text-black">شركة التوصيل</label>
+                  <div class="styled-select">
+                    <select id="deliveryCompanySelect" class="font-black text-black">
+                      <option value="">بدون توصيل</option>
+                    </select>
+                    <span class="select-arrow">⌄</span>
+                  </div>
+                  <div id="deliveryDiscountInfo" style="display:none" class="text-sm text-green-600 font-bold mt-1">
+                    خصم التوصيل: <span id="deliveryDiscountValue">0.00</span>
+                  </div>
                 </div>
-              </div>
-
-              <!-- 11) السائق -->
-              <div class="row" style="display:grid; grid-template-columns: 1fr 2fr; gap:8px;">
                 <div class="pay-field">
                   <label for="driverSelect" class="field-label font-black text-black">السائق</label>
                   <div class="styled-select">
@@ -1731,6 +1734,14 @@
                     </select>
                     <span class="select-arrow">⌄</span>
                   </div>
+                </div>
+              </div>
+
+              <div class="row" style="display:grid; grid-template-columns: 1fr 2fr; gap:8px;">
+                <div class="pay-field">
+                  <label for="notes" class="field-label font-black text-black">ملاحظات</label>
+                  <textarea id="notes" class="pretty-input font-black text-black" rows="1"
+                    placeholder="اكتب ملاحظات إضافية" style="min-height:26px;"></textarea>
                 </div>
                 <div class="pay-field"></div>
               </div>

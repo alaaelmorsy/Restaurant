@@ -239,6 +239,7 @@ async function getPool() {
           ('customer_pricing','تخصيص الأسعار'),
           ('offers','العروض'),
           ('drivers','السائقون'),
+          ('delivery_companies','شركات التوصيل'),
           ('reports','التقارير'),
           ('zatca','الفاتورة الإلكترونية'),
           ('whatsapp','إدارة WhatsApp'),
@@ -338,6 +339,11 @@ async function getPool() {
           ('drivers.edit','حفظ'),
           ('drivers.toggle','تنشيط/إيقاف'),
           ('drivers.delete','حذف'),
+          -- delivery companies
+          ('delivery_companies.add','إضافة'),
+          ('delivery_companies.edit','حفظ'),
+          ('delivery_companies.toggle','تنشيط/إيقاف'),
+          ('delivery_companies.delete','حذف'),
           -- reports
           ('reports.view_daily','تقرير يومي'),
           ('reports.view_period','تقرير فترة'),
@@ -348,6 +354,7 @@ async function getPool() {
           ('reports.view_unpaid_invoices','فواتير غير مدفوعة'),
           ('reports.view_types','تقرير الأنواع'),
           ('reports.view_municipality','تقرير البلدية'),
+          ('reports.view_delivery','تقرير التوصيل'),
           -- payments
           ('payments.settle_full','سداد كامل'),
           ('payments.view_invoice','عرض الفاتورة'),
@@ -361,7 +368,7 @@ async function getPool() {
       try{
         const updates = [
           'sales','customers','invoices','users','products','rooms','types','settings','operations','kitchen',
-          'purchases','inventory','customer_pricing','offers','drivers','reports','payments','credit_notes','permissions','zatca','whatsapp'
+          'purchases','inventory','customer_pricing','offers','drivers','delivery_companies','reports','payments','credit_notes','permissions','zatca','whatsapp'
         ];
         for(const k of updates){
           await conn.query(`UPDATE permissions SET parent_key=? WHERE perm_key LIKE CONCAT(?, '.%') AND (parent_key IS NULL OR parent_key<>?)`, [k, k, k]);
@@ -385,7 +392,8 @@ async function getPool() {
           ['customer_pricing.add','إضافة'],['customer_pricing.edit','تعديل'],['customer_pricing.delete','حذف'],
           ['offers.add_offer','إضافة عرض'],['offers.add_global_offer','إضافة عرض عام'],['offers.edit_offer','تعديل عرض'],['offers.toggle_offer','تفعيل/إيقاف عرض'],['offers.delete_offer','حذف عرض'],['offers.add_coupon','إضافة كوبون'],['offers.edit_coupon','تعديل كوبون'],['offers.toggle_coupon','تفعيل/إيقاف كوبون'],['offers.delete_coupon','حذف كوبون'],
           ['drivers.add','إضافة'],['drivers.edit','حفظ'],['drivers.toggle','تنشيط/إيقاف'],['drivers.delete','حذف'],
-          ['reports.view_daily','تقرير يومي'],['reports.view_period','تقرير فترة'],['reports.view_all_invoices','جميع الفواتير'],['reports.view_purchases','تقرير المشتريات'],['reports.view_customer_invoices','فواتير عميل'],['reports.view_credit_invoices','الفواتير الدائنة'],['reports.view_unpaid_invoices','فواتير غير مدفوعة'],
+          ['delivery_companies.add','إضافة'],['delivery_companies.edit','حفظ'],['delivery_companies.toggle','تنشيط/إيقاف'],['delivery_companies.delete','حذف'],
+          ['reports.view_daily','تقرير يومي'],['reports.view_period','تقرير فترة'],['reports.view_all_invoices','جميع الفواتير'],['reports.view_purchases','تقرير المشتريات'],['reports.view_customer_invoices','فواتير عميل'],['reports.view_credit_invoices','الفواتير الدائنة'],['reports.view_unpaid_invoices','فواتير غير مدفوعة'],['reports.view_delivery','تقرير التوصيل'],
           ['payments.settle_full','سداد كامل'],['payments.view_invoice','عرض الفاتورة'],
           ['credit_notes.view','عرض الإشعار'],['credit_notes.view_base','عرض الفاتورة'],
           ['permissions.manage','إدارة الصلاحيات']
@@ -401,6 +409,14 @@ async function getPool() {
           WHERE u.role='admin'
             AND EXISTS(SELECT 1 FROM user_permissions up WHERE up.user_id=u.id)
             AND NOT EXISTS(SELECT 1 FROM user_permissions up2 WHERE up2.user_id=u.id AND up2.perm_key='reports.view_types')
+        `);
+        await conn.query(`
+          INSERT IGNORE INTO user_permissions (user_id, perm_key)
+          SELECT u.id, 'reports.view_delivery'
+          FROM users u
+          WHERE u.role='admin'
+            AND EXISTS(SELECT 1 FROM user_permissions up WHERE up.user_id=u.id)
+            AND NOT EXISTS(SELECT 1 FROM user_permissions up2 WHERE up2.user_id=u.id AND up2.perm_key='reports.view_delivery')
         `);
       }catch(_){ /* ignore */ }
 

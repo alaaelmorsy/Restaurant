@@ -842,7 +842,7 @@ async function loadRange(startStr, endStr){
     invoices.forEach(sale => {
       const grand = Number(sale.grand_total||0);
       const vatv = Number(sale.vat_total||0);
-      const discv = Number(sale.discount_amount||0);
+      const discv = Number(sale.discount_amount||0) + Number(sale.delivery_discount_amount||0);
       const pm = String(sale.payment_method||'').toLowerCase();
       grossBefore += ((grand - vatv) + discv);
       vatBefore += vatv;
@@ -875,7 +875,7 @@ async function loadRange(startStr, endStr){
       const pre = Number(sale.sub_total||0);
       const grand = Number(sale.grand_total||0);
       const vatv = Number(sale.vat_total||0);
-      const discCN = Number(sale.discount_amount||0);
+      const discCN = Number(sale.discount_amount||0) + Number(sale.delivery_discount_amount||0);
       refunds += Math.abs(pre);
       refundsVat += Math.abs(vatv);
       refundsPreAfterDisc += Math.abs(pre - discCN);

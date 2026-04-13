@@ -204,7 +204,9 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
               })(pm);
               const rowClass = isCN ? 'credit-row' : '';
               const fmt = (n)=> Number(n||0).toFixed(2);
-              return `<tr class="${rowClass}"><td class="num">${s.invoice_no||''}</td><td>${docType}</td><td dir="ltr" style="text-align:left">${cust}</td><td class="num">${dateStr}</td><td>${payLabel}</td><td class="num">${fmt(pre)}</td><td class="num">${fmt(vat)}</td><td class="num">${fmt(grand)}</td><td></td></tr>`;
+              const deliveryName = s.delivery_company_name || '—';
+              const deliveryDisc = s.delivery_discount_amount ? Number(s.delivery_discount_amount).toFixed(2) : '—';
+              return `<tr class="${rowClass}"><td class="num">${s.invoice_no||''}</td><td>${docType}</td><td dir="ltr" style="text-align:left">${cust}</td><td class="num">${dateStr}</td><td>${payLabel}</td><td class="num">${fmt(pre)}</td><td class="num">${fmt(vat)}</td><td class="num">${fmt(grand)}</td><td>${deliveryName}</td><td class="num">${deliveryDisc}</td><td></td></tr>`;
             }).join('');
             cloneTbody.innerHTML = rows;
             
@@ -410,7 +412,7 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
         if(rangeEl && rangeEl.textContent){ lines.push(esc('الفترة'), esc(rangeEl.textContent.trim())); lines.push(''); }
         
         // عناوين الأعمدة
-        const headers = ['رقم', 'نوع المستند', 'العميل', 'التاريخ', 'طريقة الدفع', 'المبلغ قبل الضريبة', 'الضريبة', 'الإجمالي'];
+        const headers = ['رقم', 'نوع المستند', 'العميل', 'التاريخ', 'طريقة الدفع', 'المبلغ قبل الضريبة', 'الضريبة', 'الإجمالي', 'شركة التوصيل', 'خصم التوصيل'];
         lines.push(headers.map(esc).join(','));
         
         // البيانات
@@ -440,13 +442,15 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
             return method||'';
           })(pm);
           
-          const row = [s.invoice_no||'', docType, cust, dateStr, payLabel, fmt(pre), fmt(vat), fmt(grand)];
+          const deliveryName = s.delivery_company_name || '—';
+          const deliveryDisc = s.delivery_discount_amount ? Number(s.delivery_discount_amount).toFixed(2) : '—';
+          const row = [s.invoice_no||'', docType, cust, dateStr, payLabel, fmt(pre), fmt(vat), fmt(grand), deliveryName, deliveryDisc];
           lines.push(row.map(esc).join(','));
         });
         
         // الإجماليات
         lines.push('');
-        lines.push([esc('الإجماليات'), '', '', '', '', esc(fmt(sumPre)), esc(fmt(sumVat)), esc(fmt(sumGrand))].join(','));
+        lines.push([esc('الإجماليات'), '', '', '', '', esc(fmt(sumPre)), esc(fmt(sumVat)), esc(fmt(sumGrand)), '', ''].join(','));
         
         const csv = lines.join('\n');
         const period = (rangeEl && rangeEl.textContent) ? rangeEl.textContent.replace(/[^0-9_\-–: ]+/g,'').replace(/\s+/g,' ').trim() : '';
@@ -514,7 +518,9 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
               })(pm);
               const rowClass = isCN ? 'credit-row' : '';
               const fmt = (n)=> Number(n||0).toFixed(2);
-              return `<tr class="${rowClass}"><td class="num">${s.invoice_no||''}</td><td>${docType}</td><td dir="ltr" style="text-align:left">${cust}</td><td class="num">${dateStr}</td><td>${payLabel}</td><td class="num">${fmt(pre)}</td><td class="num">${fmt(vat)}</td><td class="num">${fmt(grand)}</td><td></td></tr>`;
+              const deliveryName = s.delivery_company_name || '—';
+              const deliveryDisc = s.delivery_discount_amount ? Number(s.delivery_discount_amount).toFixed(2) : '—';
+              return `<tr class="${rowClass}"><td class="num">${s.invoice_no||''}</td><td>${docType}</td><td dir="ltr" style="text-align:left">${cust}</td><td class="num">${dateStr}</td><td>${payLabel}</td><td class="num">${fmt(pre)}</td><td class="num">${fmt(vat)}</td><td class="num">${fmt(grand)}</td><td>${deliveryName}</td><td class="num">${deliveryDisc}</td><td></td></tr>`;
             }).join('');
             cloneTbody.innerHTML = rows;
           }
@@ -940,10 +946,12 @@ async function loadRange(startStr, endStr, userId, page = 1){
       }
       const viewBtn = `<button class=\"px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-sm text-xs\" ${attrs.join(' ')}>عرض</button>`;
       const rowClass = isCN ? 'credit-row' : '';
-      return `<tr class="${rowClass}"><td class=\"num\">${s.invoice_no||''}</td><td>${docType}</td><td dir=\"ltr\" style=\"text-align:left\">${cust}</td><td class=\"num\">${dateStr}</td><td>${payLabel}</td><td class=\"num\">${fmt(pre)}</td><td class=\"num\">${fmt(vat)}</td><td class=\"num\">${fmt(grand)}</td><td>${viewBtn}</td></tr>`;
+      const deliveryName = s.delivery_company_name || '—';
+      const deliveryDisc = s.delivery_discount_amount ? Number(s.delivery_discount_amount).toFixed(2) : '—';
+      return `<tr class="${rowClass}"><td class=\"num\">${s.invoice_no||''}</td><td>${docType}</td><td dir=\"ltr\" style=\"text-align:left\">${cust}</td><td class=\"num\">${dateStr}</td><td>${payLabel}</td><td class=\"num\">${fmt(pre)}</td><td class=\"num\">${fmt(vat)}</td><td class=\"num\">${fmt(grand)}</td><td>${deliveryName}</td><td class=\"num\">${deliveryDisc}</td><td>${viewBtn}</td></tr>`;
     }).join('');
 
-    if(invTbody){ invTbody.innerHTML = rows || '<tr><td colspan="9" class="text-center text-gray-500 font-semibold py-8">📋 لا توجد مستندات ضمن الفترة</td></tr>'; }
+    if(invTbody){ invTbody.innerHTML = rows || '<tr><td colspan="11" class="text-center text-gray-500 font-semibold py-8">📋 لا توجد مستندات ضمن الفترة</td></tr>'; }
     if(invCount){ invCount.textContent = String(items.length||0); }
     
     // استخدام الإجماليات الكلية بدلاً من إجماليات الصفحة الحالية
@@ -1205,10 +1213,12 @@ window.goToPage = async function(page){
       }
       const viewBtn = `<button class=\"px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-sm text-xs\" ${attrs.join(' ')}>عرض</button>`;
       const rowClass = isCN ? 'credit-row' : '';
-      return `<tr class="${rowClass}"><td class=\"num\">${s.invoice_no||''}</td><td>${docType}</td><td dir=\"ltr\" style=\"text-align:left\">${cust}</td><td class=\"num\">${dateStr}</td><td>${payLabel}</td><td class=\"num\">${fmt(pre)}</td><td class=\"num\">${fmt(vat)}</td><td class=\"num\">${fmt(grand)}</td><td>${viewBtn}</td></tr>`;
+      const deliveryName = s.delivery_company_name || '—';
+      const deliveryDisc = s.delivery_discount_amount ? Number(s.delivery_discount_amount).toFixed(2) : '—';
+      return `<tr class="${rowClass}"><td class=\"num\">${s.invoice_no||''}</td><td>${docType}</td><td dir=\"ltr\" style=\"text-align:left\">${cust}</td><td class=\"num\">${dateStr}</td><td>${payLabel}</td><td class=\"num\">${fmt(pre)}</td><td class=\"num\">${fmt(vat)}</td><td class=\"num\">${fmt(grand)}</td><td>${deliveryName}</td><td class=\"num\">${deliveryDisc}</td><td>${viewBtn}</td></tr>`;
     }).join('');
 
-    if(invTbody){ invTbody.innerHTML = rows || '<tr><td colspan="9" class="text-center text-gray-500 font-semibold py-8">📋 لا توجد مستندات ضمن الفترة</td></tr>'; }
+    if(invTbody){ invTbody.innerHTML = rows || '<tr><td colspan="11" class="text-center text-gray-500 font-semibold py-8">📋 لا توجد مستندات ضمن الفترة</td></tr>'; }
     if(invCount){ invCount.textContent = String(items.length||0); }
     
     const set = (id, v)=>{ const el = document.getElementById(id); if(!el) return; el.textContent = (id==='sumCount') ? String(v) : fmt(v); };

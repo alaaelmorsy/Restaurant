@@ -53,6 +53,7 @@
       .totals tbody tr#discRow td,
       .totals tbody tr#afterDiscRow td,
       .totals tbody tr#tobaccoFeeRow td,
+      .totals tbody tr#deliveryDiscRow td,
       .totals tbody tr#paidCashRow td,
       .totals tbody tr#paidCardRow td,
       .totals tbody tr#changeRow td{
@@ -162,6 +163,7 @@
           <tr id="discRow" style="display:none"><td id="discLabel">خصم</td><td style="text-align:left; color:#b91c1c" id="disc"></td></tr>
           <tr id="afterDiscRow" style="display:none"><td>الإجمالي بعد الخصم (قبل الضريبة)</td><td style="text-align:left" id="afterDisc"></td></tr>
           <tr id="tobaccoFeeRow" style="display:none"><td>رسوم التبغ</td><td style="text-align:left" id="tobaccoFee"></td></tr>
+          <tr id="deliveryDiscRow" style="display:none"><td id="deliveryDiscLabel">خصم</td><td style="text-align:left; color:#b91c1c" id="deliveryDisc"></td></tr>
           <tr><td>ضريبة VAT</td><td style="text-align:left" id="vat"></td></tr>
           <tr><td><b>الإجمالي شامل الضريبة</b></td><td style="text-align:left" id="grand"></td></tr>
           <!-- صفوف اختيارية لعرض تفاصيل الدفع المختلط عند الحاجة -->
@@ -399,7 +401,7 @@
             document.getElementById('paidAtLine').style.display = '';
           }
           // خريطة عربية لطرق الدفع
-          const payLabels = { cash:'كاش', card:'شبكة', credit:'آجل', mixed:'مختلط', tamara:'تمارا', tabby:'تابي', refund:'إشعار دائن' };
+          const payLabels = { cash:'كاش', card:'شبكة', credit:'آجل', mixed:'مختلط', tamara:'تمارا', tabby:'تابي', bank_transfer:'تحويل بنكي', refund:'إشعار دائن' };
           const payKey = pay || sale?.payment_method || '';
           document.getElementById('invPay').textContent = payLabels[payKey] || payKey;
           
@@ -469,6 +471,25 @@
             }
           }catch(_){}
 
+          // delivery company details
+          let __deliveryLabel = 'خصم';
+          try{
+            const deliveryName = String(sale.delivery_company_name || '').trim();
+            if(deliveryName){
+              try{
+                const dcId = Number(sale.delivery_company_id || 0);
+                if(dcId > 0 && typeof api.delivery_companies_get === 'function'){
+                  const dcRes = await api.delivery_companies_get(dcId);
+                  if(dcRes && dcRes.ok && dcRes.item){
+                    const pct = Number(dcRes.item.discount_percent || 0);
+                    __deliveryLabel = `خصم (${deliveryName} - ${pct.toFixed(2)}%)`;
+                  }
+                }
+              }catch(_){ /* ignore */ }
+              if(__deliveryLabel === 'خصم'){ __deliveryLabel = `خصم (${deliveryName})`; }
+            }
+          }catch(_){ /* ignore */ }
+
           // customer details block (formatted list) دون تكرار الاسم + تحديد نوع الفاتورة
           try{
             let vatNo = '';
@@ -525,7 +546,7 @@
             try{ if(Number(settings?.vat_percent||0) === 0){ typeEl.style.display = 'none'; } }catch(_){ /* ignore */ }
           }catch(_){ /* ignore */ }
           // خريطة عربية لطرق الدفع
-          const payLabels2 = { cash:'كاش', card:'شبكة', credit:'آجل', mixed:'مختلط', tamara:'تمارا', tabby:'تابي' };
+          const payLabels2 = { cash:'كاش', card:'شبكة', credit:'آجل', mixed:'مختلط', tamara:'تمارا', tabby:'تابي', bank_transfer:'تحويل بنكي' };
           const payKey2 = pay || sale?.payment_method || '';
           document.getElementById('invPay').textContent = payLabels2[payKey2] || payKey2;
 
@@ -589,6 +610,19 @@
               else { feeRow.style.display='none'; feeVal.textContent = ''; }
             }
           }catch(_){ }
+          try{
+            const delDisc = Number(sale.delivery_discount_amount || 0);
+            if(Math.abs(delDisc) > 0){
+              const row = document.getElementById('deliveryDiscRow');
+              const val = document.getElementById('deliveryDisc');
+              const lbl = document.getElementById('deliveryDiscLabel');
+              if(row && val){
+                row.style.display = '';
+                if(lbl){ lbl.textContent = __deliveryLabel; }
+                val.innerHTML = fmt(Math.abs(delDisc));
+              }
+            }
+          }catch(_){ }
           // في إشعار الدائن: اعرض VAT والإجمالي كقيم موجبة
           const isCreditAbs = String(sale?.doc_type||'')==='credit_note' || String(sale?.invoice_no||'').startsWith('CN-');
           document.getElementById('vat').innerHTML = fmt(isCreditAbs ? Math.abs(Number(sale.vat_total||0)) : Number(sale.vat_total||0));
@@ -636,7 +670,7 @@
                 remaining = Math.max(0, grand - paid);
                 shouldShow = true;
               }
-            } else if(pm === 'card' || pm === 'tamara' || pm === 'tabby'){
+            } else if(pm === 'card' || pm === 'tamara' || pm === 'tabby' || pm === 'bank_transfer'){
               // في الشبكة/تمارا/تابي: اعرض فقط إذا أُدخل مبلغ
               if(entered > 0){
                 paid = entered;

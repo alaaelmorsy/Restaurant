@@ -40,6 +40,7 @@ function __applyLang(lang){
     tamara: isAr ? 'تمارا' : 'Tamara',
     tabby: isAr ? 'تابي' : 'Tabby',
     mixed: isAr ? 'مختلط' : 'Mixed',
+    bank_transfer: isAr ? 'تحويل بنكي' : 'Bank Transfer',
     // Sections
     soldProducts: isAr ? 'المنتجات المباعة' : 'Sold products',
     product: isAr ? 'المنتج' : 'Product',
@@ -200,6 +201,7 @@ function labelPaymentMethod(method){
   if(m==='tamara') return __currentLang.tamara || 'تمارا';
   if(m==='tabby') return __currentLang.tabby || 'تابي';
   if(m==='mixed') return __currentLang.mixed || 'مختلط';
+  if(m==='bank_transfer') return __currentLang.bank_transfer || 'تحويل بنكي';
   return method||'';
 }
 
@@ -750,7 +752,7 @@ async function load(){
     invoices.forEach(sale => {
       const grand = Number(sale.grand_total||0);
       const vatv = Number(sale.vat_total||0);
-      const discv = Number(sale.discount_amount||0);
+      const discv = Number(sale.discount_amount||0) + Number(sale.delivery_discount_amount||0);
       const pm = String(sale.payment_method||'').toLowerCase();
       // المبيعات قبل الإشعارات يجب أن تعكس المبلغ قبل الخصم وقبل الضريبة
       // نحسبها = (الإجمالي بعد الخصم مع الضريبة) - (الضريبة) + (الخصم)
@@ -789,7 +791,7 @@ async function load(){
       const pre = Number(sale.sub_total||0);
       const grand = Number(sale.grand_total||0);
       const vatv = Number(sale.vat_total||0);
-      const discCN = Number(sale.discount_amount||0);
+      const discCN = Number(sale.discount_amount||0) + Number(sale.delivery_discount_amount||0);
       // احتساب الإشعارات: قبل الضريبة بعد الخصم يعتمد على (sub_total - discount_amount)، ورسوم التبغ بعمود مستقل
       refunds += Math.abs(pre); // قبل الخصم (لاستخدامات أخرى)
       refundsVat += Math.abs(vatv);
@@ -1034,7 +1036,7 @@ async function load(){
     const rows = [];
     let paymentsSum = 0;
     // Labels
-    const labels = { cash:'نقدًا', card:'شبكة', credit:'آجل', tamara:'تمارا', tabby:'تابي' };
+    const labels = { cash:'نقدًا', card:'شبكة', credit:'آجل', tamara:'تمارا', tabby:'تابي', bank_transfer:'تحويل بنكي' };
     // Compute total for all credit invoices (regardless of payment_status); exclude credit notes
     const creditSum = (allSales||[])
       .filter(s => String(s.doc_type||'') !== 'credit_note' && !String(s.invoice_no||'').startsWith('CN-') && String(s.payment_method||'').toLowerCase()==='credit')

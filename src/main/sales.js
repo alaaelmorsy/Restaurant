@@ -112,6 +112,18 @@ function registerSalesIPC(){
     const [colPayCard] = await conn.query("SHOW COLUMNS FROM sales LIKE 'pay_card_amount'");
     if(!colPayCard.length){ await conn.query("ALTER TABLE sales ADD COLUMN pay_card_amount DECIMAL(12,2) NULL AFTER pay_cash_amount"); }
 
+    // Ensure delivery company columns exist
+    const [colDelCompId] = await conn.query("SHOW COLUMNS FROM sales LIKE 'delivery_company_id'");
+    if(!colDelCompId.length){ await conn.query("ALTER TABLE sales ADD COLUMN delivery_company_id INT NULL AFTER driver_id"); }
+    const [colDelCompName] = await conn.query("SHOW COLUMNS FROM sales LIKE 'delivery_company_name'");
+    if(!colDelCompName.length){ await conn.query("ALTER TABLE sales ADD COLUMN delivery_company_name VARCHAR(255) NULL AFTER delivery_company_id"); }
+    const [colDelDisc] = await conn.query("SHOW COLUMNS FROM sales LIKE 'delivery_discount_amount'");
+    if(!colDelDisc.length){ await conn.query("ALTER TABLE sales ADD COLUMN delivery_discount_amount DECIMAL(12,2) NULL AFTER delivery_company_name"); }
+    try{
+      const [idxDelComp] = await conn.query("SHOW INDEX FROM sales WHERE Key_name='idx_delivery_company_id'");
+      if(!idxDelComp.length){ await conn.query("ALTER TABLE sales ADD INDEX idx_delivery_company_id (delivery_company_id)"); }
+    }catch(_){ /* ignore if exists */ }
+
     // Ensure document type column (invoice|credit_note) exists and default to 'invoice'
     const [colDocTypeEnsure] = await conn.query("SHOW COLUMNS FROM sales LIKE 'doc_type'");
     if(!colDocTypeEnsure.length){
@@ -446,6 +458,16 @@ function registerSalesIPC(){
         if(!colDrvNameIns.length){ await conn.query("ALTER TABLE sales ADD COLUMN driver_name VARCHAR(255) NULL AFTER driver_id"); }
         const [colDrvPhoneIns] = await conn.query("SHOW COLUMNS FROM sales LIKE 'driver_phone'");
         if(!colDrvPhoneIns.length){ await conn.query("ALTER TABLE sales ADD COLUMN driver_phone VARCHAR(64) NULL AFTER driver_name"); }
+    const [colDelCompId] = await conn.query("SHOW COLUMNS FROM sales LIKE 'delivery_company_id'");
+    if(!colDelCompId.length){ await conn.query("ALTER TABLE sales ADD COLUMN delivery_company_id INT NULL AFTER driver_id"); }
+    const [colDelCompName] = await conn.query("SHOW COLUMNS FROM sales LIKE 'delivery_company_name'");
+    if(!colDelCompName.length){ await conn.query("ALTER TABLE sales ADD COLUMN delivery_company_name VARCHAR(255) NULL AFTER delivery_company_id"); }
+    const [colDelDisc] = await conn.query("SHOW COLUMNS FROM sales LIKE 'delivery_discount_amount'");
+    if(!colDelDisc.length){ await conn.query("ALTER TABLE sales ADD COLUMN delivery_discount_amount DECIMAL(12,2) NULL AFTER delivery_company_name"); }
+    try{
+      const [idxDelCompId] = await conn.query("SHOW INDEX FROM sales WHERE Key_name='idx_delivery_company_id'");
+      if(!idxDelCompId.length){ await conn.query("ALTER TABLE sales ADD INDEX idx_delivery_company_id (delivery_company_id)"); }
+    }catch(_){ /* ignore if exists */ }
 
         // Ensure order_type column exists
         const [colOrderType] = await conn.query("SHOW COLUMNS FROM sales LIKE 'order_type'");
@@ -460,7 +482,7 @@ function registerSalesIPC(){
           }catch(_){ }
         }
 
-        const [res] = await conn.query(`INSERT INTO sales (invoice_no, order_no, created_by_user_id, created_by_username, customer_id, customer_name, customer_phone, customer_vat, driver_id, driver_name, driver_phone, order_type, payment_method, payment_status, sub_total, extra_value, tobacco_fee, vat_total, grand_total, total_after_discount, notes, discount_type, discount_value, discount_amount, coupon_code, coupon_mode, coupon_value, pay_cash_amount, pay_card_amount) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
+        const [res] = await conn.query(`INSERT INTO sales (invoice_no, order_no, created_by_user_id, created_by_username, customer_id, customer_name, customer_phone, customer_vat, driver_id, delivery_company_id, delivery_company_name, delivery_discount_amount, driver_name, driver_phone, order_type, payment_method, payment_status, sub_total, extra_value, tobacco_fee, vat_total, grand_total, total_after_discount, notes, discount_type, discount_value, discount_amount, coupon_code, coupon_mode, coupon_value, pay_cash_amount, pay_card_amount) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
           invoiceNo,
           orderNo,
           (p.created_by_user_id != null ? Number(p.created_by_user_id) : null),
@@ -470,6 +492,9 @@ function registerSalesIPC(){
           snapPhone,
           snapVat,
           drvId,
+          (p.delivery_company_id != null ? Number(p.delivery_company_id) : null),
+          (p.delivery_company_name || null),
+          (p.delivery_discount_amount != null ? Number(p.delivery_discount_amount) : null),
           drvName,
           drvPhone,
           (p.order_type || null),
@@ -632,6 +657,72 @@ function registerSalesIPC(){
 
       } finally { conn.release(); }
     }catch(e){ console.error(e); return { ok:false, error:'تعذر تحميل تقرير البلدية' }; }
+  });
+
+  ipcMain.handle('sales:delivery_report', async (_e, query) => {
+    const q = query || {};
+    const terms = [];
+    const params = [];
+    if(q.company_id){ terms.push('s.delivery_company_id = ?'); params.push(Number(q.company_id)); }
+    if(q.from){ terms.push('s.created_at >= CAST(? AS DATETIME)'); params.push(q.from); }
+    if(q.to){ terms.push('s.created_at <= CAST(? AS DATETIME)'); params.push(q.to); }
+    terms.push('s.delivery_company_id IS NOT NULL');
+    const where = terms.length ? ('WHERE ' + terms.join(' AND ')) : '';
+    try{
+      const pool = await getPool();
+      const conn = await pool.getConnection();
+      try{
+        await conn.query(`USE \`${DB_NAME}\``);
+        await ensureTables(conn);
+        const [rows] = await conn.query(`
+          SELECT
+            s.id, s.invoice_no, s.created_at, s.customer_name, s.customer_phone,
+            s.doc_type, s.sub_total, s.vat_total, s.grand_total,
+            s.delivery_company_id, s.delivery_company_name, s.delivery_discount_amount
+          FROM sales s
+          ${where}
+          ORDER BY s.id DESC
+        `, params);
+        const totals = (rows || []).reduce((acc, it) => {
+          const isReturn = (String(it.doc_type || '') === 'credit_note') || String(it.invoice_no || '').startsWith('CN-');
+          const sub = Number(it.sub_total || 0);
+          const vat = Number(it.vat_total || 0);
+          const grand = Number(it.grand_total || 0);
+          const disc = Number(it.delivery_discount_amount || 0);
+          if(isReturn){
+            acc.return_count += 1;
+            acc.return_sub_total += Math.abs(sub);
+            acc.return_vat_total += Math.abs(vat);
+            acc.return_grand_total += Math.abs(grand);
+            acc.return_delivery_discount += Math.abs(disc);
+          } else {
+            acc.invoice_count += 1;
+            acc.invoice_sub_total += sub;
+            acc.invoice_vat_total += vat;
+            acc.invoice_grand_total += grand;
+            acc.invoice_delivery_discount += disc;
+          }
+          acc.count += 1;
+          acc.sub_total += sub;
+          acc.vat_total += vat;
+          acc.grand_total += grand;
+          acc.delivery_discount += disc;
+          return acc;
+        }, {
+          count: 0, sub_total: 0, vat_total: 0, grand_total: 0, delivery_discount: 0,
+          invoice_count: 0, return_count: 0,
+          invoice_sub_total: 0, return_sub_total: 0,
+          invoice_vat_total: 0, return_vat_total: 0,
+          invoice_grand_total: 0, return_grand_total: 0,
+          invoice_delivery_discount: 0, return_delivery_discount: 0
+        });
+        totals.net_sub_total = totals.invoice_sub_total - totals.return_sub_total;
+        totals.net_vat_total = totals.invoice_vat_total - totals.return_vat_total;
+        totals.net_grand_total = totals.invoice_grand_total - totals.return_grand_total;
+        totals.net_delivery_discount = totals.invoice_delivery_discount - totals.return_delivery_discount;
+        return { ok:true, items: rows || [], totals };
+      } finally { conn.release(); }
+    }catch(e){ console.error(e); return { ok:false, error:'تعذر تحميل تقرير التوصيل' }; }
   });
 
   ipcMain.handle('sales:list', async (_e, query) => {
@@ -953,7 +1044,7 @@ function registerSalesIPC(){
     try{
       const p = payload || {}; const id = Number(p.sale_id||0);
       const method = String(p.method||'').toLowerCase();
-      const okMethod = ['cash','card','tamara','tabby'].includes(method);
+      const okMethod = ['cash','card','tamara','tabby','bank_transfer'].includes(method);
       if(!id){ return { ok:false, error:'رقم الفاتورة مفقود' }; }
       if(!okMethod){ return { ok:false, error:'طريقة سداد غير صالحة' }; }
       const cash = (method==='cash') ? Math.max(0, Number(p.cash||0)) : null;
@@ -972,7 +1063,7 @@ function registerSalesIPC(){
         // Also set split fields for simple methods to aid reports
         if(method==='cash'){
           await conn.query('UPDATE sales SET pay_cash_amount = grand_total, pay_card_amount = NULL WHERE id=?', [id]);
-        } else if(method==='card' || method==='tamara' || method==='tabby'){
+        } else if(method==='card' || method==='tamara' || method==='tabby' || method==='bank_transfer'){
           await conn.query('UPDATE sales SET pay_cash_amount = NULL, pay_card_amount = grand_total WHERE id=?', [id]);
         }
         // Notify update
@@ -1294,13 +1385,16 @@ function registerSalesIPC(){
         const [colDocType] = await conn.query("SHOW COLUMNS FROM sales LIKE 'doc_type'");
         if(!colDocType.length){ await conn.query("ALTER TABLE sales ADD COLUMN doc_type ENUM('invoice','credit_note') NOT NULL DEFAULT 'invoice' AFTER invoice_no"); }
 
-        const [ins] = await conn.query(`INSERT INTO sales (invoice_no, doc_type, ref_base_sale_id, ref_base_invoice_no, customer_id, customer_name, customer_phone, customer_vat, payment_method, payment_status, sub_total, extra_value, tobacco_fee, vat_total, grand_total, total_after_discount, notes, discount_type, discount_value, discount_amount, coupon_code, coupon_mode, coupon_value, settled_at, settled_method, pay_cash_amount, pay_card_amount)
-          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
+        const [ins] = await conn.query(`INSERT INTO sales (invoice_no, doc_type, ref_base_sale_id, ref_base_invoice_no, customer_id, customer_name, customer_phone, customer_vat, delivery_company_id, delivery_company_name, delivery_discount_amount, payment_method, payment_status, sub_total, extra_value, tobacco_fee, vat_total, grand_total, total_after_discount, notes, discount_type, discount_value, discount_amount, coupon_code, coupon_mode, coupon_value, settled_at, settled_method, pay_cash_amount, pay_card_amount)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
           'CN-' + cnNo,
           'credit_note',
           Number(sale.id||id),
           String(sale.invoice_no||''),
           sale.customer_id, sale.customer_name, sale.customer_phone, sale.customer_vat,
+          (sale.delivery_company_id != null ? Number(sale.delivery_company_id) : null),
+          (sale.delivery_company_name || null),
+          (sale.delivery_discount_amount != null ? -Number(sale.delivery_discount_amount || 0) : null),
           sale.payment_method, 'paid',
           -Number(sale.sub_total||0),
           (sale.extra_value!=null ? -Number(sale.extra_value||0) : null),
