@@ -1240,18 +1240,23 @@ app.on('before-quit', (event) => {
   const { stopAPIServer } = require('./api-server');
   const { getPool } = require('../db/connection');
 
+  // Force kill after 4 seconds no matter what
+  const forceKill = setTimeout(() => { process.exit(0); }, 4000);
+  if (forceKill.unref) forceKill.unref();
+
   Promise.allSettled([
     whatsappService.disconnect().catch(() => {}),
     customerDisplay.cleanup().catch(() => {}),
-    new Promise(resolve => { try { stopAPIServer(); resolve(); } catch(_) { resolve(); } }),
+    new Promise(resolve => { try { stopAPIServer(); } catch(_) {} resolve(); }),
     new Promise(resolve => {
-      try {
-        const pool = getPool && getPool();
-        if (pool && typeof pool.end === 'function') pool.end(resolve);
-        else resolve();
-      } catch(_) { resolve(); }
+      getPool().then(pool => {
+        if (pool && typeof pool.end === 'function') {
+          pool.end(() => resolve());
+        } else { resolve(); }
+      }).catch(() => resolve());
     })
   ]).finally(() => {
-    app.exit(0);
+    clearTimeout(forceKill);
+    process.exit(0);
   });
 });
