@@ -1518,7 +1518,7 @@ tr.item-desc-row td{ border-bottom:2px solid #64748b; }
               remainRow.style.display = '';
               const historySection = document.getElementById('paymentsHistorySection');
               const historyBody = document.getElementById('paymentsHistoryBody');
-              const labels = { cash:'كاش', card:'شبكة', tamara:'تمارا', tabby:'تابي', bank_transfer:'حوالة' };
+              const labels = { cash:'كاش', card:'شبكة', tamara:'تمارا', tabby:'تابي', bank_transfer:'تحويل بنكي' };
               historyBody.innerHTML = paymentHistory.map((payment) => `
                 <tr>
                   <td>${new Intl.DateTimeFormat('en-GB-u-ca-gregory', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:true }).format(new Date(payment.paid_at))}</td>

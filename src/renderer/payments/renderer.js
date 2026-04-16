@@ -33,6 +33,7 @@ const __T = {
     optCard: '💳 شبكة',
     optTamara: '🛍️ تمارا',
     optTabby: '📱 تابي',
+    optBankTransfer: '🏦 تحويل بنكي',
     dlgLabelCashAmt: 'المبلغ المستلم',
     placeholderCash: 'اتركه فارغ = إجمالي الفاتورة',
     dlgCancel: 'إلغاء',
@@ -116,6 +117,7 @@ const __T = {
     optCard: '💳 Card',
     optTamara: '🛍️ Tamara',
     optTabby: '📱 Tabby',
+    optBankTransfer: '🏦 Bank Transfer',
     dlgLabelCashAmt: 'Amount Received',
     placeholderCash: 'Leave empty = full invoice total',
     dlgCancel: 'Cancel',
@@ -214,6 +216,7 @@ function __applyLang(lang){
   set('optCard', T.optCard);
   set('optTamara', T.optTamara);
   set('optTabby', T.optTabby);
+  set('optBankTransfer', T.optBankTransfer);
   set('dlgLabelCashAmt', T.dlgLabelCashAmt);
   setAttr('cashVal', 'placeholder', T.placeholderCash);
   set('dlgCancelTxt', T.dlgCancel);

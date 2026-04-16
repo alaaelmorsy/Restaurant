@@ -94,7 +94,7 @@ async function loadRange(startStr, endStr){
     let sumGrand = 0;
     let sumPaid = 0;
     let sumRemaining = 0;
-    const payLabels = { cash:'كاش', card:'شبكة', credit:'آجل', mixed:'مختلط', tamara:'تمارا', tabby:'تابي', refund:'إشعار دائن', bank_transfer:'حوالة' };
+    const payLabels = { cash:'كاش', card:'شبكة', credit:'آجل', mixed:'مختلط', tamara:'تمارا', tabby:'تابي', refund:'إشعار دائن', bank_transfer:'تحويل بنكي' };
     const rows = items.map((sale)=>{
       const created = new Date(sale.created_at);
       const dateStr = new Intl.DateTimeFormat('en-GB-u-ca-gregory', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:true }).format(created);
