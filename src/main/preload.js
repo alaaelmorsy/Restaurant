@@ -667,6 +667,7 @@ contextBridge.exposeInMainWorld('api', {
   sales_pay_partial: (payload) => ipcRenderer.invoke('sales:pay_partial', payload),
   sales_get_payments: (id) => ipcRenderer.invoke('sales:get_payments', id),
   sales_get_payments_batch: (saleIds) => ipcRenderer.invoke('sales:get_payments_batch', saleIds),
+  sales_list_partial_payments_in_range: (q) => ipcRenderer.invoke('sales:list_partial_payments_in_range', q),
   sales_refund_full: (payload) => ipcRenderer.invoke('sales:refund_full', payload),
   sales_reset_all: () => ipcRenderer.invoke('sales:reset_all'),
   sales_items_summary: (q) => ipcRenderer.invoke('sales:items_summary', q),

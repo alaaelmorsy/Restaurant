@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>تقرير هيئة الزكاة والضريبة والجمارك</title>
+  <title>ZATCA Report</title>
   <link href="../../styles/output.css" rel="stylesheet">
   <style>
     @font-face { font-family: 'Cairo'; src: url('../../../assets/fonts/Cairo-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
@@ -123,13 +123,13 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-black" style="color: #0f172a;">تقرير هيئة الزكاة والضريبة والجمارك</h1>
-            <p class="text-sm font-semibold" style="color: #64748b;">نظام إدارة المطاعم</p>
+            <h1 id="pageHeading" class="text-2xl font-black" style="color: #0f172a;">ZATCA Report</h1>
+            <p id="systemTitle" class="text-sm font-semibold" style="color: #64748b;">Restaurant Management System</p>
           </div>
         </div>
         <div class="flex items-center gap-3">
           <button id="btnBack" class="px-6 py-3 text-white font-bold rounded-xl shadow-lg" style="background: #ef4444;">
-            رجوع
+            Back
           </button>
         </div>
       </div>
@@ -142,21 +142,21 @@
     <div class="zatca-section range-actions" style="padding: 16px 20px;">
       <div class="flex flex-wrap items-end gap-3">
         <div style="flex:1; min-width:170px;">
-          <label for="fromAt" class="block text-xs font-bold mb-1" style="color: #0f172a;">من</label>
+          <label for="fromAt" class="block text-xs font-bold mb-1" style="color: #0f172a;">From</label>
           <input id="fromAt" type="datetime-local" class="w-full px-3 py-2 border-2 rounded-lg font-bold focus:outline-none focus:ring-2" style="border-color: #e6eaf0; color: #0f172a; font-size:13px;" />
         </div>
         <div style="flex:1; min-width:170px;">
-          <label for="toAt" class="block text-xs font-bold mb-1" style="color: #0f172a;">إلى</label>
+          <label for="toAt" class="block text-xs font-bold mb-1" style="color: #0f172a;">To</label>
           <input id="toAt" type="datetime-local" class="w-full px-3 py-2 border-2 rounded-lg font-bold focus:outline-none focus:ring-2" style="border-color: #e6eaf0; color: #0f172a; font-size:13px;" />
         </div>
         <button id="applyRangeBtn" class="px-5 py-2 text-white font-black rounded-lg shadow-md" style="background: #3b82f6; font-size:13px; white-space:nowrap;">
-          تطبيق
+          Apply
         </button>
         <button id="exportPdfBtn" class="px-5 py-2 text-white font-black rounded-lg shadow-md" style="background: #8b5cf6; font-size:13px; white-space:nowrap;">
-          تصدير PDF
+          Export PDF
         </button>
         <button id="exportExcelBtn" class="px-5 py-2 text-white font-black rounded-lg shadow-md" style="background: #10b981; font-size:13px; white-space:nowrap;">
-          تصدير Excel
+          Export Excel
         </button>
       </div>
       <div class="font-bold mt-3" style="color: #64748b; font-size:13px;" id="range"></div>
@@ -164,27 +164,27 @@
 
     <!-- القسم الأول: جدول الفواتير -->
     <div class="zatca-section">
-      <h3>الفواتير (مدفوعة وغير مدفوعة) ضمن الفترة</h3>
+      <h3 id="invSectionTitle">Invoices (Paid &amp; Unpaid) within the period</h3>
       <div class="overflow-x-auto">
         <table class="ztable">
           <thead>
             <tr>
-              <th>رقم الفاتورة</th>
-              <th>التاريخ</th>
-              <th>العميل</th>
-              <th>طريقة الدفع</th>
-              <th>الحالة</th>
-              <th>قبل الضريبة</th>
-              <th>الضريبة</th>
-              <th>الإجمالي</th>
+              <th id="thInvNo">Invoice No.</th>
+              <th id="thInvDate">Date</th>
+              <th id="thInvCustomer">Customer</th>
+              <th id="thInvPayment">Payment Method</th>
+              <th id="thInvStatus">Status</th>
+              <th id="thInvPre">Pre-VAT</th>
+              <th id="thInvVat">VAT</th>
+              <th id="thInvGrand">Total</th>
             </tr>
           </thead>
           <tbody id="invTbody">
-            <tr><td colspan="8" style="color:#64748b;">جارٍ التحميل...</td></tr>
+            <tr><td colspan="8" style="color:#64748b;">Loading...</td></tr>
           </tbody>
           <tfoot>
             <tr>
-              <th colspan="5" style="text-align:right;">إجمالي الفواتير</th>
+              <th id="footInvTotal" colspan="5" style="text-align:right;">Total Invoices</th>
               <th id="invSumPre">0.00</th>
               <th id="invSumVat">0.00</th>
               <th id="invSumGrand">0.00</th>
@@ -196,26 +196,26 @@
 
     <!-- القسم الثاني: جدول المرتجعات -->
     <div class="zatca-section">
-      <h3>الفواتير المرتجعة (إشعارات دائنة) ضمن الفترة</h3>
+      <h3 id="cnSectionTitle">Returned Invoices (Credit Notes) within the period</h3>
       <div class="overflow-x-auto">
         <table class="ztable">
           <thead>
             <tr>
-              <th>رقم الإشعار</th>
-              <th>التاريخ</th>
-              <th>العميل</th>
-              <th>رقم الفاتورة الأصلية</th>
-              <th>قبل الضريبة</th>
-              <th>الضريبة</th>
-              <th>الإجمالي</th>
+              <th id="thCnNo">Credit Note No.</th>
+              <th id="thCnDate">Date</th>
+              <th id="thCnCustomer">Customer</th>
+              <th id="thCnBase">Original Invoice No.</th>
+              <th id="thCnPre">Pre-VAT</th>
+              <th id="thCnVat">VAT</th>
+              <th id="thCnGrand">Total</th>
             </tr>
           </thead>
           <tbody id="cnTbody">
-            <tr><td colspan="7" style="color:#64748b;">جارٍ التحميل...</td></tr>
+            <tr><td colspan="7" style="color:#64748b;">Loading...</td></tr>
           </tbody>
           <tfoot>
             <tr>
-              <th colspan="4" style="text-align:right;">إجمالي المرتجعات</th>
+              <th id="footCnTotal" colspan="4" style="text-align:right;">Total Returns</th>
               <th id="cnSumPre">0.00</th>
               <th id="cnSumVat">0.00</th>
               <th id="cnSumGrand">0.00</th>
@@ -227,25 +227,25 @@
 
     <!-- القسم الثالث: جدول المصروفات -->
     <div class="zatca-section">
-      <h3>المصروفات ضمن الفترة</h3>
+      <h3 id="expSectionTitle">Expenses within the period</h3>
       <div class="overflow-x-auto">
         <table class="ztable">
           <thead>
             <tr>
-              <th>البيان</th>
-              <th>التاريخ</th>
-              <th>طريقة الدفع</th>
-              <th>قبل الضريبة</th>
-              <th>الضريبة</th>
-              <th>الإجمالي</th>
+              <th id="thExpTitle">Description</th>
+              <th id="thExpDate">Date</th>
+              <th id="thExpPayment">Payment Method</th>
+              <th id="thExpPre">Pre-VAT</th>
+              <th id="thExpVat">VAT</th>
+              <th id="thExpGrand">Total</th>
             </tr>
           </thead>
           <tbody id="expTbody">
-            <tr><td colspan="6" style="color:#64748b;">جارٍ التحميل...</td></tr>
+            <tr><td colspan="6" style="color:#64748b;">Loading...</td></tr>
           </tbody>
           <tfoot>
             <tr>
-              <th colspan="3" style="text-align:right;">إجمالي المصروفات</th>
+              <th id="footExpTotal" colspan="3" style="text-align:right;">Total Expenses</th>
               <th id="expSumPre">0.00</th>
               <th id="expSumVat">0.00</th>
               <th id="expSumGrand">0.00</th>
@@ -257,38 +257,38 @@
 
     <!-- القسم الرابع: ملخص الإجماليات -->
     <div class="zatca-section">
-      <h3>ملخص الإجماليات</h3>
+      <h3 id="summaryTitle">Summary Totals</h3>
       <div class="overflow-x-auto">
         <table class="ztable">
           <thead>
             <tr>
-              <th style="text-align:right;">البيان</th>
-              <th>قبل الضريبة</th>
-              <th>الضريبة</th>
-              <th>بعد الضريبة</th>
+              <th id="thSumDesc" style="text-align:right;">Description</th>
+              <th id="thSumPre">Pre-VAT</th>
+              <th id="thSumVat">VAT</th>
+              <th id="thSumGrand">After VAT</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td style="text-align:right; font-weight:700;">المبيعات</td>
+              <td id="lblSales" style="text-align:right; font-weight:700;">Sales</td>
               <td id="sumInvPre">0.00</td>
               <td id="sumInvVat">0.00</td>
               <td id="sumInvGrand">0.00</td>
             </tr>
             <tr class="row-return">
-              <td style="text-align:right; font-weight:700;">ناقص: المرتجعات</td>
+              <td id="lblLessReturns" style="text-align:right; font-weight:700;">Less: Returns</td>
               <td id="sumCnPre">0.00</td>
               <td id="sumCnVat">0.00</td>
               <td id="sumCnGrand">0.00</td>
             </tr>
             <tr class="row-net-sales">
-              <td style="text-align:right; font-weight:900;">المبيعات بعد خصم المرتجعات</td>
+              <td id="lblNetSales" style="text-align:right; font-weight:900;">Sales after returns</td>
               <td id="sumNetSalesPre">0.00</td>
               <td id="sumNetSalesVat">0.00</td>
               <td id="sumNetSalesGrand">0.00</td>
             </tr>
             <tr class="row-expenses">
-              <td style="text-align:right; font-weight:700;">ناقص: المصروفات</td>
+              <td id="lblLessExpenses" style="text-align:right; font-weight:700;">Less: Expenses</td>
               <td id="sumExpPre">0.00</td>
               <td id="sumExpVat">0.00</td>
               <td id="sumExpGrand">0.00</td>
@@ -296,7 +296,7 @@
           </tbody>
           <tfoot>
             <tr class="row-net-final">
-              <th style="text-align:right;">الإجمالي النهائي</th>
+              <th id="lblFinalTotal" style="text-align:right;">Final Total</th>
               <th id="sumNetPre">0.00</th>
               <th id="sumNetVat">0.00</th>
               <th id="sumNetGrand" class="col-final-green">0.00</th>

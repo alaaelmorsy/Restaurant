@@ -237,9 +237,16 @@ function invoiceStatusLabel(sale){
   return '';
 }
 
-function invoiceRecognizedRatio(sale){
+function invoiceRecognizedRatio(sale, paidInRange){
   const grand = Math.max(0, Number(sale?.grand_total || 0));
   if(grand <= 0){ return 0; }
+  const paidInRangeNum = Number(paidInRange || 0);
+  // If explicit partial payments in range don't cover the full invoice,
+  // recognize only the paid portion. This handles old invoices (originally credit
+  // or any other type) that received partial payments during this period.
+  if(paidInRangeNum > 0 && paidInRangeNum < grand){
+    return paidInRangeNum / grand;
+  }
   const isCredit = String(sale?.payment_method || '').toLowerCase() === 'credit';
   const isPaid = String(sale?.payment_status || 'paid') === 'paid';
   if(isCredit && !isPaid){
@@ -249,20 +256,26 @@ function invoiceRecognizedRatio(sale){
   return 1;
 }
 
-function recognizedValue(sale, field){
-  return Number(sale?.[field] || 0) * invoiceRecognizedRatio(sale);
+function recognizedValue(sale, field, paidInRange){
+  return Number(sale?.[field] || 0) * invoiceRecognizedRatio(sale, paidInRange);
 }
 
 /** إجمالي يُعرض في جدول الفواتير: للآجل الجزئي يظهر المدفوع فقط، وإلا إجمالي الفاتورة */
-function invoiceTableTotalDisplay(sale){
+function invoiceTableTotalDisplay(sale, paidInRange){
+  const grand = Math.max(0, Number(sale?.grand_total || 0));
+  const paidInRangeNum = Number(paidInRange || 0);
+  // If explicit partial payments in range don't cover the full invoice,
+  // show only the paid portion. This handles old invoices paid partially in this period.
+  if(paidInRangeNum > 0 && paidInRangeNum < grand){
+    return Math.max(0, Math.min(grand, paidInRangeNum));
+  }
   const isCredit = String(sale?.payment_method || '').toLowerCase() === 'credit';
   const isPaid = String(sale?.payment_status || 'paid') === 'paid';
-  const paidAmt = Number(sale?.amount_paid || 0);
+  const paidAmt = Number(paidInRange || sale?.amount_paid || 0);
   if(isCredit && !isPaid && paidAmt > 0){
-    const grand = Math.max(0, Number(sale?.grand_total || 0));
     return Math.max(0, Math.min(grand, paidAmt));
   }
-  return Number(sale?.grand_total || 0);
+  return grand;
 }
 
 /** مجموع المتبقي على الفواتير الآجلة غير المسددة (لصف «طرق الدفع») */
@@ -968,16 +981,156 @@ async function loadRange(startStr, endStr){
       soldItems = (sumRes && sumRes.ok) ? (sumRes.items||[]) : [];
     }catch(_){ soldItems = []; }
 
-    let salesRes = await window.api.sales_list({ date_from: startStr, date_to: adjustedEndStr, limit: 50000 });
+    let salesRes = await window.api.sales_list({ date_from: startStr, date_to: adjustedEndStr, limit: 50000, include_partial_credit_paid_in_range: true });
     let allSales = (salesRes && salesRes.ok) ? (salesRes.items||[]) : [];
     // Removed fallback padding and unbounded fetch: show exactly the selected period
     // Keep allSales as returned by the API within [startStr, endStr] only
 
-    const invoices = allSales.filter(s => String(s.doc_type||'') !== 'credit_note' && !String(s.invoice_no||'').startsWith('CN-'));
+    let invoices = allSales.filter(s => String(s.doc_type||'') !== 'credit_note' && !String(s.invoice_no||'').startsWith('CN-'));
     const creditNotes = allSales.filter(s => String(s.doc_type||'') === 'credit_note' || String(s.invoice_no||'').startsWith('CN-'));
 
-    const creditUnpaidIds = [...new Set(invoices.filter(s => String(s.payment_method || '').toLowerCase() === 'credit' && String(s.payment_status || '') !== 'paid').map(s => Number(s.id)).filter(id => Number.isFinite(id) && id > 0))];
-    const paymentsBySale = await buildPaymentsBySaleMap(creditUnpaidIds, invoices);
+    const invoiceIdsInRange = new Set(invoices.map(s => Number(s.id)).filter(id => Number.isFinite(id) && id > 0));
+    const extraPaymentsBySale = new Map();
+    // مجموع الدفعات التي تمت داخل الفترة لكل فاتورة — لعرض فقط ما تم سداده في الفترة
+    const paidInRangeBySale = new Map();
+    const partialPaymentsRows = [];
+    try{
+      if(typeof window.api.sales_list_partial_payments_in_range === 'function'){
+        const pr = await window.api.sales_list_partial_payments_in_range({ date_from: startStr, date_to: adjustedEndStr });
+        const rows = (pr && pr.ok && Array.isArray(pr.items)) ? pr.items : [];
+        for(const p of rows){
+          const sid = Number(p.sale_id);
+          const amt = Number(p.amount || 0);
+          if(!Number.isFinite(sid) || sid <= 0) continue;
+          paidInRangeBySale.set(sid, (paidInRangeBySale.get(sid) || 0) + amt);
+          partialPaymentsRows.push(p);
+          if(invoiceIdsInRange.has(sid)) continue;
+          if(!extraPaymentsBySale.has(sid)) extraPaymentsBySale.set(sid, []);
+          extraPaymentsBySale.get(sid).push(p);
+        }
+      }
+    }catch(_){ }
+
+    if(!extraPaymentsBySale.size){
+      try{
+        const broadRes = await window.api.sales_list({ limit: 50000 });
+        const broadSales = (broadRes && broadRes.ok) ? (broadRes.items||[]) : [];
+        const salesById = new Map();
+        const creditIds = [];
+        for(const s of broadSales){
+          const sid = Number(s?.id);
+          if(!Number.isFinite(sid) || sid <= 0) continue;
+          salesById.set(sid, s);
+          const isCreditNote = (String(s.doc_type||'') === 'credit_note' || String(s.invoice_no||'').startsWith('CN-'));
+          if(isCreditNote) continue;
+          if(String(s.payment_method||'').toLowerCase() !== 'credit') continue;
+          if(String(s.payment_status||'') === 'paid') continue;
+          creditIds.push(sid);
+        }
+        if(creditIds.length && typeof window.api.sales_get_payments_batch === 'function'){
+          const batch = await window.api.sales_get_payments_batch(creditIds);
+          const payments = (batch && batch.ok && Array.isArray(batch.payments)) ? batch.payments : [];
+          const seen = new Set();
+          const startD = new Date(startStr);
+          const endD = new Date(adjustedEndStr);
+          for(const p of payments){
+            const sid = Number(p.sale_id);
+            const paidAt = p?.paid_at ? new Date(p.paid_at) : null;
+            if(!Number.isFinite(sid) || sid <= 0) continue;
+            if(!(paidAt instanceof Date) || Number.isNaN(paidAt.getTime())) continue;
+            if(!(paidAt >= startD && paidAt < endD)) continue;
+            if(invoiceIdsInRange.has(sid)) continue;
+            const sale = salesById.get(sid);
+            if(!sale) continue;
+            const key = `${Number(p.id||0)}:${sid}:${String(p.paid_at||'')}:${Number(p.amount||0)}`;
+            if(seen.has(key)) continue;
+            seen.add(key);
+            if(!extraPaymentsBySale.has(sid)) extraPaymentsBySale.set(sid, []);
+            const enriched = {
+              ...p,
+              invoice_no: sale.invoice_no,
+              customer_name: sale.customer_name,
+              customer_phone: sale.customer_phone,
+              sub_total: sale.sub_total,
+              vat_total: sale.vat_total,
+              grand_total: sale.grand_total,
+              discount_amount: sale.discount_amount,
+              delivery_discount_amount: sale.delivery_discount_amount,
+              tobacco_fee: sale.tobacco_fee,
+              payment_status: sale.payment_status,
+              payment_method: sale.payment_method,
+              created_at: sale.created_at
+            };
+            extraPaymentsBySale.get(sid).push(enriched);
+            partialPaymentsRows.push(enriched);
+          }
+        }
+      }catch(_){ }
+    }
+
+    if(extraPaymentsBySale.size){
+      const extras = [];
+      for(const [sid, list] of extraPaymentsBySale.entries()){
+        if(!Array.isArray(list) || !list.length) continue;
+        const first = list[0] || {};
+        const last = list[list.length - 1] || first;
+        const paidInRange = list.reduce((acc, p) => acc + Number(p.amount || 0), 0);
+        const grand = Math.max(0, Number(first.grand_total || 0));
+        const paid = Math.max(0, Math.min(grand, paidInRange));
+        extras.push({
+          id: sid,
+          invoice_no: first.invoice_no || '',
+          customer_name: first.customer_name || '',
+          customer_phone: first.customer_phone || '',
+          payment_method: 'credit',
+          payment_status: first.payment_status || 'unpaid',
+          amount_paid: paid,
+          sub_total: Number(first.sub_total || 0),
+          vat_total: Number(first.vat_total || 0),
+          grand_total: grand,
+          discount_amount: Number(first.discount_amount || 0),
+          delivery_discount_amount: Number(first.delivery_discount_amount || 0),
+          tobacco_fee: Number(first.tobacco_fee || 0),
+          created_at: last.paid_at || first.created_at
+        });
+      }
+      invoices = invoices.concat(extras);
+    }
+
+    // إخفاء الفواتير الآجلة التي لم يتم سداد أي دفعة عليها في الفترة
+    // وتحديث amount_paid لتعكس فقط ما تم دفعه في الفترة
+    invoices = invoices.map(s => {
+      if (String(s.payment_method || '').toLowerCase() === 'credit' && String(s.payment_status || '') !== 'paid') {
+        const paidInRange = paidInRangeBySale.get(Number(s.id)) || 0;
+        return { ...s, amount_paid: paidInRange };
+      }
+      return s;
+    }).filter(s => {
+      if (String(s.payment_method || '').toLowerCase() === 'credit' && String(s.payment_status || '') !== 'paid') {
+        return Number(s.amount_paid || 0) > 0;
+      }
+      return true;
+    });
+
+    // إجمالي المبلغ المتبقي على الفواتير الآجلة التي تم إنشاؤها في الفترة
+    const startD = new Date(startStr);
+    const endD = new Date(adjustedEndStr);
+    const creditRemainingTotal = allSales
+      .filter(s => {
+        const d = new Date(s.created_at || s.settled_at || s.invoice_date);
+        return d >= startD && d < endD;
+      })
+      .filter(s => String(s.doc_type||'') !== 'credit_note' && !String(s.invoice_no||'').startsWith('CN-'))
+      .filter(s => String(s.payment_method || '').toLowerCase() === 'credit' && String(s.payment_status || '') !== 'paid')
+      .reduce((acc, s) => acc + Math.max(0, Number(s.grand_total || 0) - Number(s.amount_paid || 0)), 0);
+
+    const extraInvoiceIds = new Set(Array.from(extraPaymentsBySale.keys()).map(x => Number(x)).filter(x => Number.isFinite(x) && x > 0));
+    const baseCreditUnpaid = invoices.filter(s => String(s.payment_method || '').toLowerCase() === 'credit' && String(s.payment_status || '') !== 'paid' && !extraInvoiceIds.has(Number(s.id)));
+    const creditUnpaidIds = [...new Set(baseCreditUnpaid.map(s => Number(s.id)).filter(id => Number.isFinite(id) && id > 0))];
+    const paymentsBySale = await buildPaymentsBySaleMap(creditUnpaidIds, baseCreditUnpaid);
+    for(const [sid, list] of extraPaymentsBySale.entries()){
+      paymentsBySale.set(Number(sid), list);
+    }
 
     let grossBefore = 0, vatBefore = 0, disc = 0;
     const payByMethod = new Map();
@@ -985,14 +1138,16 @@ async function loadRange(startStr, endStr){
     let refundsPreAfterDisc = 0;
 
     invoices.forEach(sale => {
-      const grand = recognizedValue(sale, 'grand_total');
-      const vatv = recognizedValue(sale, 'vat_total');
-      const discv = recognizedValue(sale, 'discount_amount') + recognizedValue(sale, 'delivery_discount_amount');
+      const sid = Number(sale.id);
+      const paidInRange = paidInRangeBySale.get(sid) || 0;
+      const grand = recognizedValue(sale, 'grand_total', paidInRange);
+      const vatv = recognizedValue(sale, 'vat_total', paidInRange);
+      const discv = recognizedValue(sale, 'discount_amount', paidInRange) + recognizedValue(sale, 'delivery_discount_amount', paidInRange);
       const pm = String(sale.payment_method||'').toLowerCase();
       grossBefore += ((grand - vatv) + discv);
       vatBefore += vatv;
       disc += discv;
-      const ratio = invoiceRecognizedRatio(sale);
+      const ratio = invoiceRecognizedRatio(sale, paidInRange);
       const payCashPart = Number(sale.pay_cash_amount || 0) * ratio;
       const payCardPart = Number(sale.pay_card_amount || 0) * ratio;
       const add = (method, amount)=>{
@@ -1003,13 +1158,14 @@ async function loadRange(startStr, endStr){
         payByMethod.set(k, prev + Number(amount||0));
       };
       if(pm === 'credit' && String(sale.payment_status||'') !== 'paid'){
-        addPartialCreditPaymentsToPayMap(payByMethod, sale, paymentsBySale);
+        // الدفعات الجزئية للآجل ستُضاف لاحقًا من partialPaymentsRows (in-range only)
+        // لتفادي الازدواج لا نضيف هنا أي شيء.
       } else if(pm==='mixed'){
         add('cash', payCashPart);
         add('card', payCardPart);
       } else if(pm==='cash'){
-        const settledCash = Number(sale.settled_cash || 0) * ratio;
-        add('cash', (settledCash>0 ? settledCash : (payCashPart>0?payCashPart:grand)));
+        // نستخدم قيمة الفاتورة المعترف بها (grand) لا المبلغ المدفوع الذي قد يشمل الباقي
+        add('cash', grand);
       } else if(pm==='card' || pm==='network' || pm==='tamara' || pm==='tabby'){
         add(pm, (payCardPart>0 ? payCardPart : grand));
       } else {
@@ -1038,13 +1194,42 @@ async function loadRange(startStr, endStr){
         sub('cash', cCash);
         sub('card', cCard);
       } else if(pm==='cash'){
-        sub('cash', (cCash>0 ? cCash : Math.abs(grand)));
+        // نطرح قيمة الإشعار الدائن (grand) لا المبلغ المدفوع
+        sub('cash', Math.abs(grand));
       } else if(pm==='card' || pm==='network' || pm==='tamara' || pm==='tabby'){
         sub(pm==='network' ? 'card' : pm, (cCard>0 ? cCard : Math.abs(grand)));
       } else if(pm){
         sub(pm, Math.abs(grand));
       }
     });
+
+    // === إضافة دفعات الآجل الجزئية المُحصَّلة داخل الفترة فقط ===
+    // نستخدم partialPaymentsRows (مرشَّحة بـ paid_at داخل الفترة) ونضيفها لطرق الدفع
+    // كذلك نستخدمها لاحتساب صف "تحصيلات الآجل" في الملخص.
+    let creditCollectedPre = 0, creditCollectedVat = 0, creditCollectedTob = 0, creditCollectedAfter = 0;
+    try{
+      const KNOWN = new Set(['cash', 'card', 'tamara', 'tabby', 'bank_transfer']);
+      for(const p of (partialPaymentsRows || [])){
+        const amt = Number(p.amount || 0);
+        if(!(amt > 0)) continue;
+        // تخطي الدفعات التى تم سدادها بالكامل (settled) أو لم تعد فواتير آجلة
+        // لأنها تُحسب بالفعل كفواتير نقدية/شبكة كاملة في invoices.forEach
+        if(String(p.payment_status || '') === 'paid') continue;
+        if(String(p.payment_method || '').toLowerCase() !== 'credit') continue;
+        let m = String(p.method ?? '').trim().toLowerCase();
+        if(m === 'network') m = 'card';
+        const key = (m && KNOWN.has(m)) ? m : 'credit';
+        const prev = Number(payByMethod.get(key) || 0);
+        payByMethod.set(key, prev + amt);
+        // نسبة الدفعة لإجمالي الفاتورة لاحتساب الجزء المتعلق بالضريبة/التبغ
+        const grand = Math.max(0, Number(p.grand_total || 0));
+        const ratio = grand > 0 ? Math.min(1, amt / grand) : 0;
+        creditCollectedPre += Number(p.sub_total || 0) * ratio;
+        creditCollectedVat += Number(p.vat_total || 0) * ratio;
+        creditCollectedTob += Number(p.tobacco_fee || 0) * ratio;
+        creditCollectedAfter += amt;
+      }
+    }catch(_){}
 
     const grossAfter = grossBefore - refunds;
     const vatAfter = vatBefore - refundsVat;
@@ -1055,10 +1240,10 @@ async function loadRange(startStr, endStr){
     const purchases = (purRes && purRes.ok) ? (purRes.items||[]) : [];
     let purchasesTotal = 0; purchases.forEach(p => { purchasesTotal += Number(p.grand_total||0); });
 
-    const salesPre = invoices.reduce((acc,s)=> acc + recognizedValue(s, 'sub_total'), 0);
+    const salesPre = invoices.reduce((acc,s)=> acc + recognizedValue(s, 'sub_total', paidInRangeBySale.get(Number(s.id)) || 0), 0);
     // VAT before discount for display (apply on sub_total + tobacco)
     let tobInv = 0, tobCN = 0;
-    try{ tobInv = invoices.reduce((a,s)=> a + recognizedValue(s, 'tobacco_fee'), 0); }catch(_){ tobInv = 0; }
+    try{ tobInv = invoices.reduce((a,s)=> a + recognizedValue(s, 'tobacco_fee', paidInRangeBySale.get(Number(s.id)) || 0), 0); }catch(_){ tobInv = 0; }
     try{ tobCN = creditNotes.reduce((a,s)=> a + Number(s.tobacco_fee||0), 0); }catch(_){ tobCN = 0; }
     const salesTob = Math.max(0, tobInv);
     const retTob = Math.max(0, Math.abs(tobCN));
@@ -1093,8 +1278,8 @@ async function loadRange(startStr, endStr){
     // Sales after discount row
     const salesAfterDiscPre = (salesPre - discTotal);
     const salesAfterDiscTob = salesTob;
-    const salesAfterDiscVat = invoices.reduce((acc,s)=> acc + recognizedValue(s, 'vat_total'), 0);
-    const salesAfterDiscAfter = invoices.reduce((acc,s)=> acc + recognizedValue(s, 'grand_total'), 0);
+    const salesAfterDiscVat = invoices.reduce((acc,s)=> acc + recognizedValue(s, 'vat_total', paidInRangeBySale.get(Number(s.id)) || 0), 0);
+    const salesAfterDiscAfter = invoices.reduce((acc,s)=> acc + recognizedValue(s, 'grand_total', paidInRangeBySale.get(Number(s.id)) || 0), 0);
     set('salesAfterDiscPre', salesAfterDiscPre);
     set('salesAfterDiscTob', salesAfterDiscTob);
     set('salesAfterDiscVat', salesAfterDiscVat);
@@ -1140,7 +1325,9 @@ async function loadRange(startStr, endStr){
       const viewBtn = `<button class=\"btn\" data-view=\"${s.id}\" data-type=\"invoice\" data-pay=\"${pmLower}\" data-cash=\"${cashParam}\">عرض</button>`;
       const statusTxt = invoiceStatusLabel(s);
       const payLabel = `${labelPaymentMethod(s.payment_method||'')}${statusTxt ? ` - ${statusTxt}` : ''}`;
-      return `<tr><td>${s.invoice_no||''}</td><td dir=\"ltr\" style=\"text-align:left\">${cust}</td><td>${dateStr}</td><td>${payLabel}</td><td>${fmt(invoiceTableTotalDisplay(s))}</td><td>${viewBtn}</td></tr>`;
+      // نعرض فقط ما تم سداده داخل الفترة للفواتير الآجلة الجزئية
+      const paidInRange = paidInRangeBySale.get(Number(s.id)) || 0;
+      return `<tr><td>${s.invoice_no||''}</td><td dir=\"ltr\" style=\"text-align:left\">${cust}</td><td>${dateStr}</td><td>${payLabel}</td><td>${fmt(invoiceTableTotalDisplay(s, paidInRange))}</td><td>${viewBtn}</td></tr>`;
     }).join('');
     if(invTbody){ invTbody.innerHTML = invRows; }
     if(invCount){ invCount.textContent = String(invoices.length||0); }
@@ -1176,31 +1363,22 @@ async function loadRange(startStr, endStr){
     }).join('');
     if(soldItemsTbody){ soldItemsTbody.innerHTML = soldItemsRows || '<tr><td colspan="3" class="muted">لا توجد بيانات</td></tr>'; }
 
-    // Add payment methods table (نفس منطق التقرير اليومي: آجل = المتبقي فقط، شارة وصف credit-row)
+    // Add payment methods table (عرض المبالغ المدفوعة فعليًا فقط)
     const payTbody = document.getElementById('payTbody');
     const sumTotalEl = document.getElementById('sumTotal');
     const payRows = [];
     let paymentsSum = 0;
     const labels = payMethodLabelsForReport();
-    const creditRemainingSum = creditRemainingTotal(allSales);
     const sortedPay = Array.from(payByMethod.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-    let hasCreditRow = false;
-    const creditBadge = __currentLang.creditNotInGrand || 'لا يُحتسب في الإجمالي';
     sortedPay.forEach(([method, value]) => {
-      let amount = Number(value || 0);
-      if(method === 'credit'){
-        hasCreditRow = true;
-        amount = Number(creditRemainingSum || 0);
-      }
+      const amount = Number(value || 0);
       if(amount === 0) return;
       const label = labels[method] || labelPaymentMethod(method);
-      const isCredit = (method === 'credit');
-      if(!isCredit){ paymentsSum += amount; }
-      const note = isCredit ? ` <span class="badge badge-credit">${creditBadge}</span>` : '';
-      payRows.push(`<tr class="${isCredit ? 'credit-row' : ''}"><td>${label}${note}</td><td>${fmt(amount)}</td></tr>`);
+      paymentsSum += amount;
+      payRows.push(`<tr><td>${label}</td><td>${fmt(amount)}</td></tr>`);
     });
-    if(!hasCreditRow && creditRemainingSum > 0){
-      payRows.push(`<tr class="credit-row"><td>${labels.credit} <span class="badge badge-credit">${creditBadge}</span></td><td>${fmt(creditRemainingSum)}</td></tr>`);
+    if(creditRemainingTotal > 0.009){
+      payRows.push(`<tr><td>إجمالي الفواتير الآجلة (متبقي)</td><td>${fmt(creditRemainingTotal)}</td></tr>`);
     }
     if(payTbody){ payTbody.innerHTML = payRows.join(''); }
     if(sumTotalEl){ sumTotalEl.textContent = fmt(paymentsSum); }
@@ -1299,7 +1477,8 @@ async function loadRangeOptimized(startStr, endStr){
           payByMethod.set('cash', (payByMethod.get('cash') || 0) + cashAmt);
           payByMethod.set('card', (payByMethod.get('card') || 0) + cardAmt);
         } else if(pm === 'cash'){
-          payByMethod.set('cash', (payByMethod.get('cash') || 0) + (cashAmt > 0 ? cashAmt : grandTotal));
+          // نستخدم قيمة الفاتورة (grandTotal) لا المبلغ المدفوع الذي قد يشمل الباقي
+          payByMethod.set('cash', (payByMethod.get('cash') || 0) + grandTotal);
         } else if(pm === 'card' || pm === 'network'){
           const key = pm === 'network' ? 'card' : pm;
           payByMethod.set(key, (payByMethod.get(key) || 0) + (cardAmt > 0 ? cardAmt : grandTotal));
@@ -1321,7 +1500,8 @@ async function loadRangeOptimized(startStr, endStr){
           payByMethod.set('cash', (payByMethod.get('cash') || 0) - Math.abs(cashAmt));
           payByMethod.set('card', (payByMethod.get('card') || 0) - Math.abs(cardAmt));
         } else if(pm === 'cash'){
-          payByMethod.set('cash', (payByMethod.get('cash') || 0) - (cashAmt > 0 ? Math.abs(cashAmt) : Math.abs(grandTotal)));
+          // نطرح قيمة الإشعار الدائن (grandTotal) لا المبلغ المدفوع
+          payByMethod.set('cash', (payByMethod.get('cash') || 0) - Math.abs(grandTotal));
         } else if(pm === 'card' || pm === 'network'){
           const key = pm === 'network' ? 'card' : pm;
           payByMethod.set(key, (payByMethod.get(key) || 0) - (cardAmt > 0 ? Math.abs(cardAmt) : Math.abs(grandTotal)));

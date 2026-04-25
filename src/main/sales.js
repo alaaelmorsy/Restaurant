@@ -911,9 +911,23 @@ function registerSalesIPC(){
         }
 
         // datetime filters (from/to). Accepts 'YYYY-MM-DD' or full 'YYYY-MM-DD HH:MM' formats
-        // استخدم CAST لضمان المقارنة الصحيحة للتواريخ
-        if(q.date_from){ terms.push('s.created_at >= CAST(? AS DATETIME)'); params.push(q.date_from); }
-        if(q.date_to){ terms.push('s.created_at <= CAST(? AS DATETIME)'); params.push(q.date_to); }
+        // عند تفعيل include_partial_credit_paid_in_range: اجلب أيضًا الفواتير التي لها دفعات جزئية ضمن الفترة
+        const includePartialByPaidAt = (q.include_partial_credit_paid_in_range === true || q.include_partial_credit_paid_in_range === 'true' || Number(q.include_partial_credit_paid_in_range || 0) === 1);
+        if(q.date_from && q.date_to && includePartialByPaidAt){
+          terms.push(`(
+            (s.created_at >= CAST(? AS DATETIME) AND s.created_at <= CAST(? AS DATETIME))
+            OR EXISTS (
+              SELECT 1 FROM invoice_payments ip
+              WHERE ip.sale_id = s.id
+                AND ip.paid_at >= CAST(? AS DATETIME)
+                AND ip.paid_at <= CAST(? AS DATETIME)
+            )
+          )`);
+          params.push(q.date_from, q.date_to, q.date_from, q.date_to);
+        } else {
+          if(q.date_from){ terms.push('s.created_at >= CAST(? AS DATETIME)'); params.push(q.date_from); }
+          if(q.date_to){ terms.push('s.created_at <= CAST(? AS DATETIME)'); params.push(q.date_to); }
+        }
         const where = terms.length ? ('WHERE ' + terms.join(' AND ')) : '';
         
         // Pagination support (increased limit for VPN performance)
@@ -1068,8 +1082,16 @@ function registerSalesIPC(){
           if(normFrom){ terms.push('s.settled_at >= ?'); params.push(normFrom); }
           if(normTo){ terms.push('s.settled_at <= ?'); params.push(normTo); }
         } else {
-          if(normFrom){ terms.push('s.created_at >= ?'); params.push(normFrom); }
-          if(normTo){ terms.push('s.created_at <= ?'); params.push(normTo); }
+          if(normFrom && normTo){
+            terms.push('(s.created_at >= ? AND s.created_at <= ? OR EXISTS (SELECT 1 FROM invoice_payments ip WHERE ip.sale_id = s.id AND ip.paid_at >= ? AND ip.paid_at <= ?))');
+            params.push(normFrom, normTo, normFrom, normTo);
+          } else if(normFrom){
+            terms.push('(s.created_at >= ? OR EXISTS (SELECT 1 FROM invoice_payments ip WHERE ip.sale_id = s.id AND ip.paid_at >= ?))');
+            params.push(normFrom, normFrom);
+          } else if(normTo){
+            terms.push('(s.created_at <= ? OR EXISTS (SELECT 1 FROM invoice_payments ip WHERE ip.sale_id = s.id AND ip.paid_at <= ?))');
+            params.push(normTo, normTo);
+          }
         }
         const where = 'WHERE ' + terms.join(' AND ');
 
@@ -1082,9 +1104,14 @@ function registerSalesIPC(){
         const [countRows] = await conn.query(`SELECT COUNT(*) as cnt FROM sales s ${where}`, params);
         const total = (countRows && countRows[0] && countRows[0].cnt) ? Number(countRows[0].cnt) : 0;
 
-        const sql = `SELECT s.* FROM sales s ${where} ORDER BY s.id DESC LIMIT ${pageSize} OFFSET ${offset}`;
+        const sql = `SELECT s.*, COALESCE((SELECT SUM(ip.amount) FROM invoice_payments ip WHERE ip.sale_id = s.id), 0) AS computed_paid FROM sales s ${where} ORDER BY s.id DESC LIMIT ${pageSize} OFFSET ${offset}`;
         const [rows] = await conn.query(sql, params);
-        return { ok:true, items: rows, total, page, pageSize };
+        const items = (rows || []).map(r => {
+          const live = Number(r.computed_paid || 0);
+          const stored = Number(r.amount_paid || 0);
+          return { ...r, amount_paid: live > 0 ? live : stored };
+        });
+        return { ok:true, items, total, page, pageSize };
       } finally { conn.release(); }
     }catch(e){ console.error(e); return { ok:false, error:'تعذر تحميل فواتير الآجل' }; }
   });
@@ -1129,6 +1156,53 @@ function registerSalesIPC(){
         return { ok:true, payments };
       } finally { conn.release(); }
     }catch(e){ console.error(e); return { ok:false, error:'تعذر جلب سجل الدفعات' }; }
+  });
+
+  ipcMain.handle('sales:list_partial_payments_in_range', async (_e, query) => {
+    if (isSecondaryDevice()) {
+      return await fetchFromAPI('/invoice-partial-payments', query || {});
+    }
+    const q = query || {};
+    if(!q.date_from || !q.date_to){ return { ok:true, items: [] }; }
+    try{
+      const pool = await getPool();
+      const conn = await pool.getConnection();
+      try{
+        await conn.query(`USE \`${DB_NAME}\``);
+        await ensureTables(conn);
+        const [rows] = await conn.query(
+          `SELECT
+             p.id,
+             p.sale_id,
+             p.amount,
+             p.method,
+             p.paid_at,
+             p.notes,
+             s.invoice_no,
+             s.customer_name,
+             s.customer_phone,
+             s.sub_total,
+             s.vat_total,
+             s.grand_total,
+             s.discount_amount,
+             s.delivery_discount_amount,
+             s.tobacco_fee,
+             s.payment_status,
+             s.payment_method,
+             s.created_at
+           FROM invoice_payments p
+           INNER JOIN sales s ON s.id = p.sale_id
+           WHERE p.paid_at >= CAST(? AS DATETIME)
+             AND p.paid_at <= CAST(? AS DATETIME)
+             AND (s.doc_type IS NULL OR s.doc_type <> 'credit_note')
+             AND s.invoice_no NOT LIKE 'CN-%'
+           ORDER BY p.paid_at ASC, p.id ASC`,
+          [q.date_from, q.date_to]
+        );
+        const items = (rows || []).map(r => ({ ...r, amount: toMoney(r.amount) }));
+        return { ok:true, items };
+      } finally { conn.release(); }
+    }catch(e){ console.error(e); return { ok:false, error:'تعذر جلب دفعات الآجل للفترة' }; }
   });
 
   ipcMain.handle('sales:pay_partial', async (_e, payload) => {

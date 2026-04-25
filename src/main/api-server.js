@@ -773,6 +773,48 @@ async function getInvoicePayments(id) {
   });
 }
 
+async function listPartialPaymentsInRange(query = {}) {
+  const q = query || {};
+  if (!q.date_from || !q.date_to) return { ok: true, items: [] };
+  return withConnection(async (conn) => {
+    await ensurePartialPaymentSchema(conn);
+    const [rows] = await conn.query(
+      `SELECT
+         p.id,
+         p.sale_id,
+         p.amount,
+         p.method,
+         p.paid_at,
+         p.notes,
+         s.invoice_no,
+         s.customer_name,
+         s.customer_phone,
+         s.sub_total,
+         s.vat_total,
+         s.grand_total,
+         s.discount_amount,
+         s.delivery_discount_amount,
+         s.tobacco_fee,
+         s.payment_status,
+         s.payment_method,
+         s.created_at
+       FROM invoice_payments p
+       INNER JOIN sales s ON s.id = p.sale_id
+       WHERE p.paid_at >= CAST(? AS DATETIME)
+         AND p.paid_at <= CAST(? AS DATETIME)
+         AND (s.doc_type IS NULL OR s.doc_type <> 'credit_note')
+         AND s.invoice_no NOT LIKE 'CN-%'
+         AND s.payment_method = 'credit'
+       ORDER BY p.paid_at ASC, p.id ASC`,
+      [q.date_from, q.date_to]
+    );
+    return {
+      ok: true,
+      items: (rows || []).map((row) => ({ ...row, amount: toMoney(row.amount) }))
+    };
+  });
+}
+
 async function settleFullInvoice(id, payload = {}) {
   if (!id) return { ok: false, error: 'missing id' };
   const method = String(payload.method || '').toLowerCase();
@@ -1111,6 +1153,16 @@ function createApiRouter() {
     } catch (error) {
       console.error('api:invoice:payments', error);
       return res.status(500).json({ ok: false, error: 'failed to load invoice payments' });
+    }
+  });
+
+  router.get('/invoice-partial-payments', async (req, res) => {
+    try {
+      const data = await listPartialPaymentsInRange(req.query || {});
+      return res.json(data);
+    } catch (error) {
+      console.error('api:invoice:partial-payments', error);
+      return res.status(500).json({ ok: false, error: 'failed to load partial payments in range' });
     }
   });
 

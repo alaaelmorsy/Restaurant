@@ -14,17 +14,17 @@ function __applyLang(lang){
     from: isAr ? 'من' : 'From',
     to: isAr ? 'إلى' : 'To',
     user: isAr ? 'المستخدم' : 'User',
-    allUsers: isAr ? 'جميع المستخدمين' : 'All Users',
+    allUsers: isAr ? 'الكل' : 'All Users',
     apply: isAr ? 'تطبيق' : 'Apply',
     exportPDF: isAr ? 'تصدير PDF' : 'Export PDF',
     exportExcel: isAr ? 'تصدير Excel' : 'Export Excel',
-    print: isAr ? 'طباعة' : 'Print',
+    print: isAr ? 'طباعة التقرير' : 'Print Report',
     number: isAr ? 'رقم' : 'No.',
     docType: isAr ? 'نوع المستند' : 'Doc. Type',
     customer: isAr ? 'العميل' : 'Customer',
     date: isAr ? 'التاريخ' : 'Date',
     paymentMethod: isAr ? 'طريقة الدفع' : 'Payment Method',
-    preVAT: isAr ? 'قبل الضريبة' : 'Pre-VAT',
+    preVAT: isAr ? 'المبلغ قبل الضريبة' : 'Pre-VAT',
     vat: isAr ? 'الضريبة' : 'VAT',
     total: isAr ? 'الإجمالي' : 'Total',
     view: isAr ? 'عرض' : 'View',
@@ -38,49 +38,86 @@ function __applyLang(lang){
     tamara: isAr ? 'تمارا' : 'Tamara',
     tabby: isAr ? 'تابي' : 'Tabby',
     mixed: isAr ? 'مختلط' : 'Mixed',
+    sectionTitle: isAr ? 'جميع الفواتير ضمن الفترة' : 'All invoices within the period',
+    paymentTotalsTitle: isAr ? 'إجماليات طرق الدفع' : 'Payment method totals',
+    deliveryCompany: isAr ? 'شركة التوصيل' : 'Delivery company',
+    deliveryDiscount: isAr ? 'خصم التوصيل' : 'Delivery discount',
+    invoicesCount: isAr ? 'عدد الفواتير:' : 'Invoices count:',
+    noData: isAr ? 'لا توجد بيانات' : 'No data',
+    noPaymentData: isAr ? 'لا توجد بيانات طرق الدفع ضمن الفترة' : 'No payment method data for the period',
+    noDocuments: isAr ? 'لا توجد مستندات ضمن الفترة' : 'No documents within the period',
+    partialPaid: isAr ? 'مدفوعة جزئياً' : 'Partially paid',
+    unpaid: isAr ? 'غير مدفوعة' : 'Unpaid',
+    period: isAr ? 'الفترة:' : 'Period:',
+    userLabelShort: isAr ? 'المستخدم:' : 'User:',
+    applyRangeFirst: isAr ? 'يرجى تطبيق الفترة أولاً' : 'Please apply the period first',
+    applyRangeFirstExport: isAr ? 'يرجى تطبيق الفترة أولاً قبل التصدير' : 'Please apply the period before exporting',
+    applyRangeFirstPrint: isAr ? 'يرجى تطبيق الفترة أولاً قبل الطباعة' : 'Please apply the period before printing',
+    specifyRange: isAr ? 'يرجى تحديد الفترة كاملة' : 'Please specify the full period',
+    printReportTitle: isAr ? 'تقرير جميع الفواتير' : 'All Invoices Report',
+    grandTotal: isAr ? 'الإجمالي الكلي' : 'Grand Total',
+    page: isAr ? 'صفحة' : 'Page',
+    of: isAr ? 'من' : 'of',
+    totalInvoices: isAr ? 'فاتورة' : 'invoices',
+    first: isAr ? 'الأولى' : 'First',
+    last: isAr ? 'الأخيرة' : 'Last',
+    exportFailedPdf: isAr ? 'تعذر إنشاء PDF' : 'Failed to create PDF',
+    exportFailedExcel: isAr ? 'تعذر إنشاء Excel' : 'Failed to create Excel',
+    printFailed: isAr ? 'تعذر الطباعة' : 'Failed to print',
+    loadFailed: isAr ? 'تعذر تحميل الفواتير' : 'Failed to load invoices',
+    sent: isAr ? 'مُرسل' : 'Sent',
+    failed: isAr ? 'فشل' : 'Failed',
+    pending: isAr ? 'انتظار' : 'Pending',
+    disabled: isAr ? 'غير مفعل' : 'Disabled',
   };
-  
+
   __currentLang = t;
-  
+
   document.documentElement.lang = isAr ? 'ar' : 'en';
   document.documentElement.dir = isAr ? 'rtl' : 'ltr';
-  
+
   document.title = t.allInvoices;
-  const pageTitle = document.querySelector('.text-3xl');
+  const pageTitle = document.getElementById('pageHeading');
   if(pageTitle) pageTitle.textContent = t.allInvoices;
-  
-  const systemTitle = document.querySelector('.text-sm.text-gray-500');
+
+  const systemTitle = document.getElementById('systemTitle');
   if(systemTitle) systemTitle.textContent = t.systemTitle;
-  
+
   const btnBack = document.getElementById('btnBack');
   if(btnBack) btnBack.textContent = t.back;
-  
-  const fromLabel = document.querySelector('label[for="fromAt"]');
+
+  const fromLabel = document.getElementById('fromLabel');
   if(fromLabel) fromLabel.textContent = t.from;
-  
-  const toLabel = document.querySelector('label[for="toAt"]');
+
+  const toLabel = document.getElementById('toLabel');
   if(toLabel) toLabel.textContent = t.to;
-  
-  const userLabel = document.querySelector('label[for="userFilter"]');
+
+  const userLabel = document.getElementById('userLabel');
   if(userLabel) userLabel.textContent = t.user;
-  
+
   const userFilter = document.getElementById('userFilter');
   if(userFilter && userFilter.options.length > 0) userFilter.options[0].text = t.allUsers;
-  
+
   const applyBtn = document.getElementById('applyRangeBtn');
-  if(applyBtn) applyBtn.textContent = t.apply;
-  
+  if(applyBtn){ const span = applyBtn.querySelector('span'); applyBtn.innerHTML = ''; if(span) applyBtn.appendChild(span); applyBtn.appendChild(document.createTextNode(' ' + t.apply)); }
+
   const exportPdfBtn = document.getElementById('exportPdfBtn');
-  if(exportPdfBtn) exportPdfBtn.textContent = t.exportPDF;
-  
+  if(exportPdfBtn){ const span = exportPdfBtn.querySelector('span'); exportPdfBtn.innerHTML = ''; if(span) exportPdfBtn.appendChild(span); exportPdfBtn.appendChild(document.createTextNode(' ' + t.exportPDF)); }
+
   const exportExcelBtn = document.getElementById('exportExcelBtn');
-  if(exportExcelBtn) exportExcelBtn.textContent = t.exportExcel;
-  
+  if(exportExcelBtn){ const span = exportExcelBtn.querySelector('span'); exportExcelBtn.innerHTML = ''; if(span) exportExcelBtn.appendChild(span); exportExcelBtn.appendChild(document.createTextNode(' ' + t.exportExcel)); }
+
   const printBtn = document.getElementById('printReportBtn');
-  if(printBtn) printBtn.textContent = t.print;
-  
+  if(printBtn){ const span = printBtn.querySelector('span'); printBtn.innerHTML = ''; if(span) printBtn.appendChild(span); printBtn.appendChild(document.createTextNode(' ' + t.print)); }
+
+  const sectionTitle = document.getElementById('sectionTitle');
+  if(sectionTitle) sectionTitle.textContent = t.sectionTitle;
+
+  const paymentTotalsTitle = document.getElementById('paymentTotalsTitle');
+  if(paymentTotalsTitle) paymentTotalsTitle.textContent = t.paymentTotalsTitle;
+
   const tableHeaders = document.querySelectorAll('.grid-table thead th');
-  if(tableHeaders.length >= 9){
+  if(tableHeaders.length >= 11){
     tableHeaders[0].textContent = t.number;
     tableHeaders[1].textContent = t.docType;
     tableHeaders[2].textContent = t.customer;
@@ -89,13 +126,30 @@ function __applyLang(lang){
     tableHeaders[5].textContent = t.preVAT;
     tableHeaders[6].textContent = t.vat;
     tableHeaders[7].textContent = t.total;
-    tableHeaders[8].textContent = t.view;
+    tableHeaders[8].textContent = t.deliveryCompany;
+    tableHeaders[9].textContent = t.deliveryDiscount;
+    tableHeaders[10].textContent = t.view;
   }
-  
-  const footerCells = document.querySelectorAll('.grid-table tfoot th');
-  if(footerCells.length > 0) footerCells[0].textContent = t.totals;
-  
+
+  const footerLabel = document.getElementById('footerTotalsLabel');
+  if(footerLabel) footerLabel.textContent = t.totals;
+
+  const footerCountLabel = document.getElementById('footerCountLabel');
+  if(footerCountLabel) footerCountLabel.textContent = t.invoicesCount;
+
   try{ localStorage.setItem(__langKey, base); }catch(_){ }
+}
+
+function payMethodLabel(method){
+  const t = __currentLang || {};
+  const m = String(method||'').toLowerCase();
+  if(m==='cash') return t.cash || 'Cash';
+  if(m==='card' || m==='network') return t.network || 'Network';
+  if(m==='credit') return t.credit || 'Credit';
+  if(m==='tamara') return t.tamara || 'Tamara';
+  if(m==='tabby') return t.tabby || 'Tabby';
+  if(m==='mixed') return t.mixed || 'Mixed';
+  return method||'';
 }
 
 (function initLang(){
@@ -126,11 +180,12 @@ const dateFormatter = new Intl.DateTimeFormat('en-GB-u-ca-gregory', {
 });
 
 function invoiceStatusLabel(sale){
+  const t = __currentLang || {};
   const isCredit = String(sale?.payment_method || '').toLowerCase() === 'credit';
   const isPaid = String(sale?.payment_status || 'paid') === 'paid';
   const paidAmt = Number(sale?.amount_paid || 0);
-  if(isCredit && !isPaid && paidAmt > 0){ return 'مدفوعة جزئياً'; }
-  if(isCredit && !isPaid){ return 'غير مدفوعة'; }
+  if(isCredit && !isPaid && paidAmt > 0){ return t.partialPaid || 'Partially paid'; }
+  if(isCredit && !isPaid){ return t.unpaid || 'Unpaid'; }
   return '';
 }
 
@@ -153,7 +208,9 @@ function recognizedValue(sale, field){
 /** أعمدة المبالغ وإجماليات التقرير: فواتير الآجل تُحسب كاملة (مدفوعة/غير مدفوعة/جزئية) وليس الجزء المدفوع فقط */
 function allInvoicesRowAmount(sale, field){
   const isCN = (String(sale?.doc_type || '') === 'credit_note' || String(sale?.invoice_no || '').startsWith('CN-'));
-  if(isCN) return recognizedValue(sale, field);
+  // الإشعارات الدائنة: نُرجع القيمة الأصلية (سالب) مباشرة؛ لا نستخدم recognizedValue
+  // لأنها تُحسب grand_total سالب فيقوم Math.max(0, grand) بإرجاع صفر فيُنتج صفوف أصفار.
+  if(isCN) return Number(sale?.[field] || 0);
   if(String(sale?.payment_method || '').toLowerCase() === 'credit'){
     return Number(sale?.[field] || 0);
   }
@@ -184,7 +241,9 @@ function saleIdsNeedingPaymentRows(allInvoices){
 
 /** المبلغ المحصّل لبطاقات «طرق الدفع» (لا يُستخدم إجمالي الفاتورة عند الدفع الجزئي) */
 function collectedAmountForPaymentTotals(s, isCN){
-  if(isCN) return recognizedValue(s, 'grand_total');
+  // الإشعارات الدائنة: نستخدم القيمة المطلقة لأن addPayMethodAmount تضرب بـ -1 للإشعارات
+  // (تُخزَّن في قاعدة البيانات بقيم سالبة)
+  if(isCN) return Math.abs(Number(s.grand_total || 0));
   const g = Math.max(0, Number(s.grand_total || 0));
   const ap = Math.max(0, Number(s.amount_paid || 0));
   const unpaid = String(s.payment_status || 'paid') !== 'paid';
@@ -321,9 +380,8 @@ function accumulateInvoicePaymentTotals(s, totalPayTotals, paymentsBySale){
     addPayMethodAmount(totalPayTotals, 'cash', cashPart>0 ? cashPart : half, isCN);
     addPayMethodAmount(totalPayTotals, 'card', cardPart>0 ? cardPart : half, isCN);
   } else if(pm==='cash'){
-    const settledCash = Number(s.settled_cash || 0);
-    const cashPart = Number(s.pay_cash_amount || 0);
-    addPayMethodAmount(totalPayTotals, 'cash', settledCash>0 ? settledCash : (cashPart>0 ? cashPart : collected), isCN);
+    // نستخدم قيمة الفاتورة (collected) لا المبلغ المدفوع الذي قد يشمل الباقي
+    addPayMethodAmount(totalPayTotals, 'cash', collected, isCN);
   } else if(pm==='card' || pm==='network' || pm==='tamara' || pm==='tabby'){
     const cardPart = Number(s.pay_card_amount || 0);
     addPayMethodAmount(totalPayTotals, pm, cardPart>0 ? cardPart : collected, isCN);
@@ -342,10 +400,11 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
     btnPdf.addEventListener('click', async () => {
       if(exporting) return; exporting = true; btnPdf.disabled = true;
       try{
+        const t = __currentLang || {};
         // التحقق من أن المستخدم قد طبق الفلاتر
         const { startStr, adjustedEndStr, userId } = currentFilters;
         if(!startStr || !adjustedEndStr){
-          alert('يرجى تطبيق الفترة أولاً قبل التصدير');
+          alert(t.applyRangeFirstExport || 'Please apply the period before exporting');
           return;
         }
         
@@ -387,7 +446,7 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
             let sumPre = 0, sumVat = 0, sumGrand = 0;
             const rows = allItems.map(s=>{
               const isCN = (String(s.doc_type||'') === 'credit_note' || String(s.invoice_no||'').startsWith('CN-'));
-              const docType = isCN ? 'إشعار دائن' : 'فاتورة';
+              const docType = isCN ? (t.creditNote||'Credit Note') : (t.invoice||'Invoice');
               let created = s.created_at ? new Date(s.created_at) : null;
               if(!created || isNaN(created.getTime())){ try{ created = new Date(String(s.created_at).replace(' ', 'T')); }catch(_){ created = new Date(); } }
               const dateFormatter = new Intl.DateTimeFormat('en-GB-u-ca-gregory', {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:true});
@@ -399,16 +458,7 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
               const grand = allInvoicesRowAmount(s, 'grand_total');
               sumPre += pre; sumVat += vat; sumGrand += grand;
               const pm = String(s.payment_method || '').toLowerCase();
-              const payLabel = (function(method){
-                const m = String(method||'').toLowerCase();
-                if(m==='cash') return 'نقدًا';
-                if(m==='card' || m==='network') return 'شبكة';
-                if(m==='credit') return 'آجل';
-                if(m==='tamara') return 'تمارا';
-                if(m==='tabby') return 'تابي';
-                if(m==='mixed') return 'مختلط';
-                return method||'';
-              })(pm);
+              const payLabel = payMethodLabel(pm);
               const rowClass = isCN ? 'credit-row' : '';
               const fmt = (n)=> Number(n||0).toFixed(2);
               const deliveryName = s.delivery_company_name || '—';
@@ -469,14 +519,14 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
             const tempDiv = document.createElement('div');
             tempDiv.style.cssText = 'text-align: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 4px solid #2563eb;';
             
-            let headerHTML = '<h1 style="font-size: 28px; font-weight: 900; color: #1f2937; margin-bottom: 8px; font-family: Cairo, sans-serif;">تقرير جميع الفواتير</h1>';
-            
+            let headerHTML = `<h1 style="font-size: 28px; font-weight: 900; color: #1f2937; margin-bottom: 8px; font-family: Cairo, sans-serif;">${t.printReportTitle||'All Invoices Report'}</h1>`;
+
             if(periodFromText && periodToText){
               headerHTML += '<div style="font-size: 16px; font-weight: 700; color: #4b5563; margin-top: 12px; font-family: Cairo, sans-serif;">';
-              headerHTML += `<div style="margin: 4px 0;">من: ${periodFromText}</div>`;
-              headerHTML += `<div style="margin: 4px 0;">إلى: ${periodToText}</div>`;
+              headerHTML += `<div style="margin: 4px 0;">${t.from||'From'}: ${periodFromText}</div>`;
+              headerHTML += `<div style="margin: 4px 0;">${t.to||'To'}: ${periodToText}</div>`;
               if(selectedUser){
-                headerHTML += `<div style="margin: 4px 0;">المستخدم: ${selectedUser}</div>`;
+                headerHTML += `<div style="margin: 4px 0;">${t.user||'User'}: ${selectedUser}</div>`;
               }
               headerHTML += '</div>';
             }
@@ -593,7 +643,7 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
         clone.querySelector('head')?.appendChild(style);
         const html = '<!doctype html>' + clone.outerHTML;
         await window.api.pdf_export(html, { saveMode:'auto', filename: title, pageSize:'A4' });
-      }catch(e){ console.error(e); alert('تعذر إنشاء PDF'); }
+      }catch(e){ console.error(e); alert((__currentLang||{}).exportFailedPdf || 'Failed to create PDF'); }
       finally{ exporting = false; btnPdf.disabled = false; }
     });
   }
@@ -602,31 +652,32 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
     btnExcel.addEventListener('click', async () => {
       if(exporting) return; exporting = true; btnExcel.disabled = true;
       try{
+        const t = __currentLang || {};
         // التحقق من أن المستخدم قد طبق الفلاتر
         const { startStr, adjustedEndStr, userId } = currentFilters;
         if(!startStr || !adjustedEndStr){
-          alert('يرجى تطبيق الفترة أولاً قبل التصدير');
+          alert(t.applyRangeFirstExport || 'Please apply the period before exporting');
           return;
         }
-        
+
         // جلب جميع الفواتير بدون pagination - استخدم التاريخ المعدل
         const allItems = await loadAllInvoices(startStr, adjustedEndStr, userId);
-        
+
         const lines = [];
         const esc = (v)=> ('"'+String(v??'').replace(/"/g,'""')+'"');
         const fmt = (n)=> Number(n||0).toFixed(2);
-        
-        if(rangeEl && rangeEl.textContent){ lines.push(esc('الفترة'), esc(rangeEl.textContent.trim())); lines.push(''); }
-        
+
+        if(rangeEl && rangeEl.textContent){ lines.push(esc(t.period||'Period'), esc(rangeEl.textContent.trim())); lines.push(''); }
+
         // عناوين الأعمدة
-        const headers = ['رقم', 'نوع المستند', 'العميل', 'التاريخ', 'طريقة الدفع', 'المبلغ قبل الضريبة', 'الضريبة', 'الإجمالي', 'شركة التوصيل', 'خصم التوصيل'];
+        const headers = [t.number||'No.', t.docType||'Doc. Type', t.customer||'Customer', t.date||'Date', t.paymentMethod||'Payment Method', t.preVAT||'Pre-VAT', t.vat||'VAT', t.total||'Total', t.deliveryCompany||'Delivery Co.', t.deliveryDiscount||'Delivery Disc.'];
         lines.push(headers.map(esc).join(','));
-        
+
         // البيانات
         let sumPre = 0, sumVat = 0, sumGrand = 0;
         allItems.forEach(s=>{
           const isCN = (String(s.doc_type||'') === 'credit_note' || String(s.invoice_no||'').startsWith('CN-'));
-          const docType = isCN ? 'إشعار دائن' : 'فاتورة';
+          const docType = isCN ? (t.creditNote||'Credit Note') : (t.invoice||'Invoice');
           let created = s.created_at ? new Date(s.created_at) : null;
           if(!created || isNaN(created.getTime())){ try{ created = new Date(String(s.created_at).replace(' ', 'T')); }catch(_){ created = new Date(); } }
           const dateFormatter = new Intl.DateTimeFormat('en-GB-u-ca-gregory', {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:true});
@@ -638,32 +689,23 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
           const grand = allInvoicesRowAmount(s, 'grand_total');
           sumPre += pre; sumVat += vat; sumGrand += grand;
           const pm = String(s.payment_method || '').toLowerCase();
-          const payLabel = (function(method){
-            const m = String(method||'').toLowerCase();
-            if(m==='cash') return 'نقدًا';
-            if(m==='card' || m==='network') return 'شبكة';
-            if(m==='credit') return 'آجل';
-            if(m==='tamara') return 'تمارا';
-            if(m==='tabby') return 'تابي';
-            if(m==='mixed') return 'مختلط';
-            return method||'';
-          })(pm);
-          
+          const payLabel = payMethodLabel(pm);
+
           const deliveryName = s.delivery_company_name || '—';
           const deliveryDisc = s.delivery_discount_amount ? Number(s.delivery_discount_amount).toFixed(2) : '—';
           const row = [s.invoice_no||'', docType, cust, dateStr, payLabel, fmt(pre), fmt(vat), fmt(grand), deliveryName, deliveryDisc];
           lines.push(row.map(esc).join(','));
         });
-        
+
         // الإجماليات
         lines.push('');
-        lines.push([esc('الإجماليات'), '', '', '', '', esc(fmt(sumPre)), esc(fmt(sumVat)), esc(fmt(sumGrand)), '', ''].join(','));
-        
+        lines.push([esc(t.totals||'Totals'), '', '', '', '', esc(fmt(sumPre)), esc(fmt(sumVat)), esc(fmt(sumGrand)), '', ''].join(','));
+
         const csv = lines.join('\n');
         const period = (rangeEl && rangeEl.textContent) ? rangeEl.textContent.replace(/[^0-9_\-–: ]+/g,'').replace(/\s+/g,' ').trim() : '';
         const filename = `all-invoices-${(period||'').replace(/[: ]/g,'_')||Date.now()}.csv`;
         await window.api.csv_export(csv, { saveMode:'auto', filename });
-      }catch(e){ console.error(e); alert('تعذر إنشاء Excel'); }
+      }catch(e){ console.error(e); alert((__currentLang||{}).exportFailedExcel || 'Failed to create Excel'); }
       finally{ exporting = false; btnExcel.disabled = false; }
     });
   }
@@ -674,11 +716,11 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
     btnPrint.addEventListener('click', async ()=>{
       try{
         btnPrint.disabled = true;
-        
+        const t = __currentLang || {};
         // التحقق من أن المستخدم قد طبق الفلاتر
         const { startStr, adjustedEndStr, userId } = currentFilters;
         if(!startStr || !adjustedEndStr){
-          alert('يرجى تطبيق الفترة أولاً قبل الطباعة');
+          alert(t.applyRangeFirstPrint || 'Please apply the period before printing');
           return;
         }
         
@@ -701,7 +743,7 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
           if(cloneTbody && allItems.length > 0){
             const rows = allItems.map(s=>{
               const isCN = (String(s.doc_type||'') === 'credit_note' || String(s.invoice_no||'').startsWith('CN-'));
-              const docType = isCN ? 'إشعار دائن' : 'فاتورة';
+              const docType = isCN ? (t.creditNote||'Credit Note') : (t.invoice||'Invoice');
               let created = s.created_at ? new Date(s.created_at) : null;
               if(!created || isNaN(created.getTime())){ try{ created = new Date(String(s.created_at).replace(' ', 'T')); }catch(_){ created = new Date(); } }
               const dateFormatter = new Intl.DateTimeFormat('en-GB-u-ca-gregory', {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:true});
@@ -713,16 +755,7 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
               const grand = allInvoicesRowAmount(s, 'grand_total');
               totalSumGrand += grand;
               const pm = String(s.payment_method || '').toLowerCase();
-              const payLabel = (function(method){
-                const m = String(method||'').toLowerCase();
-                if(m==='cash') return 'نقدًا';
-                if(m==='card' || m==='network') return 'شبكة';
-                if(m==='credit') return 'آجل';
-                if(m==='tamara') return 'تمارا';
-                if(m==='tabby') return 'تابي';
-                if(m==='mixed') return 'مختلط';
-                return method||'';
-              })(pm);
+              const payLabel = payMethodLabel(pm);
               const rowClass = isCN ? 'credit-row' : '';
               const fmt = (n)=> Number(n||0).toFixed(2);
               const deliveryName = s.delivery_company_name || '—';
@@ -804,7 +837,7 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
               // 3. Label (Spans 3, 4, 5)
               const th3 = document.createElement('th');
               th3.colSpan = 3;
-              th3.textContent = 'الإجمالي الكلي';
+              th3.textContent = t.grandTotal || 'Grand Total';
               th3.style.cssText = 'text-align:center; border:2px solid #000; background:#e0e0e0; font-weight:900;';
               newRow.appendChild(th3);
 
@@ -967,7 +1000,7 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
             const headerDiv = document.createElement('div');
             headerDiv.style.cssText = 'text-align:center; margin-bottom:10px; padding-bottom:6px; border-bottom:3px solid #000; font-family:Cairo,sans-serif;';
             
-            let headerHTML = '<div style="font-weight:900; font-size:14px; margin-bottom:4px;">تقرير جميع الفواتير</div>';
+            let headerHTML = `<div style="font-weight:900; font-size:14px; margin-bottom:4px;">${t.printReportTitle||'All Invoices Report'}</div>`;
             if(rangeText){
                headerHTML += `<div style="font-weight:700; font-size:10px; line-height:1.4;">${rangeText}</div>`;
             }
@@ -984,7 +1017,7 @@ if(btnBack){ btnBack.onclick = ()=>{ window.location.href = './index.html'; } }
           margins: { marginType: 'none' },
           printBackground: true,
         });
-      }catch(e){ console.error(e); alert('تعذر الطباعة'); }
+      }catch(e){ console.error(e); alert((__currentLang||{}).printFailed || 'Failed to print'); }
       finally{ btnPrint.disabled = false; }
     });
   }
@@ -1029,10 +1062,11 @@ async function loadRange(startStr, endStr, userId, page = 1){
   // حفظ الفلاتر: التاريخ الأصلي والمعدل
   currentFilters = { startStr, endStr, adjustedEndStr, userId };
   
+  const t = __currentLang || {};
   const userFilterEl = document.getElementById('userFilter');
   const selectedUserText = userFilterEl && userFilterEl.value ? (userFilterEl.options[userFilterEl.selectedIndex]?.text || '') : '';
-  const userInfo = selectedUserText && selectedUserText !== 'الكل' ? ` - المستخدم: ${selectedUserText}` : '';
-  if(rangeEl){ rangeEl.textContent = `الفترة: ${startStr} — ${endStr}${userInfo}`; }
+  const userInfo = selectedUserText && selectedUserText !== (t.allUsers||'All Users') ? ` - ${t.userLabelShort||'User:'} ${selectedUserText}` : '';
+  if(rangeEl){ rangeEl.textContent = `${t.period||'Period:'} ${startStr} — ${endStr}${userInfo}`; }
   
   try{
     // اجلب المستندات ضمن الفترة مع pagination
@@ -1074,7 +1108,7 @@ async function loadRange(startStr, endStr, userId, page = 1){
     const rows = items.map(s=>{
       const isCN = (String(s.doc_type||'') === 'credit_note' || String(s.invoice_no||'').startsWith('CN-'));
       const statusTxt = invoiceStatusLabel(s);
-      const docType = isCN ? 'إشعار دائن' : `فاتورة${statusTxt ? ` - ${statusTxt}` : ''}`;
+      const docType = isCN ? (t.creditNote||'Credit Note') : `${t.invoice||'Invoice'}${statusTxt ? ` - ${statusTxt}` : ''}`;
       let created = s.created_at ? new Date(s.created_at) : null;
       if(!created || isNaN(created.getTime())){ try{ created = new Date(String(s.created_at).replace(' ', 'T')); }catch(_){ created = new Date(); } }
       const dateStr = dateFormatter.format(created);
@@ -1086,16 +1120,7 @@ async function loadRange(startStr, endStr, userId, page = 1){
       sumPre += pre; sumVat += vat; sumGrand += grand;
       const pm = String(s.payment_method || '').toLowerCase();
       accumulateInvoicePaymentTotals(s, payTotals, paymentsBySale);
-      const payLabel = (function(method){
-        const m = String(method||'').toLowerCase();
-        if(m==='cash') return 'نقدًا';
-        if(m==='card' || m==='network') return 'شبكة';
-        if(m==='credit') return 'آجل';
-        if(m==='tamara') return 'تمارا';
-        if(m==='tabby') return 'تابي';
-        if(m==='mixed') return 'مختلط';
-        return method||'';
-      })(pm);
+      const payLabel = payMethodLabel(pm);
       const pmLower = pm;
       const settledCash = Number(s.settled_cash || 0);
       const payCashPart = Number(s.pay_cash_amount || 0);
@@ -1108,16 +1133,16 @@ async function loadRange(startStr, endStr, userId, page = 1){
         if(baseId) attrs.push(`data-base=\"${baseId}\"`);
         if(baseNo) attrs.push(`data-base-no=\"${baseNo}\"`);
       }
-      const viewBtn = `<button class=\"px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-sm text-xs\" ${attrs.join(' ')}>عرض</button>`;
+      const viewBtn = `<button class=\"px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-sm text-xs\" ${attrs.join(' ')}>${t.view||'View'}</button>`;
       const rowClass = isCN ? 'credit-row' : '';
       const deliveryName = s.delivery_company_name || '—';
       const deliveryDisc = s.delivery_discount_amount ? Number(s.delivery_discount_amount).toFixed(2) : '—';
       return `<tr class="${rowClass}"><td class=\"num\">${s.invoice_no||''}</td><td>${docType}</td><td dir=\"ltr\" style=\"text-align:left\">${cust}</td><td class=\"num\">${dateStr}</td><td>${payLabel}</td><td class=\"num\">${fmt(pre)}</td><td class=\"num\">${fmt(vat)}</td><td class=\"num\">${fmt(grand)}</td><td>${deliveryName}</td><td class=\"num\">${deliveryDisc}</td><td>${viewBtn}</td></tr>`;
     }).join('');
 
-    if(invTbody){ invTbody.innerHTML = rows || '<tr><td colspan="11" class="text-center text-gray-500 font-semibold py-8">📋 لا توجد مستندات ضمن الفترة</td></tr>'; }
+    if(invTbody){ invTbody.innerHTML = rows || `<tr><td colspan="11" class="text-center text-gray-500 font-semibold py-8">📋 ${t.noDocuments || 'No documents within the period'}</td></tr>`; }
     if(invCount){ invCount.textContent = String(items.length||0); }
-    
+
     // استخدام الإجماليات الكلية بدلاً من إجماليات الصفحة الحالية
     const set = (id, v)=>{ const el = document.getElementById(id); if(!el) return; el.textContent = (id==='sumCount') ? String(v) : fmt(v); };
     set('sumPre', totalSumPre);
@@ -1129,16 +1154,7 @@ async function loadRange(startStr, endStr, userId, page = 1){
     try{
       const container = document.getElementById('payTotals');
       if(container){
-        const label = (k)=>{
-          const m = String(k||'').toLowerCase();
-          if(m==='cash') return 'نقدًا';
-          if(m==='card') return 'شبكة';
-          if(m==='credit') return 'آجل';
-          if(m==='tamara') return 'تمارا';
-          if(m==='tabby') return 'تابي';
-          if(m==='mixed') return 'مختلط';
-          return k||'';
-        };
+        const label = (k)=> payMethodLabel(k);
         const getIcon = (k)=>{
           const m = String(k||'').toLowerCase();
           if(m==='cash') return '💵';
@@ -1160,7 +1176,7 @@ async function loadRange(startStr, endStr, userId, page = 1){
             </div>
             <div class="text-2xl font-black text-gray-800" style="font-size: 1.5rem; font-weight: 900; color: #1f2937;">${fmt(ttl)} <span style="font-family: saudi_riyal, Cairo, sans-serif;">&#xE900;</span></div>
           </div>`;
-        }).join('') || '<div class="text-gray-500 font-semibold text-center py-4" style="color: #6b7280; font-weight: 600; text-align: center; padding: 1rem 0;">لا توجد بيانات طرق الدفع ضمن الفترة</div>';
+        }).join('') || `<div class="text-gray-500 font-semibold text-center py-4" style="color: #6b7280; font-weight: 600; text-align: center; padding: 1rem 0;">${t.noPaymentData || 'No payment method data for the period'}</div>`;
         container.innerHTML = cardsHTML;
       }
     }catch(_){ }
@@ -1177,41 +1193,43 @@ async function loadRange(startStr, endStr, userId, page = 1){
 function renderPagination(totalItems, page){
   const paginationContainer = document.getElementById('paginationContainer');
   if(!paginationContainer) return;
-  
+
   if(totalItems <= pageSize){
     paginationContainer.innerHTML = '';
     paginationContainer.style.display = 'none';
     return;
   }
-  
+
   paginationContainer.style.display = '';
   const totalPages = Math.ceil(totalItems / pageSize);
   const currentPageNum = page || currentPage;
-  
+  const t = __currentLang || {};
+  const isAr = document.documentElement.lang === 'ar';
+
   let html = '<div class="flex items-center justify-center gap-2 flex-wrap">';
-  
+
   // زر الصفحة الأولى
   if(currentPageNum > 1){
     html += `<button onclick="goToPage(1)" class="px-4 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors">
-      الأولى
+      ${t.first||'First'}
     </button>`;
   }
-  
+
   // زر السابق
   if(currentPageNum > 1){
     html += `<button onclick="goToPage(${currentPageNum - 1})" class="px-4 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors">
-      ←
+      ${isAr ? '←' : '←'}
     </button>`;
   }
-  
+
   // أرقام الصفحات (نعرض 5 صفحات في المنتصف)
   let startPage = Math.max(1, currentPageNum - 2);
   let endPage = Math.min(totalPages, currentPageNum + 2);
-  
+
   if(startPage > 1){
     html += '<span class="px-3 py-2 text-gray-500">...</span>';
   }
-  
+
   for(let i = startPage; i <= endPage; i++){
     if(i === currentPageNum){
       html += `<button class="px-4 py-2 bg-purple-600 text-white font-black rounded-lg shadow-lg cursor-default">
@@ -1223,38 +1241,39 @@ function renderPagination(totalItems, page){
       </button>`;
     }
   }
-  
+
   if(endPage < totalPages){
     html += '<span class="px-3 py-2 text-gray-500">...</span>';
   }
-  
+
   // زر التالي
   if(currentPageNum < totalPages){
     html += `<button onclick="goToPage(${currentPageNum + 1})" class="px-4 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors">
       →
     </button>`;
   }
-  
+
   // زر الصفحة الأخيرة
   if(currentPageNum < totalPages){
     html += `<button onclick="goToPage(${totalPages})" class="px-4 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors">
-      الأخيرة
+      ${t.last||'Last'}
     </button>`;
   }
-  
+
   html += '</div>';
   html += `<div class="text-center mt-3 text-gray-600 font-bold">
-    صفحة ${currentPageNum} من ${totalPages} (إجمالي ${totalItems} فاتورة)
+    ${t.page||'Page'} ${currentPageNum} ${t.of||'of'} ${totalPages} (${totalItems.toLocaleString(isAr?'ar':'en')} ${t.totalInvoices||'invoices'})
   </div>`;
-  
+
   paginationContainer.innerHTML = html;
 }
 
 // دالة للانتقال لصفحة معينة
 window.goToPage = async function(page){
+  const t = __currentLang || {};
   const { startStr, adjustedEndStr, userId } = currentFilters;
   if(!startStr || !adjustedEndStr){
-    alert('يرجى تطبيق الفترة أولاً');
+    alert(t.applyRangeFirst || 'Please apply the period first');
     return;
   }
   
@@ -1300,7 +1319,7 @@ window.goToPage = async function(page){
     const rows = items.map(s=>{
       const isCN = (String(s.doc_type||'') === 'credit_note' || String(s.invoice_no||'').startsWith('CN-'));
       const statusTxt = invoiceStatusLabel(s);
-      const docType = isCN ? 'إشعار دائن' : `فاتورة${statusTxt ? ` - ${statusTxt}` : ''}`;
+      const docType = isCN ? (t.creditNote||'Credit Note') : `${t.invoice||'Invoice'}${statusTxt ? ` - ${statusTxt}` : ''}`;
       let created = s.created_at ? new Date(s.created_at) : null;
       if(!created || isNaN(created.getTime())){ try{ created = new Date(String(s.created_at).replace(' ', 'T')); }catch(_){ created = new Date(); } }
       const dateStr = dateFormatter.format(created);
@@ -1312,16 +1331,7 @@ window.goToPage = async function(page){
       sumPre += pre; sumVat += vat; sumGrand += grand;
       const pm = String(s.payment_method || '').toLowerCase();
       accumulateInvoicePaymentTotals(s, payTotals, paymentsBySaleGo);
-      const payLabel = (function(method){
-        const m = String(method||'').toLowerCase();
-        if(m==='cash') return 'نقدًا';
-        if(m==='card' || m==='network') return 'شبكة';
-        if(m==='credit') return 'آجل';
-        if(m==='tamara') return 'تمارا';
-        if(m==='tabby') return 'تابي';
-        if(m==='mixed') return 'مختلط';
-        return method||'';
-      })(pm);
+      const payLabel = payMethodLabel(pm);
       const pmLower = pm;
       const settledCash = Number(s.settled_cash || 0);
       const payCashPart = Number(s.pay_cash_amount || 0);
@@ -1334,14 +1344,14 @@ window.goToPage = async function(page){
         if(baseId) attrs.push(`data-base=\"${baseId}\"`);
         if(baseNo) attrs.push(`data-base-no=\"${baseNo}\"`);
       }
-      const viewBtn = `<button class=\"px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-sm text-xs\" ${attrs.join(' ')}>عرض</button>`;
+      const viewBtn = `<button class=\"px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-sm text-xs\" ${attrs.join(' ')}>${t.view||'View'}</button>`;
       const rowClass = isCN ? 'credit-row' : '';
       const deliveryName = s.delivery_company_name || '—';
       const deliveryDisc = s.delivery_discount_amount ? Number(s.delivery_discount_amount).toFixed(2) : '—';
       return `<tr class="${rowClass}"><td class=\"num\">${s.invoice_no||''}</td><td>${docType}</td><td dir=\"ltr\" style=\"text-align:left\">${cust}</td><td class=\"num\">${dateStr}</td><td>${payLabel}</td><td class=\"num\">${fmt(pre)}</td><td class=\"num\">${fmt(vat)}</td><td class=\"num\">${fmt(grand)}</td><td>${deliveryName}</td><td class=\"num\">${deliveryDisc}</td><td>${viewBtn}</td></tr>`;
     }).join('');
 
-    if(invTbody){ invTbody.innerHTML = rows || '<tr><td colspan="11" class="text-center text-gray-500 font-semibold py-8">📋 لا توجد مستندات ضمن الفترة</td></tr>'; }
+    if(invTbody){ invTbody.innerHTML = rows || `<tr><td colspan="11" class="text-center text-gray-500 font-semibold py-8">📋 ${t.noDocuments || 'No documents within the period'}</td></tr>`; }
     if(invCount){ invCount.textContent = String(items.length||0); }
     
     const set = (id, v)=>{ const el = document.getElementById(id); if(!el) return; el.textContent = (id==='sumCount') ? String(v) : fmt(v); };
@@ -1352,13 +1362,12 @@ window.goToPage = async function(page){
 
     const payEl = document.getElementById('payTotals');
     if(payEl){
-      const labels = { cash:'نقدًا', card:'شبكة', credit:'آجل', tamara:'تمارا', tabby:'تابي', mixed:'مختلط' };
-      const rows = Array.from(totalPayTotals.entries()).map(([k, v]) => `<tr><td class="py-2 text-lg font-semibold text-gray-700">${labels[k]||k}</td><td class="py-2 text-lg font-bold text-green-700 text-left">${fmt(v)}</td></tr>`).join('');
-      payEl.innerHTML = rows || '<tr><td colspan="2" class="text-center text-gray-400 py-4">لا توجد بيانات</td></tr>';
+      const rows = Array.from(totalPayTotals.entries()).map(([k, v]) => `<tr><td class="py-2 text-lg font-semibold text-gray-700">${payMethodLabel(k)}</td><td class="py-2 text-lg font-bold text-green-700 text-left">${fmt(v)}</td></tr>`).join('');
+      payEl.innerHTML = rows || `<tr><td colspan="2" class="text-center text-gray-400 py-4">${t.noData || 'No data'}</td></tr>`;
     }
 
     renderPagination(total, page);
-  }catch(e){ console.error('خطأ في تحميل الفواتير:', e); alert('تعذر تحميل الفواتير'); }
+  }catch(e){ console.error('Error loading invoices:', e); alert(t.loadFailed || 'Failed to load invoices'); }
   
   // التمرير لأعلى الجدول
   try{
@@ -1378,9 +1387,10 @@ function initDefaultRange(){
 }
 
 async function applyRange(){
+  const t = __currentLang || {};
   const s = fromInputToStr(fromAtEl);
   const e = fromInputToStr(toAtEl);
-  if(!s || !e){ alert('يرجى تحديد الفترة كاملة'); return; }
+  if(!s || !e){ alert(t.specifyRange || 'Please specify the full period'); return; }
   const userFilterEl = document.getElementById('userFilter');
   const userId = userFilterEl && userFilterEl.value ? userFilterEl.value : null;
   await loadRange(s, e, userId);
@@ -1397,15 +1407,16 @@ async function loadUsers(){
       const userFilterEl = document.getElementById('userFilter');
       if(userFilterEl){
         // عرض المستخدمين النشطين فقط
+        const t = __currentLang || {};
         res.items.filter(u => u.is_active).forEach(user => {
           const option = document.createElement('option');
           option.value = user.id;
-          option.textContent = user.full_name || user.username || `مستخدم ${user.id}`;
+          option.textContent = user.full_name || user.username || `${t.user||'User'} ${user.id}`;
           userFilterEl.appendChild(option);
         });
       }
     }
-  }catch(e){ console.error('خطأ في تحميل المستخدمين:', e); }
+  }catch(e){ console.error('Error loading users:', e); }
 }
 
 // Event delegation للأزرار "عرض" - أداء أفضل من listeners منفصلة
