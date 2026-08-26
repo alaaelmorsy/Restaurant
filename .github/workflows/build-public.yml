@@ -24,7 +24,7 @@ jobs:
         with:
           repository: alaaelmorsy/Restaurant-src
           ref: ${{ github.event.inputs.ref || github.event.client_payload.ref }}
-          token: ${{ secrets.SRC_TOKEN }}
+          token: ${{ secrets.RESTAURANT }}
           persist-credentials: false
 
       - name: Get version from package.json
